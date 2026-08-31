@@ -5,7 +5,7 @@ import com.intellij.openapi.startup.ProjectActivity
 
 class MyProjectActivity : ProjectActivity {
 
-    override suspend fun execute(project: Project) {
-        // Project startup logic if needed
-    }
+  override suspend fun execute(project: Project) {
+    // Project startup logic if needed
+  }
 }
