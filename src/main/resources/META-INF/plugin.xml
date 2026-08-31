@@ -13,7 +13,11 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.nndwn.todoso.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow
+            factoryClass="com.github.nndwn.todoso.toolWindow.MyToolWindowFactory"
+            id="Todo"
+            icon="com.github.nndwn.todoso.MyIcons.Todo"
+        />
         <postStartupActivity implementation="com.github.nndwn.todoso.startup.MyProjectActivity" />
     </extensions>
 </idea-plugin>

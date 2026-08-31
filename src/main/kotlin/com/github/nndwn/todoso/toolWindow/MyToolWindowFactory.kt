@@ -1,22 +1,23 @@
 package com.github.nndwn.todoso.toolWindow
 
 import com.intellij.openapi.components.service
-import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import com.github.nndwn.todoso.MyBundle
+import com.github.nndwn.todoso.MyIcons
 import com.github.nndwn.todoso.services.MyProjectService
+import javax.swing.BoxLayout
 import javax.swing.JButton
+import javax.swing.JPanel
+import java.awt.FlowLayout
 
 
 class MyToolWindowFactory : ToolWindowFactory {
 
     init {
-        thisLogger().warn("Don't forget to remove all non-needed sample code files with their corresponding registration entries in `plugin.xml`.")
     }
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -31,15 +32,28 @@ class MyToolWindowFactory : ToolWindowFactory {
 
         private val service = toolWindow.project.service<MyProjectService>()
 
-        fun getContent() = JBPanel<JBPanel<*>>().apply {
-            val label = JBLabel(MyBundle["randomLabel", "?"])
+        fun getContent(): JBPanel<JBPanel<*>> {
+            val panel = JBPanel<JBPanel<*>>()
+            panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
 
-            add(label)
-            add(JButton(MyBundle["shuffle"]).apply {
-                addActionListener {
-                    label.text = MyBundle["randomLabel", service.getRandomNumber()]
+            fun refresh() {
+                panel.removeAll()
+
+                val tasks = service.getTodoTasks()
+                if (tasks.isEmpty()) {
+                    panel.add(JBLabel("No tasks found in todo.md (root project)"))
+                } else {
+                    tasks.forEach { task ->
+                        panel.add(JBLabel("- $task", JBLabel.LEFT))
+                    }
                 }
-            })
+                
+                panel.revalidate()
+                panel.repaint()
+            }
+
+            refresh()
+            return panel
         }
     }
 }
