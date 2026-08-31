@@ -33,11 +33,6 @@ class MyToolWindowFactory : ToolWindowFactory {
       fun refresh() {
         panel.removeAll()
 
-
-
-
-        
-
         val tasks = service.getTodoTasks()
         if (tasks.isEmpty()) {
           panel.add(JBLabel("No tasks found in todo.md (root project)"))
