@@ -37,90 +37,140 @@ class MyToolWindowFactory : ToolWindowFactory {
     private val service = toolWindow.project.service<MyProjectService>()
 
     fun getContent(): JComponent {
-      val tasks = service.getTodoTasks()
-      val listModel = CollectionListModel(tasks)
-      val list = JBList(listModel)
-
-      list.selectionMode = ListSelectionModel.SINGLE_SELECTION
-      list.emptyText.text = "No tasks found in todo.md"
-
-      list.cellRenderer =
-        object : ColoredListCellRenderer<MyProjectService.TodoTask>() {
-          override fun customizeCellRenderer(
-            list: JList<out MyProjectService.TodoTask>,
-            value: MyProjectService.TodoTask?,
-            index: Int,
-            selected: Boolean,
-            hasFocus: Boolean,
-          ) {
-            if (value != null) {
-              val baseStyle =
-                if (value.isDone) SimpleTextAttributes.STYLE_STRIKEOUT else SimpleTextAttributes.STYLE_PLAIN
-              val baseColor = if (value.isDone) SimpleTextAttributes.GRAY_ATTRIBUTES.fgColor else value.priority.color
-              val baseAttributes = SimpleTextAttributes(baseStyle, baseColor)
-
-              val text = value.description
-              val tagRegex = Regex("""#[\w.-]+""")
-              var lastIndex = 0
-
-              tagRegex.findAll(text).forEach { match ->
-                // Teks sebelum tag
-                if (match.range.first > lastIndex) {
-                  append(text.substring(lastIndex, match.range.first), baseAttributes)
-                }
-
-                // Teks tag (Highligt Cyan)
-                val tagStyle =
-                  if (value.isDone) SimpleTextAttributes.STYLE_STRIKEOUT
-                  else (SimpleTextAttributes.STYLE_ITALIC or SimpleTextAttributes.STYLE_BOLD)
-                val tagColor = if (value.isDone) SimpleTextAttributes.GRAY_ATTRIBUTES.fgColor else JBColor.CYAN
-                append(match.value, SimpleTextAttributes(tagStyle, tagColor))
-
-                lastIndex = match.range.last + 1
-              }
-
-              // Sisa teks setelah tag terakhir
-              if (lastIndex < text.length) {
-                append(text.substring(lastIndex), baseAttributes)
-              }
-
-              toolTipText =
-                if (value.priority != MyProjectService.Priority.NONE) {
-                  "[${value.priority.label}] ${value.description}"
-                } else {
-                  value.description
-                }
-            }
-          }
+      val listModel = CollectionListModel(service.getTodoTasks())
+      val list =
+        JBList(listModel).apply {
+          selectionMode = ListSelectionModel.SINGLE_SELECTION
+          emptyText.text = "No tasks found in todo.md"
+          cellRenderer = TodoCellRenderer()
         }
 
-      // Toolbar Setup
+      val panel = SimpleToolWindowPanel(true, true)
+      panel.toolbar = createToolbar(list, listModel)
+      panel.setContent(JBScrollPane(list))
+      return panel
+    }
+
+    private fun createToolbar(target: JComponent, model: CollectionListModel<MyProjectService.TodoTask>): JComponent {
       val actionGroup =
         DefaultActionGroup().apply {
           add(
             object : AnAction("Refresh", "Refresh tasks from todo.md", AllIcons.Actions.Refresh) {
-              override fun actionPerformed(e: AnActionEvent) {
-                listModel.replaceAll(service.getTodoTasks())
-              }
+              override fun actionPerformed(e: AnActionEvent) = model.replaceAll(service.getTodoTasks())
             }
           )
           add(
             object : AnAction("Add Task", "Add a new task to todo.md", AllIcons.General.Add) {
-              override fun actionPerformed(e: AnActionEvent) {
-                // Fungsi kosong untuk saat ini sesuai permintaan
-              }
+              override fun actionPerformed(e: AnActionEvent) {} // Placeholder
             }
           )
         }
+      return ActionManager.getInstance()
+        .createActionToolbar("TodoToolbar", actionGroup, true)
+        .apply { targetComponent = target }
+        .component
+    }
 
-      val toolbar = ActionManager.getInstance().createActionToolbar("TodoToolbar", actionGroup, true)
-      toolbar.targetComponent = list
+    private class TodoCellRenderer : ColoredListCellRenderer<MyProjectService.TodoTask>() {
+      override fun customizeCellRenderer(
+        list: JList<out MyProjectService.TodoTask>,
+        value: MyProjectService.TodoTask?,
+        index: Int,
+        selected: Boolean,
+        hasFocus: Boolean,
+      ) {
+        value ?: return
 
-      val panel = SimpleToolWindowPanel(true, true)
-      panel.toolbar = toolbar.component
-      panel.setContent(JBScrollPane(list))
+        val isDone = value.status == MyProjectService.TaskStatus.DONE
+        val isDoing = value.status == MyProjectService.TaskStatus.DOING
 
-      return panel
+        val baseAttributes = getBaseAttributes(value, isDone, isDoing)
+
+        // Tampilkan Emoji Priority jika ada
+        if (value.priority.emojis.isNotEmpty()) {
+          append("${value.priority.emojis.first()} ", baseAttributes)
+        }
+
+        renderDescriptionWithTags(value.description, baseAttributes, isDone, isDoing)
+        updateToolTip(value)
+      }
+
+      private fun getBaseAttributes(
+        task: MyProjectService.TodoTask,
+        isDone: Boolean,
+        isDoing: Boolean,
+      ): SimpleTextAttributes {
+        val style =
+          when {
+            isDone -> SimpleTextAttributes.STYLE_STRIKEOUT
+            isDoing -> SimpleTextAttributes.STYLE_BOLD
+            else -> SimpleTextAttributes.STYLE_PLAIN
+          }
+        val color =
+          when {
+            isDone -> SimpleTextAttributes.GRAY_ATTRIBUTES.fgColor
+            isDoing -> JBColor.GREEN
+            else -> task.priority.color
+          }
+        return SimpleTextAttributes(style, color)
+      }
+
+      private fun renderDescriptionWithTags(
+        description: String,
+        baseAttributes: SimpleTextAttributes,
+        isDone: Boolean,
+        isDoing: Boolean,
+      ) {
+        val tagRegex = Regex("""#[\w.-]+""")
+        var lastIndex = 0
+
+        tagRegex.findAll(description).forEach { match ->
+          if (match.range.first > lastIndex) {
+            append(description.substring(lastIndex, match.range.first), baseAttributes)
+          }
+
+          val tagStyle =
+            when {
+              isDone -> SimpleTextAttributes.STYLE_STRIKEOUT
+              isDoing -> SimpleTextAttributes.STYLE_BOLD or SimpleTextAttributes.STYLE_ITALIC
+              else -> SimpleTextAttributes.STYLE_ITALIC or SimpleTextAttributes.STYLE_BOLD
+            }
+          val tagColor = if (isDone) SimpleTextAttributes.GRAY_ATTRIBUTES.fgColor else JBColor.CYAN
+          append(match.value, SimpleTextAttributes(tagStyle, tagColor))
+
+          lastIndex = match.range.last + 1
+        }
+
+        if (lastIndex < description.length) {
+          append(description.substring(lastIndex), baseAttributes)
+        }
+      }
+
+      private fun updateToolTip(task: MyProjectService.TodoTask) {
+        toolTipText = buildString {
+          if (task.priority != MyProjectService.Priority.NONE) {
+            append("[${task.priority.label}] ")
+          }
+          append(task.description)
+
+          if (task.dates.isNotEmpty()) {
+            append("\nDates:")
+            task.dates.forEach { (emoji, date) ->
+              val label =
+                when (emoji) {
+                  "🛫" -> "Start"
+                  "📅" -> "Due"
+                  "⏳" -> "Scheduled"
+                  "✅" -> "Done"
+                  "➕" -> "Created"
+                  "//" -> "Legacy Info"
+                  else -> "Info"
+                }
+              append("\n  $emoji $label: $date")
+            }
+          }
+        }
+      }
     }
   }
 }

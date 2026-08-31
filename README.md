@@ -1,45 +1,54 @@
-# todoso
+# Todoso - IntelliJ Todo Manager
 
-![Build](https://github.com/nndwn/todoso/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root, supporting standard formats from Obsidian and Notion.
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [group](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml), [name](./src/main/resources/META-INF/plugin.xml), and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin [description](./src/main/resources/META-INF/plugin.xml) (see [Tips][docs:plugin-description]) and this README to describe what your plugin does.
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+## 🚀 Key Features
 
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+*   **todo.md Integration**: Reads tasks directly from a Markdown file in the project root.
+*   **Interactive Tool Window**: A clean, selectable task list.
+*   **Comprehensive Task Status**:
+    *   `[ ]` : Todo (Not started).
+    *   `[/]` : **Doing** (In progress) - Bold green text, automatically moves to the top.
+    *   `[x]` : Done (Completed) - Strikethrough gray text.
+    *   `[-]` or `❌` : Cancelled.
+*   **Dual Priority System**:
+    *   **Obsidian Style**: `🔺` (Highest), `⏫` (High), `🔼` (Medium), `🔽` (Low), `⏬` (Lowest).
+    *   **Legacy Style**: `[HH]` (Highest), `[H]` (High), `[M]` (Medium), `[L]` (Low), `[LL]` (Lowest).
+*   **Dynamic Hashtags (`#tag`)**: Automatic tag detection (e.g., `#ui`, `#bug`, `#v1.3.1`) with Cyan color highlighting.
+*   **Time Management & Metadata**:
+    *   Supports Obsidian date emojis with optional time: `🛫` (Start), `📅` (Due), `⏳` (Scheduled), `✅` (Completed), `➕` (Created).
+    *   Format supported: `YYYY-MM-DD` or `YYYY-MM-DD HH:mm` or `YYYY-MM-DD HH:mm:ss`.
+    *   Supports additional metadata using a space and ` // ` at the end of the line.
+*   **Smart UI**:
+    *   Hides marker icons/dates from the main list for a clean look, but shows them fully in the **Tooltip**.
+    *   Automatic sorting: **Doing > Todo (by Priority) > Done**.
+    *   Integrated toolbar for instant task list **Refresh**.
 
-## Installation
+## 📝 Writing Rules for `todo.md`
 
-- Using the IDE built-in plugin system:
+Write your tasks in the `todo.md` file using the following format:
+`- [status] [Priority] Task Description #tag1 #tag2 [Date Emoji] // Metadata`
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "todoso"</kbd> >
-  <kbd>Install</kbd>
+### Usage Example:
+```markdown
+- [/] ⏫ Fix SlideUpPanel layout bug #ui #bug 🛫 2026-09-01
+- [ ] 🔺 Migration to Navigation3 #migration ⏳ 2026-09-05 14:00
+- [x] 🔼 Finished cleaning up icons #design ✅ 2026-08-30 18:00
+- [ ] [HH] Urgent legacy task #refactor
+- [ ] [LL] Very low priority legacy task
+- [ ] Regular task with metadata // additional notes here
+```
 
-- Using JetBrains Marketplace:
+## 🛠️ Development & Testing
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+To run unit tests and ensure all parsing functions work correctly (especially for validation in GitHub Actions), use the following command:
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+```bash
+./gradlew test
+```
 
-- Manually:
-
-  Download the [latest release](https://github.com/nndwn/todoso/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
-
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
-
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+This command will validate:
+1.  Parsing accuracy of various task statuses.
+2.  Emoji detection safety (ensuring emojis in the middle of sentences are not removed).
+3.  Safe separation of time metadata and URLs.
+4.  Correctness of task sorting logic.
