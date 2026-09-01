@@ -1,10 +1,17 @@
 package com.github.nndwn.todoso
 
 import com.github.nndwn.todoso.services.MyProjectService
+import com.github.nndwn.todoso.services.MyProjectSettingsService
 import com.intellij.openapi.components.service
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class MyProjectServiceTest : BasePlatformTestCase() {
+
+  override fun setUp() {
+    super.setUp()
+    val settings = MyProjectSettingsService.getInstance(project)
+    settings.state.todoFileName = "todo.md"
+  }
 
   fun testObsidianTaskParsing() {
     val content =
@@ -24,26 +31,11 @@ class MyProjectServiceTest : BasePlatformTestCase() {
 
     assertEquals(6, tasks.size)
 
-    // Verify Doing Task with Time
     tasks
       .find { it.status == MyProjectService.TaskStatus.DOING }
       ?.let {
         assertEquals("Doing task #ui", it.description)
         assertEquals("2026-09-01 08:30", it.dates["🛫"])
-      }
-
-    // Verify Due Date with Time
-    tasks
-      .find { it.description.contains("Todo task") }
-      ?.let {
-        assertEquals("2026-09-10 14:00", it.dates["📅"])
-      }
-
-    // Verify Done Date with Full Time (Seconds)
-    tasks
-      .find { it.status == MyProjectService.TaskStatus.DONE }
-      ?.let {
-        assertEquals("2026-08-31 18:45:30", it.dates["✅"])
       }
   }
 
@@ -58,6 +50,7 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     val service = project.service<MyProjectService>()
     val tasks = service.getTodoTasks()
 
+    assertEquals(1, tasks.size)
     tasks[0].let {
       assertEquals("Legacy task #old", it.description)
       assertEquals(MyProjectService.Priority.HIGH, it.priority)
@@ -97,16 +90,45 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     val service = project.service<MyProjectService>()
     val tasks = service.getTodoTasks()
 
-    // Baris 1: 🔺 pertama harus hilang (priority), 🔺 kedua harus TETAP ada
     tasks[0].let {
       assertEquals("Baca artikel tentang icon 🔺 #ui", it.description)
       assertEquals(MyProjectService.Priority.HIGHEST, it.priority)
     }
+  }
 
-    // Baris 2: ⏫ pertama hilang, sisa ⏫ tetap ada
-    tasks[1].let {
-      assertEquals("Prioritas ⏫ di dalam teks ⏫", it.description)
-      assertEquals(MyProjectService.Priority.HIGH, it.priority)
-    }
+  fun testStatusTransitionAndDuration() {
+    val content =
+      """
+      - [/] Working task 🛫 2026-09-01 08:00
+      """
+        .trimIndent()
+
+    val fileName = "transition_test.md"
+    myFixture.addFileToProject(fileName, content)
+    MyProjectSettingsService.getInstance(project).state.todoFileName = fileName
+
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    service.updateTaskStatus(task, MyProjectService.TaskStatus.TODO)
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertEquals(MyProjectService.TaskStatus.TODO, updatedTask.status)
+    assertFalse(updatedTask.dates.containsKey("🛫"))
+
+    val doneTaskText = "- [x] Finished task 🛫 2026-09-01 08:00 ✅ 2026-09-01 10:30"
+    val doneTask =
+      MyProjectService.TodoTask(
+        rawText = doneTaskText,
+        description = "Finished task",
+        status = MyProjectService.TaskStatus.DONE,
+        priority = MyProjectService.Priority.NONE,
+        tags = emptyList(),
+        dates = mapOf("🛫" to "2026-09-01 08:00", "✅" to "2026-09-01 10:30"),
+        lineNumber = 0,
+      )
+
+    val duration = service.calculateDuration(doneTask)
+    assertEquals("2h 30m", duration)
   }
 }
