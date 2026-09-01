@@ -3,11 +3,9 @@ package com.github.nndwn.todoso
 import com.intellij.openapi.util.IconLoader
 
 object MyIcons {
-  @JvmField val Todo = IconLoader.getIcon("/icons/todo.svg", MyIcons::class.java)
-
-  @JvmField val Add = IconLoader.getIcon("/icons/add.svg", MyIcons::class.java)
-
-  @JvmField val Refresh = IconLoader.getIcon("/icons/refresh.svg", MyIcons::class.java)
-
-  @JvmField val Done = IconLoader.getIcon("/icons/done.svg", MyIcons::class.java)
+  @JvmField val Logo = IconLoader.getIcon("/icons/todo.svg", MyIcons::class.java)
+  @JvmField val TaskTodo = IconLoader.getIcon("/icons/taskTodo.svg", MyIcons::class.java)
+  @JvmField val TaskDoing = IconLoader.getIcon("/icons/taskDoing.svg", MyIcons::class.java)
+  @JvmField val TaskDone = IconLoader.getIcon("/icons/taskDone.svg", MyIcons::class.java)
+  @JvmField val TaskCancelled = IconLoader.getIcon("/icons/taskCancelled.svg", MyIcons::class.java)
 }

@@ -16,7 +16,7 @@
         <toolWindow
             factoryClass="com.github.nndwn.todoso.toolWindow.MyToolWindowFactory"
             id="Todo"
-            icon="com.github.nndwn.todoso.MyIcons.Todo"
+            icon="com.github.nndwn.todoso.MyIcons.Logo"
         />
         <postStartupActivity implementation="com.github.nndwn.todoso.startup.MyProjectActivity" />
     </extensions>

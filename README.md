@@ -19,6 +19,9 @@ An IntelliJ plugin to manage your todo list directly from a `todo.md` file in th
     *   Supports Obsidian date emojis with optional time: `🛫` (Start), `📅` (Due), `⏳` (Scheduled), `✅` (Completed), `➕` (Created).
     *   Format supported: `YYYY-MM-DD` or `YYYY-MM-DD HH:mm` or `YYYY-MM-DD HH:mm:ss`.
     *   Supports additional metadata using a space and ` // ` at the end of the line.
+*   **Persistent Settings**:
+    *   Toggle **Visual Mode** via the toolbar to show/hide priority colors and emojis (helps you focus!).
+    *   Settings are saved per project in `.idea/TodosoSettings.xml`.
 *   **Smart UI**:
     *   Hides marker icons/dates from the main list for a clean look, but shows them fully in the **Tooltip**.
     *   Automatic sorting: **Doing > Todo (by Priority) > Done**.

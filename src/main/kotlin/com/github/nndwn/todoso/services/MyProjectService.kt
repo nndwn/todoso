@@ -68,7 +68,9 @@ class MyProjectService(private val project: Project) {
 
   fun getTodoTasks(): List<TodoTask> {
     val projectDir = project.guessProjectDir() ?: return emptyList()
-    val todoFile = projectDir.children.find { it.name.equals("todo.md", ignoreCase = true) } ?: return emptyList()
+    val settings = MyProjectSettingsService.getInstance(project)
+    val todoFile =
+      projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return emptyList()
 
     val taskRegex = Regex("""^- \[([ x/-])] (.*)$""")
     val tagRegex = Regex("""#([\w.-]+)""")
