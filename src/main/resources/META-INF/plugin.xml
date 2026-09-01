@@ -23,5 +23,6 @@
             icon="com.github.nndwn.todoso.MyIcons.Logo"
         />
         <postStartupActivity implementation="com.github.nndwn.todoso.startup.MyProjectActivity" />
+        <notificationGroup id="Todoso Notifications" displayType="BALLOON" />
     </extensions>
 </idea-plugin>

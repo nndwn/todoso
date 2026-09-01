@@ -1,7 +1,8 @@
 package com.github.nndwn.todoso.toolWindow
 
-import com.intellij.openapi.actionSystem.ShortcutSet
+import com.intellij.openapi.actionSystem.*
 import javax.swing.Icon
+import javax.swing.JComponent
 
 sealed interface TodoMenuElement {
   data class Action(
@@ -62,4 +63,46 @@ fun buildTodoMenu(init: TodoMenuBuilder.() -> Unit): List<TodoMenuElement> {
   val builder = TodoMenuBuilder()
   builder.init()
   return builder.build()
+}
+
+fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultActionGroup {
+  val group = DefaultActionGroup()
+  this.forEach { element ->
+    when (element) {
+      is TodoMenuElement.Action -> {
+        val action =
+          object : AnAction(element.text, null, element.icon) {
+            override fun actionPerformed(e: AnActionEvent) = element.onAction()
+
+            override fun update(e: AnActionEvent) {
+              e.presentation.isEnabled = element.isEnabled()
+            }
+
+            override fun getActionUpdateThread() = ActionUpdateThread.EDT
+          }
+        element.shortcut?.let { action.registerCustomShortcutSet(it, targetComponent) }
+        group.add(action)
+      }
+      is TodoMenuElement.SubMenu -> {
+        val subGroup = element.children.toActionGroup(targetComponent)
+        subGroup.isPopup = true
+        subGroup.templatePresentation.text = element.text
+        subGroup.templatePresentation.icon = element.icon
+        group.add(subGroup)
+      }
+      TodoMenuElement.Separator -> group.addSeparator()
+      is TodoMenuElement.Toggle -> {
+        group.add(
+          object : ToggleAction(element.text, null, element.icon) {
+            override fun isSelected(e: AnActionEvent) = element.isSelected()
+
+            override fun setSelected(e: AnActionEvent, state: Boolean) = element.onToggle(state)
+
+            override fun getActionUpdateThread() = ActionUpdateThread.EDT
+          }
+        )
+      }
+    }
+  }
+  return group
 }

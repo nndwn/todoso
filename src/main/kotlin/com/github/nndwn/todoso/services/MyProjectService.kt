@@ -216,6 +216,7 @@ class MyProjectService(private val project: Project) {
         }
       }
       TaskStatus.CANCELLED -> {
+        lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
         lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
         if (!lineContent.contains("❌")) {
           lineContent = "$lineContent ❌ $now"
@@ -228,6 +229,71 @@ class MyProjectService(private val project: Project) {
     }
 
     lines[lineIndex] = lineContent
+    WriteCommandAction.runWriteCommandAction(project) {
+      VfsUtil.saveText(todoFile, lines.joinToString("\n"))
+      todoFile.refresh(false, false)
+    }
+  }
+
+  fun editTask(task: TodoTask, newContent: String) {
+    val projectDir = project.guessProjectDir() ?: return
+    val settings = MyProjectSettingsService.getInstance(project)
+    val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
+    VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+
+    val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
+    var lineIndex = lines.indexOf(task.rawText)
+    if (lineIndex == -1) {
+      lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
+    }
+    if (lineIndex == -1) return
+
+    val statusPart = "[${task.status.code}]"
+    val priorityPart =
+      if (task.priority != Priority.NONE) {
+        if (task.priority.emojis.isNotEmpty()) task.priority.emojis[0] else "[${task.priority.code}]"
+      } else ""
+
+    val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
+    val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
+
+    val newLine = buildString {
+      append("- ")
+      append(statusPart)
+      append(" ")
+      if (priorityPart.isNotEmpty()) {
+        append(priorityPart)
+        append(" ")
+      }
+      append(newContent.trim())
+      if (datesPart.isNotEmpty()) {
+        append(" ")
+        append(datesPart)
+      }
+      append(metadataPart)
+    }
+
+    lines[lineIndex] = newLine
+    WriteCommandAction.runWriteCommandAction(project) {
+      VfsUtil.saveText(todoFile, lines.joinToString("\n"))
+      todoFile.refresh(false, false)
+    }
+  }
+
+  fun deleteTask(task: TodoTask) {
+    val projectDir = project.guessProjectDir() ?: return
+    val settings = MyProjectSettingsService.getInstance(project)
+    val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
+    VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+
+    val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
+    var lineIndex = lines.indexOf(task.rawText)
+    if (lineIndex == -1) {
+      lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
+    }
+    if (lineIndex == -1) return
+
+    lines.removeAt(lineIndex)
     WriteCommandAction.runWriteCommandAction(project) {
       VfsUtil.saveText(todoFile, lines.joinToString("\n"))
       todoFile.refresh(false, false)

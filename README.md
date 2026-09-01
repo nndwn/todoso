@@ -54,12 +54,14 @@ I created this for my own needs because I often forget what needs to be done for
     *   * TODO -> DOING : OK (Add Start Date)
         * DOING -> DONE : OK (Add End Date)
         * DONE -> DOING : OK (Remove End Date, Update Start Date)
-        * ANY -> CANCELLED : OK (Strikethrough)
+        * ANY -> CANCELLED : OK (Strikethrough, removes Start/End dates, adds ❌ and reason)
         * DONE -> CANCELLED : Blocked (Logically, a finished item cannot be cancelled).
     *   Duplicate status actions are not allowed.
     *   If a task was previously marked as 'Done', its previous time is reset when moved back to 'Todo' or 'Doing'.
     *   Automatic duration calculation is displayed on hover when a task is completed.
-    *   Cancelled tasks must include a reason.
+    *   **Edit Text Restriction**: Editing is only allowed for tasks with **Todo** or **Doing** status. Completed (**Done**) or **Cancelled** tasks are read-only to preserve history (but can still be deleted).
+    *   **Task Deletion**: Tasks can be deleted permanently from the `todo.md` file. A confirmation dialog will appear to prevent accidental deletion.
+    *   **Mandatory Cancellation Reason**: Cancelled tasks must include a reason. When cancelled via the plugin, existing Start (`🛫`) and Done (`✅`) dates are automatically removed to keep the record clean, and replaced with the Cancellation date (`❌`) and the provided reason.
 
 ## 📝 Writing Rules for `todo.md`
 
