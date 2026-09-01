@@ -216,8 +216,6 @@ class TodoViewPanel(private val project: Project) : SimpleToolWindowPanel(true, 
         .forEach { priority ->
           item(priority.label) {}
         }
-      separator()
-      item("None") {}
     }
   }
 
@@ -229,20 +227,18 @@ class TodoViewPanel(private val project: Project) : SimpleToolWindowPanel(true, 
   }
 
   private fun TodoMenuBuilder.buildViewSubMenu() {
-    subMenu("View", AllIcons.Actions.Show) {
-      toggle("Visual Mode", AllIcons.Actions.Show, { settings.state.visualEnabled }) {
-        settings.state.visualEnabled = it
-        list.repaint()
-      }
-      subMenu("Filter Priority", AllIcons.General.Filter) {
-        item("Show All") {}
-        separator()
-        MyProjectService.Priority.entries
-          .filter { it != MyProjectService.Priority.NONE }
-          .forEach { priority ->
-            item(priority.label) {}
-          }
-      }
+    subMenu("Filter Priority", AllIcons.General.Filter) {
+      item("Show All") {}
+      separator()
+      MyProjectService.Priority.entries
+        .filter { it != MyProjectService.Priority.NONE }
+        .forEach { priority ->
+          item(priority.label) {}
+        }
+    }
+    toggle("Visual Mode", AllIcons.Actions.Show, { settings.state.visualEnabled }) {
+      settings.state.visualEnabled = it
+      list.repaint()
     }
   }
 

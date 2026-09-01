@@ -1,12 +1,3 @@
-- [/] ⏫ Perbaiki bug layout pada SlideUpPanel #ui #bug 🛫 2026-09-01 08:00
-- [/] Integrasi hermit dengan kotlin-formatter #dev-ops 🛫 2026-09-01 09:30
-- [ ] 🔺 Migrasi dari Navigation2 ke Navigation3 #migration #high-priority ⏳ 2026-09-05 14:00
-- [ ] 🔼 Tambahkan 3 google fonts baru #ui #design 📅 2026-09-10 10:00
-- [ ] 🔽 Update workflow CI GitHub #cicd // target: 2026-09-05
-- [ ] Tugas biasa tanpa prioritas dan tanpa tag
-- [x] ⏫ Hapus iklan AdMob #monetization 🛫 2026-09-01 01:00 ✅ 2026-09-01 02:30
-- [x] 🔼 Fix issue UI select color #ui #bug ✅ 2026-08-31 18:45
-- [ ] #tag-saja di awal baris
-- [-] ❌ Baris dibatalkan ala Obsidian
-- [ ] 🔺 Baca dokumentasi tentang icon 🔺 #study
-- [ ] ⏫ Cek performa ⏫ pada device ⏫ #perf
+
+- [/] [H] mengatasi masalah input plugin canceled dan add task 
+- 
