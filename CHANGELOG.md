@@ -4,6 +4,9 @@
 
 ## [Unreleased]
 ### Added
+- initial publish
+
+## [1.0.2] - 2026-09-03
 - change logo icon
 
 ## [1.0.1] - 2026-09-01
