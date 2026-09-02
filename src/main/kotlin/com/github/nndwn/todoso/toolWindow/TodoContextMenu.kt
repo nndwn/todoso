@@ -19,7 +19,11 @@ class TodoContextMenu(
 
       separator()
 
-      item(MyBundle.message("todo.menu.refresh"), AllIcons.Actions.Refresh, CommonShortcuts.getRerun()) {
+      item(
+        text = MyBundle.message("todo.menu.refresh"),
+        icon = AllIcons.Actions.Refresh,
+        shortcut = CommonShortcuts.getRerun(),
+      ) {
         handler.refreshTasks()
       }
 
@@ -85,14 +89,45 @@ class TodoContextMenu(
 
   private fun TodoMenuBuilder.buildViewSubMenu() {
     subMenu(MyBundle.message("todo.menu.filter.priority"), AllIcons.General.Filter) {
-      item(MyBundle.message("todo.menu.filter.all")) {}
+      item(
+        text = MyBundle.message("todo.menu.filter.all"),
+        iconProvider = { if (settings.state.priorityFilterName == null) AllIcons.Actions.Checked else null },
+      ) {
+        handler.setPriorityFilter(null)
+      }
       separator()
       MyProjectService.Priority.entries
         .filter { it != MyProjectService.Priority.NONE }
         .forEach { priority ->
-          item(priority.label) {}
+          item(
+            text = priority.label,
+            iconProvider = {
+              if (settings.state.priorityFilterName == priority.name) AllIcons.Actions.Checked else null
+            },
+          ) {
+            handler.setPriorityFilter(priority)
+          }
         }
     }
+
+    subMenu(MyBundle.message("todo.menu.filter.status"), AllIcons.Actions.Diff) {
+      item(
+        text = MyBundle.message("todo.menu.filter.all"),
+        iconProvider = { if (settings.state.statusFilterName == null) AllIcons.Actions.Checked else null },
+      ) {
+        handler.setStatusFilter(null)
+      }
+      separator()
+      MyProjectService.TaskStatus.entries.forEach { status ->
+        item(
+          text = status.name.toTitleCase(),
+          iconProvider = { if (settings.state.statusFilterName == status.name) AllIcons.Actions.Checked else null },
+        ) {
+          handler.setStatusFilter(status)
+        }
+      }
+    }
+
     toggle(MyBundle.message("todo.menu.visual.mode"), AllIcons.Actions.Show, { settings.state.visualEnabled }) {
       settings.state.visualEnabled = it
       handler.refreshTasks()

@@ -24,6 +24,10 @@ class TodoActionHandler(
     fun getSelectedTask(): MyProjectService.TodoTask?
 
     fun updateButtonStates()
+
+    fun setPriorityFilter(priority: MyProjectService.Priority?)
+
+    fun setStatusFilter(status: MyProjectService.TaskStatus?)
   }
 
   fun getSelectedTask() = view.getSelectedTask()
@@ -31,6 +35,10 @@ class TodoActionHandler(
   fun setEditMode(enabled: Boolean, text: String = "") = view.setEditMode(enabled, text)
 
   fun refreshTasks() = view.refreshTasks()
+
+  fun setPriorityFilter(priority: MyProjectService.Priority?) = view.setPriorityFilter(priority)
+
+  fun setStatusFilter(status: MyProjectService.TaskStatus?) = view.setStatusFilter(status)
 
   fun handleAddTask(text: String) {
     service.addTask(text.trim())

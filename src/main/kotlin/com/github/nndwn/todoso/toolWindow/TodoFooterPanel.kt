@@ -13,7 +13,6 @@ import javax.swing.JButton
 
 class TodoFooterPanel(
   val onNewTask: (String) -> Unit,
-  val onAddTags: (String) -> Unit,
   val onCancelTask: (String) -> Unit,
   val onUpdateTask: (String) -> Unit,
   val onCancelEdit: () -> Unit,
@@ -48,13 +47,6 @@ class TodoFooterPanel(
         inputTextArea.requestFocusInWindow()
       }
     }
-  private val addTagsButton =
-    JButton(MyBundle.message("todo.button.add.tags")).apply {
-      addActionListener {
-        onAddTags(inputTextArea.text)
-        inputTextArea.requestFocusInWindow()
-      }
-    }
   val canceledTaskButton =
     JButton(MyBundle.message("todo.button.cancel.task")).apply {
       addActionListener {
@@ -70,14 +62,12 @@ class TodoFooterPanel(
       inputTextArea.background = JBColor.namedColor("Todo.Input.EditBackground", JBColor(0xE6F2FF, 0x2D3548))
       newTaskButton.text = MyBundle.message("todo.button.update")
       canceledTaskButton.text = MyBundle.message("todo.button.cancel.edit")
-      addTagsButton.isVisible = false
       inputTextArea.requestFocusInWindow()
     } else {
       inputTextArea.text = ""
       inputTextArea.background = JBColor.namedColor("Todo.Input.Background", JBColor(0xF2F2F2, 0x1E1F22))
       newTaskButton.text = MyBundle.message("todo.button.new.task")
       canceledTaskButton.text = MyBundle.message("todo.button.cancel.task")
-      addTagsButton.isVisible = true
     }
     repaint()
   }
@@ -137,7 +127,6 @@ class TodoFooterPanel(
         isOpaque = false
         border = JBUI.Borders.empty(0, 3, 5, 3)
         add(newTaskButton)
-        add(addTagsButton)
         add(canceledTaskButton)
       }
 

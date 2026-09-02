@@ -6,7 +6,8 @@ I created this for my own needs because I often forget what needs to be done for
 
 ## 🚀 Key Features
 *   **todo.md Integration**: Reads tasks directly from a Markdown file in the project root.
-    * The plugin reads a file named `todo.md`. You can also customize the path and filename in `.idea/TodosoSettings.xml` like this:
+    * The plugin reads a file named `todo.md`. If the file does not exist, it will be automatically created when you add your first task via the plugin.
+    * You can also customize the path and filename in `.idea/TodosoSettings.xml` like this:
     ```xml
     <?xml version="1.0" encoding="UTF-8"?>
        <project version="4">
@@ -40,8 +41,9 @@ I created this for my own needs because I often forget what needs to be done for
   * You don't need to worry about the number of records in the plugin; there's a certain satisfaction in seeing how long a task took to complete.
      
 * **Persistent Settings**:
-  * Currently, there are two settings: Visual Mode (to hide priority color text and emojis) and the `todo.md` path location.
+  * Currently, there are settings for visual mode, todo.md path, and filters.
   *   Toggle **Visual Mode** via the toolbar to show/hide priority colors and emojis (helps you focus!).
+  *   **Persistent Filters**: Your choices for **Priority Filter** and **Status Filter** are saved per project, so your focus remains consistent even after restarting the IDE.
   *   Settings are saved per project in `.idea/TodosoSettings.xml`.
   
 *   **Smart UI**:
@@ -76,8 +78,13 @@ I created this for my own needs because I often forget what needs to be done for
 
 ## 📝 Writing Rules for `todo.md`
 
-Write your tasks in the `todo.md` file using the following format:
+These rules apply **both** when writing directly in the `todo.md` file and when using the **New Task** input field in the plugin. 
+
+Write your tasks using the following format:
 `- [status] [Priority] Task Description #tag1 #tag2 [Date Emoji] // Metadata`
+
+> [!TIP]
+> If you omit the `- [ ]` prefix in the plugin's input field, it will be added automatically. You can also directly type a full line (e.g., `- [/] ⏫ Task #tag`) to create a task with a specific status and priority immediately.
 
 ### Usage Example:
 ```markdown

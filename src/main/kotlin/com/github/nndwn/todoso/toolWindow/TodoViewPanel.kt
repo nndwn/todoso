@@ -42,7 +42,6 @@ class TodoViewPanel(
   private val footerPanel =
     TodoFooterPanel(
       onNewTask = { handler.handleAddTask(it) },
-      onAddTags = { /* Logic for adding tags */ },
       onCancelTask = { handler.handleCancelAction(it) },
       onUpdateTask = { handler.handleUpdateTask(it) },
       onCancelEdit = { handler.handleCancelEdit() },
@@ -65,10 +64,29 @@ class TodoViewPanel(
 
   override fun refreshTasks() {
     val selectedIndex = list.selectedIndex
-    listModel.replaceAll(service.getTodoTasks())
+    val pFilterName = settings.state.priorityFilterName
+    val sFilterName = settings.state.statusFilterName
+
+    val tasks =
+      service.getTodoTasks().filter { task ->
+        val pMatch = pFilterName == null || task.priority.name == pFilterName
+        val sMatch = sFilterName == null || task.status.name == sFilterName
+        pMatch && sMatch
+      }
+    listModel.replaceAll(tasks)
     if (selectedIndex != -1 && selectedIndex < listModel.size) {
       list.selectedIndex = selectedIndex
     }
+  }
+
+  override fun setPriorityFilter(priority: MyProjectService.Priority?) {
+    settings.state.priorityFilterName = priority?.name
+    refreshTasks()
+  }
+
+  override fun setStatusFilter(status: MyProjectService.TaskStatus?) {
+    settings.state.statusFilterName = status?.name
+    refreshTasks()
   }
 
   override fun setEditMode(enabled: Boolean, text: String) {

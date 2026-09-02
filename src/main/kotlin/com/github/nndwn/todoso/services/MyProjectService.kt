@@ -159,19 +159,31 @@ class MyProjectService(private val project: Project) {
   fun addTask(description: String) {
     val projectDir = project.guessProjectDir() ?: return
     val settings = MyProjectSettingsService.getInstance(project)
-    val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
+    val fileName = settings.state.todoFileName
+    val todoFile = projectDir.findChild(fileName)
 
-    val content = VfsUtil.loadText(todoFile)
-    val newTaskLine = "- [ ] $description"
-    val finalContent =
-      if (content.isEmpty() || content.endsWith("\n")) {
-        content + newTaskLine
+    val trimmedInput = description.trim()
+    val newTaskLine =
+      if (trimmedInput.startsWith("- [") && trimmedInput.contains("] ")) {
+        trimmedInput
       } else {
-        content + "\n" + newTaskLine
+        "- [ ] $trimmedInput"
       }
 
     WriteCommandAction.runWriteCommandAction(project) {
-      VfsUtil.saveText(todoFile, finalContent)
+      if (todoFile == null) {
+        val newFile = projectDir.createChildData(this, fileName)
+        VfsUtil.saveText(newFile, newTaskLine)
+      } else {
+        val content = VfsUtil.loadText(todoFile)
+        val finalContent =
+          if (content.isEmpty() || content.endsWith("\n")) {
+            content + newTaskLine
+          } else {
+            content + "\n" + newTaskLine
+          }
+        VfsUtil.saveText(todoFile, finalContent)
+      }
     }
   }
 

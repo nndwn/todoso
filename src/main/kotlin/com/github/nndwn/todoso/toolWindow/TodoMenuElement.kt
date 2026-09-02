@@ -8,6 +8,7 @@ sealed interface TodoMenuElement {
   data class Action(
     val text: String,
     val icon: Icon? = null,
+    val iconProvider: (() -> Icon?)? = null,
     val shortcut: ShortcutSet? = null,
     val isEnabled: () -> Boolean = { true },
     val onAction: () -> Unit,
@@ -36,11 +37,12 @@ class TodoMenuBuilder {
   fun item(
     text: String,
     icon: Icon? = null,
+    iconProvider: (() -> Icon?)? = null,
     shortcut: ShortcutSet? = null,
     isEnabled: () -> Boolean = { true },
     onAction: () -> Unit,
   ) {
-    elements.add(TodoMenuElement.Action(text, icon, shortcut, isEnabled, onAction))
+    elements.add(TodoMenuElement.Action(text, icon, iconProvider, shortcut, isEnabled, onAction))
   }
 
   fun subMenu(
@@ -82,6 +84,9 @@ fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultAct
 
             override fun update(e: AnActionEvent) {
               e.presentation.isEnabled = element.isEnabled()
+              element.iconProvider?.let {
+                e.presentation.icon = it()
+              }
             }
 
             override fun getActionUpdateThread() = ActionUpdateThread.EDT

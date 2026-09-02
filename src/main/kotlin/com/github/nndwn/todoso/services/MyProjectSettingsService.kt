@@ -13,6 +13,8 @@ class MyProjectSettingsService(val project: Project) : PersistentStateComponent<
   class State {
     var visualEnabled: Boolean = true
     var todoFileName: String = "todo.md"
+    var priorityFilterName: String? = null
+    var statusFilterName: String? = null
   }
 
   private var myState = State()

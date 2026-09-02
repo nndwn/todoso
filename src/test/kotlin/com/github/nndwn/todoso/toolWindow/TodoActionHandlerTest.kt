@@ -12,6 +12,8 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
   private var refreshCalled = false
   private var editModeEnabled = false
 
+  private var priorityFilter: MyProjectService.Priority? = null
+
   private val fakeView =
     object : TodoActionHandler.TodoViewActions {
       override fun refreshTasks() {
@@ -25,7 +27,17 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
       override fun getSelectedTask(): MyProjectService.TodoTask? = null
 
       override fun updateButtonStates() {}
+
+      override fun setPriorityFilter(priority: MyProjectService.Priority?) {
+        priorityFilter = priority
+      }
+
+      override fun setStatusFilter(status: MyProjectService.TaskStatus?) {
+        statusFilter = status
+      }
     }
+
+  private var statusFilter: MyProjectService.TaskStatus? = null
 
   override fun setUp() {
     super.setUp()
@@ -66,5 +78,15 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
     val doingTasks = tasks.filter { it.status == MyProjectService.TaskStatus.DOING }
     assertEquals(1, doingTasks.size)
     assertTrue(refreshCalled)
+  }
+
+  fun testSetPriorityFilter() {
+    handler.setPriorityFilter(MyProjectService.Priority.HIGH)
+    assertEquals(MyProjectService.Priority.HIGH, priorityFilter)
+  }
+
+  fun testSetStatusFilter() {
+    handler.setStatusFilter(MyProjectService.TaskStatus.DONE)
+    assertEquals(MyProjectService.TaskStatus.DONE, statusFilter)
   }
 }
