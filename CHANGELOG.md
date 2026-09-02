@@ -2,6 +2,10 @@
 
 # Todoso Changelog
 
+## [Unreleased]
+### Added
+-
+
 ## [1.0.1] - 2026-09-01
 ### Added
 - **todo.md Integration**: Automatically reads and creates `todo.md` in the project root.
