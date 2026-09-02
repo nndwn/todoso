@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 ### Added
--
+- change logo icon
 
 ## [1.0.1] - 2026-09-01
 ### Added
