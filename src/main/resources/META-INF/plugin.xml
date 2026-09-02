@@ -1,8 +1,8 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.nndwn.todoso</id>
-    <name>todoso</name>
-    <vendor>nndwn</vendor>
+    <name>Todoso</name>
+    <vendor email="nandawan.libya@gmail.com" url="https://github.com/nndwn/todoso">nndwn</vendor>
     <description><![CDATA[
         <p>
         An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root, supporting standard formats from Obsidian and Notion.

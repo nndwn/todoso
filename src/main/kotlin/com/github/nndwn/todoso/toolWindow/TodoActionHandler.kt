@@ -42,8 +42,6 @@ class TodoActionHandler(
 
   fun setStatusFilter(status: MyProjectService.TaskStatus?) = view.setStatusFilter(status)
 
-  fun setTagFilter(tag: String?) = view.setTagFilter(tag)
-
   fun handleAddTask(text: String) {
     service.addTask(text.trim())
     view.setEditMode(false)

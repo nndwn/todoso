@@ -75,7 +75,16 @@ fun buildTodoMenu(init: TodoMenuBuilder.() -> Unit): List<TodoMenuElement> {
 
 fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultActionGroup {
   val group = DefaultActionGroup()
-  this.forEach { element ->
+  fillActionGroup(this, group, targetComponent)
+  return group
+}
+
+private fun fillActionGroup(
+  elements: List<TodoMenuElement>,
+  group: DefaultActionGroup,
+  targetComponent: JComponent,
+) {
+  elements.forEach { element ->
     when (element) {
       is TodoMenuElement.Action -> {
         val action =
@@ -84,9 +93,7 @@ fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultAct
 
             override fun update(e: AnActionEvent) {
               e.presentation.isEnabled = element.isEnabled()
-              element.iconProvider?.let {
-                e.presentation.icon = it()
-              }
+              element.iconProvider?.let { e.presentation.icon = it() }
             }
 
             override fun getActionUpdateThread() = ActionUpdateThread.EDT
@@ -95,9 +102,8 @@ fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultAct
         group.add(action)
       }
       is TodoMenuElement.SubMenu -> {
-        val childrenGroup = element.children.toActionGroup(targetComponent)
         val subGroup =
-          object : DefaultActionGroup(childrenGroup.getChildren(null).toList()) {
+          object : DefaultActionGroup() {
             override fun update(e: AnActionEvent) {
               e.presentation.isEnabled = element.isEnabled()
             }
@@ -107,6 +113,9 @@ fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultAct
         subGroup.isPopup = true
         subGroup.templatePresentation.text = element.text
         subGroup.templatePresentation.icon = element.icon
+
+        // Rekursi untuk mengisi anak-anak sub-menu
+        fillActionGroup(element.children, subGroup, targetComponent)
         group.add(subGroup)
       }
       TodoMenuElement.Separator -> group.addSeparator()
@@ -123,5 +132,4 @@ fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultAct
       }
     }
   }
-  return group
 }
