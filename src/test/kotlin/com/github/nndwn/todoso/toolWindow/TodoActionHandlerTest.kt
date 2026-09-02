@@ -3,6 +3,7 @@ package com.github.nndwn.todoso.toolWindow
 import com.github.nndwn.todoso.services.MyProjectService
 import com.github.nndwn.todoso.services.MyProjectSettingsService
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.util.ui.UIUtil
 
 class TodoActionHandlerTest : BasePlatformTestCase() {
 
@@ -47,5 +48,23 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
 
     assertTrue(handler.canTransitionTo(task, MyProjectService.TaskStatus.DOING))
     assertFalse(handler.canTransitionTo(task, MyProjectService.TaskStatus.DONE)) // Must be DOING first
+  }
+
+  fun testHandleChallengeTask() {
+    val content =
+      """
+      - [ ] Task 1
+      - [ ] Task 2
+      """
+        .trimIndent()
+    myFixture.addFileToProject("todo.md", content)
+
+    handler.handleChallengeTask()
+    UIUtil.dispatchAllInvocationEvents()
+
+    val tasks = service.getTodoTasks()
+    val doingTasks = tasks.filter { it.status == MyProjectService.TaskStatus.DOING }
+    assertEquals(1, doingTasks.size)
+    assertTrue(refreshCalled)
   }
 }

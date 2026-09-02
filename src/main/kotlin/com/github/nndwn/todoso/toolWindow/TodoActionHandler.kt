@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow
 
+import com.github.nndwn.todoso.MyBundle
 import com.github.nndwn.todoso.services.MyProjectService
 import com.github.nndwn.todoso.services.MyProjectSettingsService
 import com.intellij.notification.NotificationGroupManager
@@ -55,8 +56,8 @@ class TodoActionHandler(
     val result =
       Messages.showYesNoDialog(
         project,
-        "Are you sure you want to delete this task?",
-        "Delete Task",
+        MyBundle.message("todo.action.delete.confirm.message"),
+        MyBundle.message("todo.action.delete.confirm.title"),
         Messages.getQuestionIcon(),
       )
     if (result == Messages.YES) {
@@ -71,8 +72,12 @@ class TodoActionHandler(
 
     if (trimmedReason.isEmpty()) {
       NotificationGroupManager.getInstance()
-        .getNotificationGroup("Todoso Notifications")
-        .createNotification("Cancelled task must have a reason", NotificationType.WARNING)
+        .getNotificationGroup("com.github.nndwn.todoso.notifications")
+        .createNotification(
+          MyBundle.message("plugin.name"),
+          MyBundle.message("todo.action.cancel.reason.required"),
+          NotificationType.WARNING,
+        )
         .notify(project)
       return
     }
@@ -84,6 +89,29 @@ class TodoActionHandler(
 
   fun updateTaskStatus(task: MyProjectService.TodoTask, status: MyProjectService.TaskStatus) {
     service.updateTaskStatus(task, status)
+    ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+  }
+
+  fun handleUpdatePriority(task: MyProjectService.TodoTask, priority: MyProjectService.Priority) {
+    service.updateTaskPriority(task, priority)
+    ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+  }
+
+  fun handleChallengeTask() {
+    val todoTasks = service.getTodoTasks().filter { it.status == MyProjectService.TaskStatus.TODO }
+    if (todoTasks.isEmpty()) {
+      NotificationGroupManager.getInstance()
+        .getNotificationGroup("com.github.nndwn.todoso.notifications")
+        .createNotification(
+          MyBundle.message("plugin.name"),
+          MyBundle.message("todo.action.challenge.no_tasks"),
+          NotificationType.INFORMATION,
+        )
+        .notify(project)
+      return
+    }
+    val randomTask = todoTasks.random()
+    service.updateTaskStatus(randomTask, MyProjectService.TaskStatus.DOING)
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 

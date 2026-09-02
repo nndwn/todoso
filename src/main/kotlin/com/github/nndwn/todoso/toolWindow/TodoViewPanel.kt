@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow
 
+import com.github.nndwn.todoso.MyBundle
 import com.github.nndwn.todoso.services.MyProjectService
 import com.github.nndwn.todoso.services.MyProjectSettingsService
 import com.intellij.icons.AllIcons
@@ -33,7 +34,7 @@ class TodoViewPanel(
   private val list =
     JBList(listModel).apply {
       selectionMode = ListSelectionModel.SINGLE_SELECTION
-      emptyText.text = "No tasks found"
+      emptyText.text = MyBundle.message("todo.window.empty")
       cellRenderer = TodoCellRenderer(service, settings)
       if (!isEmpty) selectedIndex = 0
     }
@@ -113,13 +114,33 @@ class TodoViewPanel(
     val actionGroup =
       DefaultActionGroup().apply {
         add(
-          object : AnAction("Refresh", "Refresh tasks from todo.md", AllIcons.Actions.Refresh) {
+          object :
+            AnAction(
+              MyBundle.message("todo.menu.refresh"),
+              MyBundle.message("todo.action.refresh.desc"),
+              AllIcons.Actions.Refresh,
+            ) {
             override fun actionPerformed(e: AnActionEvent) = refreshTasks()
+          }
+        )
+        add(
+          object :
+            AnAction(
+              MyBundle.message("todo.menu.challenge"),
+              MyBundle.message("todo.action.challenge.desc"),
+              AllIcons.Actions.Lightning,
+            ) {
+            override fun actionPerformed(e: AnActionEvent) = handler.handleChallengeTask()
           }
         )
         addSeparator()
         add(
-          object : ToggleAction("Visual Mode", "Enable/Disable priority colors and emojis", AllIcons.Actions.Show) {
+          object :
+            ToggleAction(
+              MyBundle.message("todo.menu.visual.mode"),
+              MyBundle.message("todo.action.visual.mode.desc"),
+              AllIcons.Actions.Show,
+            ) {
             override fun isSelected(e: AnActionEvent): Boolean = settings.state.visualEnabled
 
             override fun setSelected(e: AnActionEvent, state: Boolean) {

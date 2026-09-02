@@ -50,8 +50,18 @@ I created this for my own needs because I often forget what needs to be done for
     *   Automatic sorting: **Doing > Todo (by Priority) > Done**.
     *   Integrated toolbar for instant task list **Refresh**.
     *   Double-click to navigate to the specific line in `todo.md`.
-    *   Right-click to access the menu for status, edit, priority, tags, priority filtering, and viewMode.
-    *   * TODO -> DOING : OK (Add Start Date)
+    *   Right-click to access the menu for 
+        * Change Status 
+        * Edit Task and Tags 
+        * Change Priority 
+        * Delete 
+        * priority filtering 
+        * Challenge Task 
+        * Refresh  
+        * Filter Priority 
+        * viewMode
+    *   **Change Status**:
+        * TODO -> DOING : OK (Add Start Date)
         * DOING -> DONE : OK (Add End Date)
         * DONE -> DOING : OK (Remove End Date, Update Start Date)
         * ANY -> CANCELLED : OK (Strikethrough, removes Start/End dates, adds ❌ and reason)
@@ -59,7 +69,8 @@ I created this for my own needs because I often forget what needs to be done for
     *   Duplicate status actions are not allowed.
     *   If a task was previously marked as 'Done', its previous time is reset when moved back to 'Todo' or 'Doing'.
     *   Automatic duration calculation is displayed on hover when a task is completed.
-    *   **Edit Text Restriction**: Editing is only allowed for tasks with **Todo** or **Doing** status. Completed (**Done**) or **Cancelled** tasks are read-only to preserve history (but can still be deleted).
+    *   **Challenge Task**: A "gamification" feature that randomly picks a task from your **Todo** list and marks it as **Doing** (`🛫`), helping you overcome procrastination by deciding what to work on next.
+    *   **Edit and Priority Restriction**: Editing text or changing priority is only allowed for tasks with **Todo** or **Doing** status. Completed (**Done**) or **Cancelled** tasks are read-only to preserve history (but can still be deleted).
     *   **Task Deletion**: Tasks can be deleted permanently from the `todo.md` file. A confirmation dialog will appear to prevent accidental deletion.
     *   **Mandatory Cancellation Reason**: Cancelled tasks must include a reason. When cancelled via the plugin, existing Start (`🛫`) and Done (`✅`) dates are automatically removed to keep the record clean, and replaced with the Cancellation date (`❌`) and the provided reason.
 

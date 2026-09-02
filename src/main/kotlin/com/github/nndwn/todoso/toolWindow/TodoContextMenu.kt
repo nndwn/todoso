@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow
 
+import com.github.nndwn.todoso.MyBundle
 import com.github.nndwn.todoso.services.MyProjectService
 import com.github.nndwn.todoso.services.MyProjectSettingsService
 import com.github.nndwn.todoso.util.toTitleCase
@@ -14,19 +15,17 @@ class TodoContextMenu(
 
   fun build(): List<TodoMenuElement> {
     return buildTodoMenu {
-      buildStatusSubMenu()
-      buildEditSubMenu()
-      buildPrioritySubMenu()
+      editorTask()
 
       separator()
 
-      item("Refresh", AllIcons.Actions.Refresh, CommonShortcuts.getRerun()) {
+      item(MyBundle.message("todo.menu.refresh"), AllIcons.Actions.Refresh, CommonShortcuts.getRerun()) {
         handler.refreshTasks()
       }
 
-      buildTagsSubMenu()
-
-      item("Challenge Task", AllIcons.Actions.Lightning) {}
+      item(MyBundle.message("todo.menu.challenge"), AllIcons.Actions.Lightning) {
+        handler.handleChallengeTask()
+      }
 
       separator()
 
@@ -34,8 +33,8 @@ class TodoContextMenu(
     }
   }
 
-  private fun TodoMenuBuilder.buildStatusSubMenu() {
-    subMenu("Status", AllIcons.Actions.Diff) {
+  private fun TodoMenuBuilder.editorTask() {
+    subMenu(MyBundle.message("todo.menu.change.status"), AllIcons.Actions.Diff) {
       MyProjectService.TaskStatus.entries
         .filter { it != MyProjectService.TaskStatus.CANCELLED }
         .forEach { status ->
@@ -47,49 +46,46 @@ class TodoContextMenu(
           }
         }
     }
-  }
 
-  private fun TodoMenuBuilder.buildEditSubMenu() {
-    subMenu("Edit", AllIcons.Actions.Edit) {
-      item(
-        text = "Edit Text",
-        icon = AllIcons.Actions.EditSource,
-        isEnabled = {
-          val selected = handler.getSelectedTask()
-          selected != null &&
-            (selected.status == MyProjectService.TaskStatus.TODO ||
-              selected.status == MyProjectService.TaskStatus.DOING)
-        },
-      ) {
-        handler.getSelectedTask()?.let {
-          handler.handleCancelEdit()
-          handler.setEditMode(true, it.description)
-        }
+    item(
+      text = MyBundle.message("todo.menu.edit.task"),
+      icon = AllIcons.Actions.EditSource,
+      isEnabled = {
+        val selected = handler.getSelectedTask()
+        selected != null &&
+          (selected.status == MyProjectService.TaskStatus.TODO || selected.status == MyProjectService.TaskStatus.DOING)
+      },
+    ) {
+      handler.getSelectedTask()?.let {
+        handler.handleCancelEdit()
+        handler.setEditMode(true, it.description)
       }
-      item("Delete", AllIcons.General.Remove) { handler.handleDeleteAction() }
     }
-  }
 
-  private fun TodoMenuBuilder.buildPrioritySubMenu() {
-    subMenu("Priority", AllIcons.General.Filter) {
+    subMenu(
+      text = MyBundle.message("todo.menu.change.priority"),
+      icon = AllIcons.General.ChevronUp,
+      isEnabled = {
+        val selected = handler.getSelectedTask()
+        selected != null &&
+          (selected.status == MyProjectService.TaskStatus.TODO || selected.status == MyProjectService.TaskStatus.DOING)
+      },
+    ) {
       MyProjectService.Priority.entries
         .filter { it != MyProjectService.Priority.NONE }
         .forEach { priority ->
-          item(priority.label) {}
+          item(priority.label) {
+            handler.getSelectedTask()?.let { handler.handleUpdatePriority(it, priority) }
+          }
         }
     }
-  }
 
-  private fun TodoMenuBuilder.buildTagsSubMenu() {
-    subMenu("Tags", AllIcons.Nodes.Tag) {
-      item("Add Tag", AllIcons.General.Add) {}
-      item("Remove Tag") {}
-    }
+    item(MyBundle.message("todo.menu.delete"), AllIcons.General.Remove) { handler.handleDeleteAction() }
   }
 
   private fun TodoMenuBuilder.buildViewSubMenu() {
-    subMenu("Filter Priority", AllIcons.General.Filter) {
-      item("Show All") {}
+    subMenu(MyBundle.message("todo.menu.filter.priority"), AllIcons.General.Filter) {
+      item(MyBundle.message("todo.menu.filter.all")) {}
       separator()
       MyProjectService.Priority.entries
         .filter { it != MyProjectService.Priority.NONE }
@@ -97,7 +93,7 @@ class TodoContextMenu(
           item(priority.label) {}
         }
     }
-    toggle("Visual Mode", AllIcons.Actions.Show, { settings.state.visualEnabled }) {
+    toggle(MyBundle.message("todo.menu.visual.mode"), AllIcons.Actions.Show, { settings.state.visualEnabled }) {
       settings.state.visualEnabled = it
       handler.refreshTasks()
     }

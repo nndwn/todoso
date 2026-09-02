@@ -131,4 +131,23 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     val duration = service.calculateDuration(doneTask)
     assertEquals("2h 30m", duration)
   }
+
+  fun testUpdatePriority() {
+    val content = "- [ ] Task without priority"
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    service.updateTaskPriority(task, MyProjectService.Priority.HIGHEST)
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertEquals(MyProjectService.Priority.HIGHEST, updatedTask.priority)
+    assertTrue(updatedTask.rawText.contains("🔺"))
+    assertEquals("Task without priority", updatedTask.description)
+
+    service.updateTaskPriority(updatedTask, MyProjectService.Priority.LOW)
+    val updatedTask2 = service.getTodoTasks()[0]
+    assertEquals(MyProjectService.Priority.LOW, updatedTask2.priority)
+    assertTrue(updatedTask2.rawText.contains("🔽"))
+  }
 }

@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow
 
+import com.github.nndwn.todoso.MyBundle
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
@@ -23,7 +24,7 @@ class TodoFooterPanel(
 
   val inputTextArea =
     JBTextArea().apply {
-      emptyText.text = "Write New Task, New Tags or Reason Canceled"
+      emptyText.text = MyBundle.message("todo.window.input.placeholder")
       lineWrap = true
       wrapStyleWord = true
       rows = 3
@@ -41,21 +42,21 @@ class TodoFooterPanel(
     }
 
   private val newTaskButton =
-    JButton("New Task").apply {
+    JButton(MyBundle.message("todo.button.new.task")).apply {
       addActionListener {
         if (isEditMode) onUpdateTask(inputTextArea.text) else onNewTask(inputTextArea.text)
         inputTextArea.requestFocusInWindow()
       }
     }
   private val addTagsButton =
-    JButton("Add Tags").apply {
+    JButton(MyBundle.message("todo.button.add.tags")).apply {
       addActionListener {
         onAddTags(inputTextArea.text)
         inputTextArea.requestFocusInWindow()
       }
     }
   val canceledTaskButton =
-    JButton("Canceled Task").apply {
+    JButton(MyBundle.message("todo.button.cancel.task")).apply {
       addActionListener {
         if (isEditMode) onCancelEdit() else onCancelTask(inputTextArea.text)
         inputTextArea.requestFocusInWindow()
@@ -67,15 +68,15 @@ class TodoFooterPanel(
     if (enabled) {
       inputTextArea.text = text
       inputTextArea.background = JBColor.namedColor("Todo.Input.EditBackground", JBColor(0xE6F2FF, 0x2D3548))
-      newTaskButton.text = "Update"
-      canceledTaskButton.text = "Cancel"
+      newTaskButton.text = MyBundle.message("todo.button.update")
+      canceledTaskButton.text = MyBundle.message("todo.button.cancel.edit")
       addTagsButton.isVisible = false
       inputTextArea.requestFocusInWindow()
     } else {
       inputTextArea.text = ""
       inputTextArea.background = JBColor.namedColor("Todo.Input.Background", JBColor(0xF2F2F2, 0x1E1F22))
-      newTaskButton.text = "New Task"
-      canceledTaskButton.text = "Canceled Task"
+      newTaskButton.text = MyBundle.message("todo.button.new.task")
+      canceledTaskButton.text = MyBundle.message("todo.button.cancel.task")
       addTagsButton.isVisible = true
     }
     repaint()

@@ -16,6 +16,7 @@ sealed interface TodoMenuElement {
   data class SubMenu(
     val text: String,
     val icon: Icon? = null,
+    val isEnabled: () -> Boolean = { true },
     val children: List<TodoMenuElement>,
   ) : TodoMenuElement
 
@@ -42,10 +43,15 @@ class TodoMenuBuilder {
     elements.add(TodoMenuElement.Action(text, icon, shortcut, isEnabled, onAction))
   }
 
-  fun subMenu(text: String, icon: Icon? = null, init: TodoMenuBuilder.() -> Unit) {
+  fun subMenu(
+    text: String,
+    icon: Icon? = null,
+    isEnabled: () -> Boolean = { true },
+    init: TodoMenuBuilder.() -> Unit,
+  ) {
     val builder = TodoMenuBuilder()
     builder.init()
-    elements.add(TodoMenuElement.SubMenu(text, icon, builder.build()))
+    elements.add(TodoMenuElement.SubMenu(text, icon, isEnabled, builder.build()))
   }
 
   fun separator() {
@@ -84,7 +90,15 @@ fun List<TodoMenuElement>.toActionGroup(targetComponent: JComponent): DefaultAct
         group.add(action)
       }
       is TodoMenuElement.SubMenu -> {
-        val subGroup = element.children.toActionGroup(targetComponent)
+        val childrenGroup = element.children.toActionGroup(targetComponent)
+        val subGroup =
+          object : DefaultActionGroup(childrenGroup.getChildren(null).toList()) {
+            override fun update(e: AnActionEvent) {
+              e.presentation.isEnabled = element.isEnabled()
+            }
+
+            override fun getActionUpdateThread() = ActionUpdateThread.EDT
+          }
         subGroup.isPopup = true
         subGroup.templatePresentation.text = element.text
         subGroup.templatePresentation.icon = element.icon

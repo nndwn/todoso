@@ -299,4 +299,49 @@ class MyProjectService(private val project: Project) {
       todoFile.refresh(false, false)
     }
   }
+
+  fun updateTaskPriority(task: TodoTask, newPriority: Priority) {
+    val projectDir = project.guessProjectDir() ?: return
+    val settings = MyProjectSettingsService.getInstance(project)
+    val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
+    VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+
+    val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
+    var lineIndex = lines.indexOf(task.rawText)
+    if (lineIndex == -1) {
+      lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
+    }
+    if (lineIndex == -1) return
+
+    val statusPart = "[${task.status.code}]"
+    val newPriorityPart =
+      if (newPriority != Priority.NONE) {
+        if (newPriority.emojis.isNotEmpty()) newPriority.emojis[0] else "[${newPriority.code}]"
+      } else ""
+
+    val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
+    val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
+
+    val newLine = buildString {
+      append("- ")
+      append(statusPart)
+      append(" ")
+      if (newPriorityPart.isNotEmpty()) {
+        append(newPriorityPart)
+        append(" ")
+      }
+      append(task.description.trim())
+      if (datesPart.isNotEmpty()) {
+        append(" ")
+        append(datesPart)
+      }
+      append(metadataPart)
+    }
+
+    lines[lineIndex] = newLine
+    WriteCommandAction.runWriteCommandAction(project) {
+      VfsUtil.saveText(todoFile, lines.joinToString("\n"))
+      todoFile.refresh(false, false)
+    }
+  }
 }
