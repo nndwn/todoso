@@ -35,9 +35,14 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
       override fun setStatusFilter(status: MyProjectService.TaskStatus?) {
         statusFilter = status
       }
+
+      override fun setTagFilter(tag: String?) {
+        tagFilter = tag
+      }
     }
 
   private var statusFilter: MyProjectService.TaskStatus? = null
+  private var tagFilter: String? = null
 
   override fun setUp() {
     super.setUp()

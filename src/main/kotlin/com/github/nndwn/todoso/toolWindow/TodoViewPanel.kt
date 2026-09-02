@@ -47,33 +47,50 @@ class TodoViewPanel(
       onCancelEdit = { handler.handleCancelEdit() },
     )
 
+  private val tagCloudPanel = TodoTagCloudPanel { tag -> setTagFilter(tag) }
+
   init {
     toolbar = createToolbar()
     val scrollPane = JBScrollPane(list)
     val contentPanel =
       JBPanel<JBPanel<*>>(BorderLayout()).apply {
         add(scrollPane, BorderLayout.CENTER)
-        add(footerPanel, BorderLayout.SOUTH)
+        val southPanel =
+          JBPanel<JBPanel<*>>(BorderLayout()).apply {
+            add(tagCloudPanel, BorderLayout.NORTH)
+            add(footerPanel, BorderLayout.CENTER)
+          }
+        add(southPanel, BorderLayout.SOUTH)
       }
     setContent(contentPanel)
     setupContextMenu()
     setupDoubleClickListener()
     setupSelectionListener()
+    refreshTasks()
     updateButtonStates()
   }
+
+  private var currentTagFilter: String? = null
 
   override fun refreshTasks() {
     val selectedIndex = list.selectedIndex
     val pFilterName = settings.state.priorityFilterName
     val sFilterName = settings.state.statusFilterName
 
-    val tasks =
-      service.getTodoTasks().filter { task ->
-        val pMatch = pFilterName == null || task.priority.name == pFilterName
-        val sMatch = sFilterName == null || task.status.name == sFilterName
-        pMatch && sMatch
-      }
-    listModel.replaceAll(tasks)
+    val allTasks = service.getTodoTasks()
+
+    val filteredTasks = allTasks.filter { task ->
+      val pMatch = pFilterName == null || task.priority.name == pFilterName
+      val sMatch = sFilterName == null || task.status.name == sFilterName
+      val tMatch = currentTagFilter == null || task.tags.contains(currentTagFilter)
+      pMatch && sMatch && tMatch
+    }
+    listModel.replaceAll(filteredTasks)
+
+    val tags = service.getTagCounts()
+    tagCloudPanel.isVisible = tags.isNotEmpty()
+    tagCloudPanel.setTags(tags, currentTagFilter)
+
     if (selectedIndex != -1 && selectedIndex < listModel.size) {
       list.selectedIndex = selectedIndex
     }
@@ -86,6 +103,11 @@ class TodoViewPanel(
 
   override fun setStatusFilter(status: MyProjectService.TaskStatus?) {
     settings.state.statusFilterName = status?.name
+    refreshTasks()
+  }
+
+  override fun setTagFilter(tag: String?) {
+    currentTagFilter = tag
     refreshTasks()
   }
 

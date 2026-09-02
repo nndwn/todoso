@@ -72,10 +72,10 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     assertEquals(1, tasks.size)
     assertEquals(listOf("v1.2.3", "feature-login", "bug_fix"), tasks[0].tags)
 
-    val allTags = service.getAllTags()
-    assertTrue(allTags.contains("v1.2.3"))
-    assertTrue(allTags.contains("feature-login"))
-    assertTrue(allTags.contains("bug_fix"))
+    val tagCounts = service.getTagCounts()
+    assertTrue(tagCounts.containsKey("v1.2.3"))
+    assertTrue(tagCounts.containsKey("feature-login"))
+    assertTrue(tagCounts.containsKey("bug_fix"))
   }
 
   fun testDuplicateEmojiSafety() {

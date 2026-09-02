@@ -28,6 +28,8 @@ class TodoActionHandler(
     fun setPriorityFilter(priority: MyProjectService.Priority?)
 
     fun setStatusFilter(status: MyProjectService.TaskStatus?)
+
+    fun setTagFilter(tag: String?)
   }
 
   fun getSelectedTask() = view.getSelectedTask()
@@ -39,6 +41,8 @@ class TodoActionHandler(
   fun setPriorityFilter(priority: MyProjectService.Priority?) = view.setPriorityFilter(priority)
 
   fun setStatusFilter(status: MyProjectService.TaskStatus?) = view.setStatusFilter(status)
+
+  fun setTagFilter(tag: String?) = view.setTagFilter(tag)
 
   fun handleAddTask(text: String) {
     service.addTask(text.trim())

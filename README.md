@@ -18,6 +18,7 @@ I created this for my own needs because I often forget what needs to be done for
     ```
 *   **Interactive Tool Window**: A clean, selectable task list.
     * I have some knowledge of UX, so I've tried to make it as simple as possible for users.
+*   **Dynamic Tag Cloud**: A horizontal scrollable area above the footer that displays all active tags with their task counts. Click any tag chip to filter the list instantly, or use the `#all` chip to reset.
 *   **Comprehensive Task Status**:
     * Tasks can be created in two ways: you can write them directly in `todo.md` or edit them within the plugin. Common statuses are as follows:
     *   `[ ]` : Todo (Not started).

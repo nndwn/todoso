@@ -126,8 +126,14 @@ class MyProjectService(private val project: Project) {
       .sortedWith(compareBy({ it.status.ordinal }, { it.priority.ordinal }))
   }
 
-  fun getAllTags(): Set<String> {
-    return getTodoTasks().flatMap { it.tags }.toSet()
+  fun getTagCounts(): Map<String, Int> {
+    return getTodoTasks()
+      .flatMap { it.tags }
+      .groupingBy { it }
+      .eachCount()
+      .toList()
+      .sortedByDescending { it.second }
+      .toMap()
   }
 
   fun calculateDuration(task: TodoTask): String? {
