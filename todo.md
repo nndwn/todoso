@@ -14,13 +14,17 @@
 - [x] 🔺 jika seandainya di tulis - [] data tidak terload #v1.0.4 #issue 🛫 2026-09-04 01:31 ✅ 2026-09-04 02:53
 - [-] [H] apakah bisa setiap data todo.md tersimpan plugin todoso langsung ke refress ❌ 2026-09-04 02:56 // reason: fitur ini tidak perlu di terapkan karena tidak stabil karena pengunaan user diasumsikan sangat jarang sekali mengedit langsung ke editor pada todo.md
 - [ ] [H] di klik kanan setiap task ada noted lalu ubah sebelumnya reason menjadi noted saja #v1.0.4 #feature
-- [/] 🔼 ubah nama challage taks menjadi random task agar jelas fungsinya #v1.0.4 #issue 🛫 2026-09-04 03:15
+- [x] 🔼 ubah nama challage taks menjadi random task agar jelas fungsinya #v1.0.4 #issue 🛫 2026-09-04 03:15 ✅ 2026-09-04 04:55
 - [ ] 🔽 mengatasi task tulisan panjang lebih harusnya bagaimana ? #v1.0.4 #issue
-- [ ] ⏫ tampilan task todo lebih baik tambahkan icon titik agar jelas sebagai list #v1.0.4 #issue
+- [x] ⏫ tampilan task todo lebih baik tambahkan icon titik agar jelas sebagai list #v1.0.4 #issue 🛫 2026-09-04 05:29 ✅ 2026-09-04 05:38
 - [x] [HH] hindarin penulisan task kosong disable button new task #v1.0.4 #issue 🛫 2026-09-04 00:32 ✅ 2026-09-04 01:31
-- [ ] 🔺 tombol update dan canceled task tidak berfungsi pada saat edit mode di test ide android studio 2026.1.04 #v1.0.4 #issue
+- [x] 🔺 tombol update dan canceled task tidak berfungsi pada saat editd mode di test ide android studio 2026.1.04 #v1.0.4 #issue 🛫 2026-09-04 04:59 ✅ 2026-09-04 05:29
 - [x] [M] pada saat edit mode jika tidak ada perubahan jangan aktifin tombol update task #v1.0.4 #issue 🛫 2026-09-04 01:14 ✅ 2026-09-04 01:31
 - [ ] [H] kedepannya tidak ada tag  kosong secara default terdapat tag khusus bawaab `#issue` dan `#feature`. #feature #v1.0.4
 - [ ] [H] masih ada trouble penanganan hastag # tags #v1.0.4 #issue
 - [ ] [H] seperti perlu penaganan reformat untuk id task #feature #v1.0.4
 - [ ] [L] sepertinya perlu fitur history tapi mungkin next fitur nanti #feature
+- [x] [M] icon logo untuk dark mode theme tidak berubah menjadi warna putih dan sebalik #issue #v1.0.4 🛫 2026-09-04 05:51 ✅ 2026-09-04 06:24
+- [ ] [L] create screenshoot untuk market place dan tambahkan ke README.md #feature
+- [ ] [L] refactoring complesity MyProjectService.kt #issue 
+- [ ] [L] bagaimana membuat semacam slide screenshoot agar tampak menarik 

@@ -149,7 +149,7 @@ class MyProjectService(private val project: Project) {
       val minutes = duration.toMinutes() % 60
 
       if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       null
     }
   }
@@ -197,57 +197,57 @@ class MyProjectService(private val project: Project) {
     val projectDir = project.guessProjectDir() ?: return
     val settings = MyProjectSettingsService.getInstance(project)
     val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
-    VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
 
-    val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
-    var lineIndex = lines.indexOf(task.rawText)
-    if (lineIndex == -1) {
-      lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
-    }
-    if (lineIndex == -1) return
-
-    val now = LocalDateTime.now().format(dateFormatter)
-    var lineContent = lines[lineIndex]
-
-    lineContent = lineContent.replaceFirst(Regex("""\[([ x/-])]"""), "[${newStatus.code}]")
-
-    when (newStatus) {
-      TaskStatus.TODO -> {
-        lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
-        lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
-        lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-        lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
-      }
-      TaskStatus.DOING -> {
-        lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
-        lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-        lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
-        if (!lineContent.contains("🛫")) {
-          lineContent = "$lineContent 🛫 $now"
-        }
-      }
-      TaskStatus.DONE -> {
-        lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-        lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
-        if (!lineContent.contains("✅")) {
-          lineContent = "$lineContent ✅ $now"
-        }
-      }
-      TaskStatus.CANCELLED -> {
-        lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
-        lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
-        if (!lineContent.contains("❌")) {
-          lineContent = "$lineContent ❌ $now"
-        }
-        if (!reason.isNullOrBlank()) {
-          lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
-          lineContent = "$lineContent // reason: $reason"
-        }
-      }
-    }
-
-    lines[lineIndex] = lineContent
     WriteCommandAction.runWriteCommandAction(project) {
+      VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+      val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
+      var lineIndex = lines.indexOf(task.rawText)
+      if (lineIndex == -1) {
+        lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
+      }
+      if (lineIndex == -1) return@runWriteCommandAction
+
+      val now = LocalDateTime.now().format(dateFormatter)
+      var lineContent = lines[lineIndex]
+
+      lineContent = lineContent.replaceFirst(Regex("""\[([ x/-]?)]"""), "[${newStatus.code}]")
+
+      when (newStatus) {
+        TaskStatus.TODO -> {
+          lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
+        }
+        TaskStatus.DOING -> {
+          lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
+          if (!lineContent.contains("🛫")) {
+            lineContent = "$lineContent 🛫 $now"
+          }
+        }
+        TaskStatus.DONE -> {
+          lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
+          if (!lineContent.contains("✅")) {
+            lineContent = "$lineContent ✅ $now"
+          }
+        }
+        TaskStatus.CANCELLED -> {
+          lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
+          if (!lineContent.contains("❌")) {
+            lineContent = "$lineContent ❌ $now"
+          }
+          if (!reason.isNullOrBlank()) {
+            lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
+            lineContent = "$lineContent // reason: $reason"
+          }
+        }
+      }
+
+      lines[lineIndex] = lineContent
       VfsUtil.saveText(todoFile, lines.joinToString("\n"))
       todoFile.refresh(false, false)
     }
@@ -257,42 +257,42 @@ class MyProjectService(private val project: Project) {
     val projectDir = project.guessProjectDir() ?: return
     val settings = MyProjectSettingsService.getInstance(project)
     val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
-    VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
 
-    val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
-    var lineIndex = lines.indexOf(task.rawText)
-    if (lineIndex == -1) {
-      lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
-    }
-    if (lineIndex == -1) return
-
-    val statusPart = "[${task.status.code}]"
-    val priorityPart =
-      if (task.priority != Priority.NONE) {
-        if (task.priority.emojis.isNotEmpty()) task.priority.emojis[0] else "[${task.priority.code}]"
-      } else ""
-
-    val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
-    val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
-
-    val newLine = buildString {
-      append("- ")
-      append(statusPart)
-      append(" ")
-      if (priorityPart.isNotEmpty()) {
-        append(priorityPart)
-        append(" ")
-      }
-      append(newContent.trim())
-      if (datesPart.isNotEmpty()) {
-        append(" ")
-        append(datesPart)
-      }
-      append(metadataPart)
-    }
-
-    lines[lineIndex] = newLine
     WriteCommandAction.runWriteCommandAction(project) {
+      VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+      val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
+      var lineIndex = lines.indexOf(task.rawText)
+      if (lineIndex == -1) {
+        lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
+      }
+      if (lineIndex == -1) return@runWriteCommandAction
+
+      val statusPart = "[${task.status.code}]"
+      val priorityPart =
+        if (task.priority != Priority.NONE) {
+          if (task.priority.emojis.isNotEmpty()) task.priority.emojis[0] else "[${task.priority.code}]"
+        } else ""
+
+      val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
+      val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
+
+      val newLine = buildString {
+        append("- ")
+        append(statusPart)
+        append(" ")
+        if (priorityPart.isNotEmpty()) {
+          append(priorityPart)
+          append(" ")
+        }
+        append(newContent.trim())
+        if (datesPart.isNotEmpty()) {
+          append(" ")
+          append(datesPart)
+        }
+        append(metadataPart)
+      }
+
+      lines[lineIndex] = newLine
       VfsUtil.saveText(todoFile, lines.joinToString("\n"))
       todoFile.refresh(false, false)
     }
@@ -302,17 +302,17 @@ class MyProjectService(private val project: Project) {
     val projectDir = project.guessProjectDir() ?: return
     val settings = MyProjectSettingsService.getInstance(project)
     val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
-    VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
 
-    val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
-    var lineIndex = lines.indexOf(task.rawText)
-    if (lineIndex == -1) {
-      lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
-    }
-    if (lineIndex == -1) return
-
-    lines.removeAt(lineIndex)
     WriteCommandAction.runWriteCommandAction(project) {
+      VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+      val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
+      var lineIndex = lines.indexOf(task.rawText)
+      if (lineIndex == -1) {
+        lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
+      }
+      if (lineIndex == -1) return@runWriteCommandAction
+
+      lines.removeAt(lineIndex)
       VfsUtil.saveText(todoFile, lines.joinToString("\n"))
       todoFile.refresh(false, false)
     }
@@ -322,42 +322,42 @@ class MyProjectService(private val project: Project) {
     val projectDir = project.guessProjectDir() ?: return
     val settings = MyProjectSettingsService.getInstance(project)
     val todoFile = projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return
-    VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
 
-    val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
-    var lineIndex = lines.indexOf(task.rawText)
-    if (lineIndex == -1) {
-      lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
-    }
-    if (lineIndex == -1) return
-
-    val statusPart = "[${task.status.code}]"
-    val newPriorityPart =
-      if (newPriority != Priority.NONE) {
-        if (newPriority.emojis.isNotEmpty()) newPriority.emojis[0] else "[${newPriority.code}]"
-      } else ""
-
-    val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
-    val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
-
-    val newLine = buildString {
-      append("- ")
-      append(statusPart)
-      append(" ")
-      if (newPriorityPart.isNotEmpty()) {
-        append(newPriorityPart)
-        append(" ")
-      }
-      append(task.description.trim())
-      if (datesPart.isNotEmpty()) {
-        append(" ")
-        append(datesPart)
-      }
-      append(metadataPart)
-    }
-
-    lines[lineIndex] = newLine
     WriteCommandAction.runWriteCommandAction(project) {
+      VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+      val lines = VfsUtil.loadText(todoFile).lines().toMutableList()
+      var lineIndex = lines.indexOf(task.rawText)
+      if (lineIndex == -1) {
+        lineIndex = lines.indexOfFirst { it.contains(task.description) && it.startsWith("- [") }
+      }
+      if (lineIndex == -1) return@runWriteCommandAction
+
+      val statusPart = "[${task.status.code}]"
+      val newPriorityPart =
+        if (newPriority != Priority.NONE) {
+          if (newPriority.emojis.isNotEmpty()) newPriority.emojis[0] else "[${newPriority.code}]"
+        } else ""
+
+      val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
+      val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
+
+      val newLine = buildString {
+        append("- ")
+        append(statusPart)
+        append(" ")
+        if (newPriorityPart.isNotEmpty()) {
+          append(newPriorityPart)
+          append(" ")
+        }
+        append(task.description.trim())
+        if (datesPart.isNotEmpty()) {
+          append(" ")
+          append(datesPart)
+        }
+        append(metadataPart)
+      }
+
+      lines[lineIndex] = newLine
       VfsUtil.saveText(todoFile, lines.joinToString("\n"))
       todoFile.refresh(false, false)
     }

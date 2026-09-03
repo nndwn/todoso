@@ -7,6 +7,7 @@
 - **Automatic File Creation**: Now automatically creates `todo.md` in the project root if it doesn't exist when adding your first task.
 - **Visibility-based Refresh**: Improved performance by only refreshing the task list when the plugin panel is actually visible/opened.
 - **Enhanced UI Esthetics**: Tag Cloud chips now feature a modern rounded "pill" design.
+- **Visual List Markers**: Added a dot icon for tasks with **Todo** status to clearly distinguish them as list items.
 
 ### Improved
 - **Smart Input Validation**: The "New Task" button is now automatically disabled for empty inputs or inputs containing only Markdown prefixes (e.g., `- [ ]`).

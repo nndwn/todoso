@@ -1,4 +1,3 @@
-import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -14,24 +13,6 @@ dependencies {
     intellijPlatform {
         intellijIdea("2025.2.6.2")
         testFramework(TestFrameworkType.Platform)
-    }
-}
-
-tasks {
-    patchPluginXml {
-        changeNotes.set(provider {
-            val version = project.version.toString()
-            if (changelog.has(version)) {
-                changelog.renderItem(
-                    changelog.get(version)
-                        .withHeader(false)
-                        .withEmptySections(false),
-                    Changelog.OutputType.HTML,
-                )
-            } else {
-                ""
-            }
-        })
     }
 }
 

@@ -32,7 +32,7 @@ class TodoCellRenderer(
         MyProjectService.TaskStatus.DOING -> MyIcons.TaskDoing
         MyProjectService.TaskStatus.DONE -> MyIcons.TaskDone
         MyProjectService.TaskStatus.CANCELLED -> MyIcons.TaskCancelled
-        MyProjectService.TaskStatus.TODO -> com.intellij.util.ui.EmptyIcon.create(16)
+        MyProjectService.TaskStatus.TODO -> MyIcons.TaskTodo
       }
 
     val baseAttributes = getBaseAttributes(value, isDone, isDoing, isCancelled, visualEnabled)
