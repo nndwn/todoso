@@ -107,14 +107,14 @@ class TodoActionHandler(
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 
-  fun handleChallengeTask() {
+  fun handleRandomTask() {
     val todoTasks = service.getTodoTasks().filter { it.status == MyProjectService.TaskStatus.TODO }
     if (todoTasks.isEmpty()) {
       NotificationGroupManager.getInstance()
         .getNotificationGroup("com.github.nndwn.todoso.notifications")
         .createNotification(
           MyBundle.message("plugin.name"),
-          MyBundle.message("todo.action.challenge.no_tasks"),
+          MyBundle.message("todo.action.random.no_tasks"),
           NotificationType.INFORMATION,
         )
         .notify(project)

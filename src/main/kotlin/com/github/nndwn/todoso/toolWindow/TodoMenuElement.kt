@@ -114,7 +114,6 @@ private fun fillActionGroup(
         subGroup.templatePresentation.text = element.text
         subGroup.templatePresentation.icon = element.icon
 
-        // Rekursi untuk mengisi anak-anak sub-menu
         fillActionGroup(element.children, subGroup, targetComponent)
         group.add(subGroup)
       }

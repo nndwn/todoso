@@ -8,4 +8,19 @@
 - [x] [H] integrasi filter priority
 - [x] [H] tambahkan dan integrasi filter status 
 - [x] [L] tags jadi nya untuk apa ?
-- [] [H] publish plugin 
+- [x] [H] publish plugin 
+- [ ] 🔼 ubah yang done sekarang bisa edit task dan tags #v1.0.4
+- [ ] 🔼 jika tidak ada file todo.md lebih baik letakakan placeholder intruksi #v1.0.4 #feature
+- [x] 🔺 jika seandainya di tulis - [] data tidak terload #v1.0.4 #issue 🛫 2026-09-04 01:31 ✅ 2026-09-04 02:53
+- [-] [H] apakah bisa setiap data todo.md tersimpan plugin todoso langsung ke refress ❌ 2026-09-04 02:56 // reason: fitur ini tidak perlu di terapkan karena tidak stabil karena pengunaan user diasumsikan sangat jarang sekali mengedit langsung ke editor pada todo.md
+- [ ] [H] di klik kanan setiap task ada noted lalu ubah sebelumnya reason menjadi noted saja #v1.0.4 #feature
+- [/] 🔼 ubah nama challage taks menjadi random task agar jelas fungsinya #v1.0.4 #issue 🛫 2026-09-04 03:15
+- [ ] 🔽 mengatasi task tulisan panjang lebih harusnya bagaimana ? #v1.0.4 #issue
+- [ ] ⏫ tampilan task todo lebih baik tambahkan icon titik agar jelas sebagai list #v1.0.4 #issue
+- [x] [HH] hindarin penulisan task kosong disable button new task #v1.0.4 #issue 🛫 2026-09-04 00:32 ✅ 2026-09-04 01:31
+- [ ] 🔺 tombol update dan canceled task tidak berfungsi pada saat edit mode di test ide android studio 2026.1.04 #v1.0.4 #issue
+- [x] [M] pada saat edit mode jika tidak ada perubahan jangan aktifin tombol update task #v1.0.4 #issue 🛫 2026-09-04 01:14 ✅ 2026-09-04 01:31
+- [ ] [H] kedepannya tidak ada tag  kosong secara default terdapat tag khusus bawaab `#issue` dan `#feature`. #feature #v1.0.4
+- [ ] [H] masih ada trouble penanganan hastag # tags #v1.0.4 #issue
+- [ ] [H] seperti perlu penaganan reformat untuk id task #feature #v1.0.4
+- [ ] [L] sepertinya perlu fitur history tapi mungkin next fitur nanti #feature

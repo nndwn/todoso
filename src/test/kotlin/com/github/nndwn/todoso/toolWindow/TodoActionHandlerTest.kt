@@ -67,7 +67,7 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
     assertFalse(handler.canTransitionTo(task, MyProjectService.TaskStatus.DONE)) // Must be DOING first
   }
 
-  fun testHandleChallengeTask() {
+  fun testHandleRandomTask() {
     val content =
       """
       - [ ] Task 1
@@ -76,7 +76,7 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
         .trimIndent()
     myFixture.addFileToProject("todo.md", content)
 
-    handler.handleChallengeTask()
+    handler.handleRandomTask()
     UIUtil.dispatchAllInvocationEvents()
 
     val tasks = service.getTodoTasks()

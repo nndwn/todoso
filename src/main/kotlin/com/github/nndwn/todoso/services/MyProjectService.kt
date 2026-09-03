@@ -82,7 +82,7 @@ class MyProjectService(private val project: Project) {
     val todoFile =
       projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return emptyList()
 
-    val taskRegex = Regex("""^- \[([ x/-])] (.*)$""")
+    val taskRegex = Regex("""^- \[([ x/-]?)] (.*)$""")
     val tagRegex = Regex("""#([\w.-]+)""")
     val dateEmojis = listOf("🛫", "📅", "⏳", "✅", "➕")
 
@@ -94,7 +94,7 @@ class MyProjectService(private val project: Project) {
         val trimmed = line.trim()
         val match = taskRegex.find(trimmed) ?: return@mapNotNull null
 
-        val statusCode = match.groupValues[1]
+        val statusCode = match.groupValues[1].let { it.ifEmpty { " " } }
         var rawContent = match.groupValues[2].trim()
 
         val (priority, matchedPriorityText) = Priority.findPriority(rawContent)
@@ -157,7 +157,7 @@ class MyProjectService(private val project: Project) {
   private fun parseFlexibleDateTime(text: String): LocalDateTime {
     return try {
       LocalDateTime.parse(text, dateFormatter)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       LocalDateTime.parse("$text 00:00", dateFormatter)
     }
   }

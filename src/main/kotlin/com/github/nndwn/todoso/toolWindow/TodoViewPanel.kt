@@ -19,6 +19,7 @@ import com.intellij.ui.components.JBScrollPane
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Point
+import java.awt.event.HierarchyEvent
 import java.awt.event.MouseEvent
 import javax.swing.JComponent
 import javax.swing.ListSelectionModel
@@ -66,8 +67,17 @@ class TodoViewPanel(
     setupContextMenu()
     setupDoubleClickListener()
     setupSelectionListener()
-    refreshTasks()
+    setupVisibilityListener()
+
     updateButtonStates()
+  }
+
+  private fun setupVisibilityListener() {
+    addHierarchyListener { e ->
+      if ((e.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
+        refreshTasks()
+      }
+    }
   }
 
   private var currentTagFilter: String? = null
@@ -166,11 +176,11 @@ class TodoViewPanel(
         add(
           object :
             AnAction(
-              MyBundle.message("todo.menu.challenge"),
-              MyBundle.message("todo.action.challenge.desc"),
+              MyBundle.message("todo.menu.random"),
+              MyBundle.message("todo.action.random.desc"),
               AllIcons.Actions.Lightning,
             ) {
-            override fun actionPerformed(e: AnActionEvent) = handler.handleChallengeTask()
+            override fun actionPerformed(e: AnActionEvent) = handler.handleRandomTask()
           }
         )
         addSeparator()

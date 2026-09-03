@@ -27,8 +27,8 @@ class TodoContextMenu(
         handler.refreshTasks()
       }
 
-      item(MyBundle.message("todo.menu.challenge"), AllIcons.Actions.Lightning) {
-        handler.handleChallengeTask()
+      item(MyBundle.message("todo.menu.random"), AllIcons.Actions.Lightning) {
+        handler.handleRandomTask()
       }
 
       separator()

@@ -35,10 +35,8 @@ class TodoTagCloudPanel(private val onTagSelected: (String?) -> Unit) : JBPanel<
   fun setTags(tags: Map<String, Int>, selectedTag: String?) {
     chipsPanel.removeAll()
 
-    // Add #all chip
     chipsPanel.add(TagChip("all", null, selectedTag == null) { onTagSelected(null) })
 
-    // Add actual tags
     tags.forEach { (tag, count) ->
       chipsPanel.add(TagChip(tag, count, selectedTag == tag) { onTagSelected(tag) })
     }
@@ -82,7 +80,6 @@ class TodoTagCloudPanel(private val onTagSelected: (String?) -> Unit) : JBPanel<
         }
 
       g2.color = bg
-      // Menggambar latar belakang membulat penuh (arc = height)
       g2.fillRoundRect(0, 0, width, height, height, height)
       g2.dispose()
 

@@ -1,6 +1,7 @@
 package com.github.nndwn.todoso.toolWindow
 
 import com.github.nndwn.todoso.MyBundle
+import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
@@ -10,16 +11,19 @@ import java.awt.*
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
 import javax.swing.JButton
+import javax.swing.event.DocumentEvent
 
 class TodoFooterPanel(
   val onNewTask: (String) -> Unit,
   val onCancelTask: (String) -> Unit,
   val onUpdateTask: (String) -> Unit,
   val onCancelEdit: () -> Unit,
-) : JBPanel<JBPanel<*>>(BorderLayout()) {
+) : JBPanel<TodoFooterPanel>(BorderLayout()) {
 
   var isEditMode: Boolean = false
     private set
+
+  private var originalText: String = ""
 
   val inputTextArea =
     JBTextArea().apply {
@@ -30,23 +34,16 @@ class TodoFooterPanel(
       isOpaque = false
       border = JBUI.Borders.empty(8, 12)
       background = JBColor.namedColor("Todo.Input.Background", JBColor(0xF2F2F2, 0x1E1F22))
-
-      addFocusListener(
-        object : FocusAdapter() {
-          override fun focusGained(e: FocusEvent?) = this@TodoFooterPanel.repaint()
-
-          override fun focusLost(e: FocusEvent?) = this@TodoFooterPanel.repaint()
-        }
-      )
     }
 
-  private val newTaskButton =
+  val newTaskButton =
     JButton(MyBundle.message("todo.button.new.task")).apply {
       addActionListener {
         if (isEditMode) onUpdateTask(inputTextArea.text) else onNewTask(inputTextArea.text)
         inputTextArea.requestFocusInWindow()
       }
     }
+
   val canceledTaskButton =
     JButton(MyBundle.message("todo.button.cancel.task")).apply {
       addActionListener {
@@ -57,6 +54,7 @@ class TodoFooterPanel(
 
   fun setEditMode(enabled: Boolean, text: String = "") {
     isEditMode = enabled
+    originalText = text
     if (enabled) {
       inputTextArea.text = text
       inputTextArea.background = JBColor.namedColor("Todo.Input.EditBackground", JBColor(0xE6F2FF, 0x2D3548))
@@ -69,12 +67,46 @@ class TodoFooterPanel(
       newTaskButton.text = MyBundle.message("todo.button.new.task")
       canceledTaskButton.text = MyBundle.message("todo.button.cancel.task")
     }
+    updateActionButtons()
     repaint()
+  }
+
+  private fun updateActionButtons() {
+    val currentText = inputTextArea.text.trim()
+    val hasMeaningfulContent = isInputValid(currentText)
+
+    if (isEditMode) {
+      newTaskButton.isEnabled = hasMeaningfulContent && currentText != originalText.trim()
+    } else {
+      newTaskButton.isEnabled = hasMeaningfulContent
+    }
+  }
+
+  private fun isInputValid(text: String): Boolean {
+    if (text.isEmpty()) return false
+    val prefixOnlyRegex = Regex("""^- \[[ x/-]]\s*$""")
+    return !prefixOnlyRegex.matches(text)
   }
 
   init {
     border = JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 1, 0, 0, 0)
     background = JBUI.CurrentTheme.ToolWindow.background()
+
+    inputTextArea.addFocusListener(
+      object : FocusAdapter() {
+        override fun focusGained(e: FocusEvent?) = this@TodoFooterPanel.repaint()
+
+        override fun focusLost(e: FocusEvent?) = this@TodoFooterPanel.repaint()
+      }
+    )
+
+    inputTextArea.document.addDocumentListener(
+      object : DocumentAdapter() {
+        override fun textChanged(e: DocumentEvent) {
+          updateActionButtons()
+        }
+      }
+    )
 
     val inputWrapper =
       object : JBPanel<JBPanel<*>>(BorderLayout()) {
@@ -132,5 +164,7 @@ class TodoFooterPanel(
 
     add(marginWrapper, BorderLayout.CENTER)
     add(buttonsPanel, BorderLayout.SOUTH)
+
+    updateActionButtons()
   }
 }

@@ -52,17 +52,17 @@ I created this for my own needs because I often forget what needs to be done for
     *   Hides marker icons/dates from the main list for a clean look, but shows them fully in the **Tooltip**.
     *   Automatic sorting: **Doing > Todo (by Priority) > Done**.
     *   Integrated toolbar for instant task list **Refresh**.
+    *   **Auto-Refresh on Visibility**: The task list automatically updates whenever you open or switch back to the "Todo" tool window, ensuring you always see the latest changes from your `todo.md` file.
     *   Double-click to navigate to the specific line in `todo.md`.
-    *   Right-click to access the menu for 
-        * Change Status 
-        * Edit Task and Tags 
-        * Change Priority 
-        * Delete 
-        * priority filtering 
-        * Challenge Task 
-        * Refresh  
-        * Filter Priority 
-        * viewMode
+    *   Right-click context menu for:
+        *   **Change Status**: Move tasks between Todo, Doing, and Done.
+        *   **Edit Task and Tags**: Modify task descriptions and hashtags directly.
+        *   **Change Priority**: Assign urgency levels.
+        *   **Delete**: Remove tasks permanently with confirmation.
+        *   **Random Task**: Pick a random Todo task to start working on.
+        *   **Filter Priority**: Focus on specific urgency levels.
+        *   **Filter Status**: Focus on specific task states.
+        *   **Visual Mode**: Toggle priority colors and emojis.
     *   **Change Status**:
         * TODO -> DOING : OK (Add Start Date)
         * DOING -> DONE : OK (Add End Date)
@@ -72,7 +72,7 @@ I created this for my own needs because I often forget what needs to be done for
     *   Duplicate status actions are not allowed.
     *   If a task was previously marked as 'Done', its previous time is reset when moved back to 'Todo' or 'Doing'.
     *   Automatic duration calculation is displayed on hover when a task is completed.
-    *   **Challenge Task**: A "gamification" feature that randomly picks a task from your **Todo** list and marks it as **Doing** (`🛫`), helping you overcome procrastination by deciding what to work on next.
+    *   **Random Task**: A "gamification" feature that randomly picks a task from your **Todo** list and marks it as **Doing** (`🛫`), helping you overcome procrastination by deciding what to work on next.
     *   **Edit and Priority Restriction**: Editing text or changing priority is only allowed for tasks with **Todo** or **Doing** status. Completed (**Done**) or **Cancelled** tasks are read-only to preserve history (but can still be deleted).
     *   **Task Deletion**: Tasks can be deleted permanently from the `todo.md` file. A confirmation dialog will appear to prevent accidental deletion.
     *   **Mandatory Cancellation Reason**: Cancelled tasks must include a reason. When cancelled via the plugin, existing Start (`🛫`) and Done (`✅`) dates are automatically removed to keep the record clean, and replaced with the Cancellation date (`❌`) and the provided reason.
