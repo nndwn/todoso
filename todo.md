@@ -19,10 +19,10 @@
 - [x] [L] tags jadi nya untuk apa ?
 - [x] [H] publish plugin 
 - [x] 🔼 ubah yang done sekarang bisa edit task dan tags #v1.0.5 #issue 🛫 2026-09-04 18:24 ✅ 2026-09-04 18:56
-- [ ] 🔼 jika tidak ada file todo.md lebih baik letakakan placeholder intruksi #v1.0.6 #feature 🆔 xup50i
+- [ ] 🔼 jika tidak ada file todo.md lebih baik letakakan placeholder intruksi #v1.0.7 #feature 🆔 xup50i
 - [x] 🔺 jika seandainya di tulis - [] data tidak terload #v1.0.4 #issue 🛫 2026-09-04 01:31 ✅ 2026-09-04 02:53
 - [-] [H] apakah bisa setiap data todo.md tersimpan plugin todoso langsung ke refress ❌ 2026-09-04 02:56 // reason: fitur ini tidak perlu di terapkan karena tidak stabil karena pengunaan user diasumsikan sangat jarang sekali mengedit langsung ke editor pada todo.md
-- [ ] 🔼 di klik kanan setiap task ada noted lalu ubah sebelumnya reason menjadi noted saja #v1.0.6 #feature 🆔 3RCtSK
+- [ ] 🔼 jika tidak ada file todo.md lebih baik letakakan placeholder intruksi #v1.0.7 #feature 🆔 3RCtSK
 - [x] 🔼 ubah nama challage taks menjadi random task agar jelas fungsinya #v1.0.4 #issue 🛫 2026-09-04 03:15 ✅ 2026-09-04 04:55
 - [x] 🔽 mengatasi task tulisan panjang di tooltip #v1.0.5 #issue  🆔 UmOall 🛫 2026-09-05 03:28 ✅ 2026-09-05 03:28
 - [x] ⏫ tampilan task todo lebih baik tambahkan icon titik agar jelas sebagai list #v1.0.4 #issue 🛫 2026-09-04 05:29 ✅ 2026-09-04 05:38

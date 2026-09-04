@@ -18,6 +18,9 @@
 - **Improved Tooltip**: Enhanced UI with HTML support for text wrapping, a clearer separator for metadata, and Task ID displayed at the front.
 - **AI Agent Protocol**: Automatic injection of an AI protocol instruction in `todo.md` to help AI assistants stay focused and avoid unwanted edits.
 
+
+
+## [1.0.5] - 2026-09-05
 ### Internal
 - **Code Refactoring**: Major refactor of `MyProjectService.kt` to reduce cognitive complexity and eliminate code duplication using a centralized `modifyTaskLine` helper.
 
