@@ -51,22 +51,6 @@ class TodoContextMenu(
         }
     }
 
-    item(
-      text = MyBundle.message("todo.menu.edit.task"),
-      icon = AllIcons.Actions.EditSource,
-      isEnabled = {
-        val status = handler.getSelectedTask()?.status
-        status == MyProjectService.TaskStatus.TODO ||
-          status == MyProjectService.TaskStatus.DOING ||
-          status == MyProjectService.TaskStatus.DONE
-      },
-    ) {
-      handler.getSelectedTask()?.let {
-        handler.handleCancelEdit()
-        handler.setEditMode(true, it.description)
-      }
-    }
-
     subMenu(
       text = MyBundle.message("todo.menu.change.priority"),
       icon = AllIcons.General.ChevronUp,
@@ -84,7 +68,54 @@ class TodoContextMenu(
         }
     }
 
+    item(
+      text = MyBundle.message("todo.menu.edit.task"),
+      icon = AllIcons.Actions.EditSource,
+      isEnabled = {
+        val status = handler.getSelectedTask()?.status
+        status == MyProjectService.TaskStatus.TODO ||
+          status == MyProjectService.TaskStatus.DOING ||
+          status == MyProjectService.TaskStatus.DONE
+      },
+    ) {
+      handler.getSelectedTask()?.let {
+        handler.handleCancelEdit()
+        handler.setEditMode(true, it.description)
+      }
+    }
+
     item(MyBundle.message("todo.menu.delete"), AllIcons.General.Remove) { handler.handleDeleteAction() }
+
+    separator()
+
+    subMenu(text = MyBundle.message("todo.menu.manage.tags"), icon = AllIcons.Nodes.Tag) {
+      val selected = handler.getSelectedTask()
+
+      MyProjectService.DefaultLabel.entries.forEach { label ->
+        item(
+          text = label.tag,
+          iconProvider = { if (selected?.tags?.contains(label.tagName) == true) AllIcons.Actions.Checked else null },
+          isEnabled = { selected != null },
+        ) {
+          selected?.let { handler.handleToggleTag(it, label.tag, label.exclusiveWith) }
+        }
+      }
+
+      val recentVersions = service.getRecentVersions(3)
+      if (recentVersions.isNotEmpty()) {
+        separator()
+        recentVersions.forEach { version ->
+          val versionTagName = version.removePrefix("#")
+          item(
+            text = version,
+            iconProvider = { if (selected?.tags?.contains(versionTagName) == true) AllIcons.Actions.Checked else null },
+            isEnabled = { selected != null },
+          ) {
+            selected?.let { handler.handleToggleTag(it, version) }
+          }
+        }
+      }
+    }
   }
 
   private fun TodoMenuBuilder.buildViewSubMenu() {

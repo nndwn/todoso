@@ -4,6 +4,16 @@ An IntelliJ plugin to manage your todo list directly from a `todo.md` file in th
 
 I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.
 
+## 🖼️ Visual Showcase
+
+| Main Interface | Tag Filtering | Task Details (Tooltip) |
+| :---: | :---: | :---: |
+| ![Main UI](https://raw.githubusercontent.com/nndwn/todoso/main/images/main_ui.png) | ![Tag Cloud](https://raw.githubusercontent.com/nndwn/todoso/main/images/tag_cloud.png) | ![Tooltip](https://raw.githubusercontent.com/nndwn/todoso/main/images/tooltip.png) |
+
+| Context Menu | Edit Mode |
+| :---: | :---: |
+| ![Context Menu](https://raw.githubusercontent.com/nndwn/todoso/main/images/context_menu.png) | ![Edit Mode](https://raw.githubusercontent.com/nndwn/todoso/main/images/edit_mode.png) |
+
 ##  Key Features
 
 ### File-Based Workflow
@@ -47,6 +57,10 @@ Todoso implements a robust tagging system inspired by Obsidian:
         *   **Done Tasks**: Can be edited (to add tags), but priority is locked as urgency is no longer relevant.
         *   **Cancelled Tasks**: Strictly read-only to prevent accidental history modification.
     *   **Deletion**: Requires manual confirmation to prevent accidental loss of data.
+*   **Quick Labels & Dynamic Versions**: 
+    *   Easily toggle common tags like `#feature` and `#issue` via the context menu.
+    *   **Exclusivity**: Adding `#feature` automatically removes `#issue` (and vice versa) to keep task types clear.
+    *   **Smart Versioning**: The plugin automatically detects the top 3 version tags (e.g., `#v1.0.5`) from your `todo.md` file and offers them as quick-select options.
 
 ### Interactive Tool Window
 *   **Seamless Sync**: Auto-refreshes when you open the tool window or edit the file.

@@ -73,6 +73,13 @@ class MyProjectService(private val project: Project) {
     }
   }
 
+  enum class DefaultLabel(val tag: String, val exclusiveWith: List<String> = emptyList()) {
+    FEATURE("#feature", listOf("#issue")),
+    ISSUE("#issue", listOf("#feature"));
+
+    val tagName: String = tag.removePrefix("#")
+  }
+
   data class TodoTask(
     val id: String,
     val isPersistentId: Boolean,
@@ -162,6 +169,22 @@ class MyProjectService(private val project: Project) {
   private fun generateUniqueId(): String {
     val chars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     return (1..6).map { chars.random() }.joinToString("")
+  }
+
+  fun getRecentVersions(limit: Int = 3): List<String> {
+    val projectDir = project.guessProjectDir() ?: return emptyList()
+    val settings = MyProjectSettingsService.getInstance(project)
+    val todoFile =
+      projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return emptyList()
+
+    val versionRegex = Regex("""(?<=\s|^)#v(\d+[\w.]*)""")
+    return VfsUtil.loadText(todoFile)
+      .lines()
+      .asSequence()
+      .flatMap { line -> versionRegex.findAll(line).map { it.value } }
+      .distinct()
+      .take(limit)
+      .toList()
   }
 
   fun getTagCounts(): Map<String, Int> {
@@ -269,36 +292,40 @@ class MyProjectService(private val project: Project) {
         lineContent = "$lineContent 🆔 ${task.id}"
       }
 
-      when (newStatus) {
-        TaskStatus.TODO -> {
-          lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
-        }
-        TaskStatus.DOING -> {
-          lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
-          if (!lineContent.contains("🛫")) lineContent = "$lineContent 🛫 $now"
-        }
-        TaskStatus.DONE -> {
-          lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
-          if (!lineContent.contains("✅")) lineContent = "$lineContent ✅ $now"
-        }
-        TaskStatus.CANCELLED -> {
-          lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
-          if (!lineContent.contains("❌")) lineContent = "$lineContent ❌ $now"
-          if (!noted.isNullOrBlank()) {
-            lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
-            lineContent = "$lineContent // noted: $noted"
-          }
+      applyStatusMetadata(lineContent, newStatus, now, noted)
+    }
+  }
+
+  private fun applyStatusMetadata(line: String, status: TaskStatus, now: String, noted: String?): String {
+    var content = line
+    when (status) {
+      TaskStatus.TODO -> {
+        content = content.cleanMetadata(START_DATE_REGEX, DONE_DATE_REGEX, CANCEL_DATE_REGEX, NOTED_REGEX)
+      }
+      TaskStatus.DOING -> {
+        content = content.cleanMetadata(DONE_DATE_REGEX, CANCEL_DATE_REGEX, NOTED_REGEX)
+        if (!content.contains("🛫")) content = "$content 🛫 $now"
+      }
+      TaskStatus.DONE -> {
+        content = content.cleanMetadata(CANCEL_DATE_REGEX, NOTED_REGEX)
+        if (!content.contains("✅")) content = "$content ✅ $now"
+      }
+      TaskStatus.CANCELLED -> {
+        content = content.cleanMetadata(START_DATE_REGEX, DONE_DATE_REGEX)
+        if (!content.contains("❌")) content = "$content ❌ $now"
+        if (!noted.isNullOrBlank()) {
+          content = content.cleanMetadata(NOTED_REGEX)
+          content = "$content // noted: $noted"
         }
       }
-      lineContent
     }
+    return content
+  }
+
+  private fun String.cleanMetadata(vararg patterns: String): String {
+    var result = this
+    patterns.forEach { result = result.replace(Regex(it), "").trim() }
+    return result
   }
 
   private fun injectAiProtocolIfNeeded() {
@@ -319,23 +346,7 @@ class MyProjectService(private val project: Project) {
 
   fun editTask(task: TodoTask, newContent: String) {
     modifyTaskLine(task) { _ ->
-      val statusPart = "[${task.status.code}]"
-      val priorityPart =
-        if (task.priority != Priority.NONE) {
-          task.priority.emojis.firstOrNull() ?: "[${task.priority.code}]"
-        } else ""
-
-      val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
-      val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
-
-      buildString {
-        append("- ").append(statusPart).append(" ")
-        if (priorityPart.isNotEmpty()) append(priorityPart).append(" ")
-        append(newContent.trim())
-        if (datesPart.isNotEmpty()) append(" ").append(datesPart)
-        append(" 🆔 ").append(task.id)
-        append(metadataPart)
-      }
+      rebuildTaskLine(task, newContent)
     }
   }
 
@@ -345,23 +356,51 @@ class MyProjectService(private val project: Project) {
 
   fun updateTaskPriority(task: TodoTask, newPriority: Priority) {
     modifyTaskLine(task) { _ ->
-      val statusPart = "[${task.status.code}]"
-      val newPriorityPart =
-        if (newPriority != Priority.NONE) {
-          newPriority.emojis.firstOrNull() ?: "[${newPriority.code}]"
-        } else ""
+      rebuildTaskLine(task.copy(priority = newPriority), task.description)
+    }
+  }
 
-      val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
-      val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
+  fun toggleTaskTag(task: TodoTask, tag: String, exclusiveWith: List<String> = emptyList()) {
+    modifyTaskLine(task) { _ ->
+      var newDescription = task.description
 
-      buildString {
-        append("- ").append(statusPart).append(" ")
-        if (newPriorityPart.isNotEmpty()) append(newPriorityPart).append(" ")
-        append(task.description.trim())
-        if (datesPart.isNotEmpty()) append(" ").append(datesPart)
-        append(" 🆔 ").append(task.id)
-        append(metadataPart)
+      val tagWithHash = if (tag.startsWith("#")) tag else "#$tag"
+      val hasTag = task.tags.any { "#$it" == tagWithHash }
+
+      if (hasTag) {
+        // Remove tag
+        newDescription = newDescription.replace(Regex("""(?<=\s|^)$tagWithHash(?=\s|$)"""), "").trim()
+      } else {
+        // Remove exclusive tags first
+        exclusiveWith.forEach { exTag ->
+          val exWithHash = if (exTag.startsWith("#")) exTag else "#$exTag"
+          newDescription = newDescription.replace(Regex("""(?<=\s|^)$exWithHash(?=\s|$)"""), "").trim()
+        }
+        // Add new tag
+        newDescription = "$newDescription $tagWithHash".trim()
       }
+
+      rebuildTaskLine(task, newDescription)
+    }
+  }
+
+  private fun rebuildTaskLine(task: TodoTask, description: String): String {
+    val statusPart = "[${task.status.code}]"
+    val priorityPart =
+      if (task.priority != Priority.NONE) {
+        task.priority.emojis.firstOrNull() ?: "[${task.priority.code}]"
+      } else ""
+
+    val datesPart = task.dates.filter { it.key != "//" }.map { "${it.key} ${it.value}" }.joinToString(" ")
+    val metadataPart = task.dates["//"]?.let { " // $it" } ?: ""
+
+    return buildString {
+      append("- ").append(statusPart).append(" ")
+      if (priorityPart.isNotEmpty()) append(priorityPart).append(" ")
+      append(description.trim())
+      if (datesPart.isNotEmpty()) append(" ").append(datesPart)
+      append(" 🆔 ").append(task.id)
+      append(metadataPart)
     }
   }
 }

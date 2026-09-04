@@ -107,6 +107,11 @@ class TodoActionHandler(
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 
+  fun handleToggleTag(task: MyProjectService.TodoTask, tag: String, exclusiveWith: List<String> = emptyList()) {
+    service.toggleTaskTag(task, tag, exclusiveWith)
+    ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+  }
+
   fun handleRandomTask() {
     val todoTasks = service.getTodoTasks().filter { it.status == MyProjectService.TaskStatus.TODO }
     if (todoTasks.isEmpty()) {

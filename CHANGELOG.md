@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Added
+- **Quick Tags Menu**: A new context menu sub-menu to toggle `#feature`, `#issue`, and the top 3 recently used version tags automatically detected from your file.
 - **Unique Task IDs**: Automatic generation and persistence of unique 6-character task IDs using the `🆔` emoji (Obsidian Tasks standard).
 - **Smart Tagging (Obsidian-style)**: Support for hierarchical tags (e.g., `#work/task`) and technical symbols (e.g., `#C#`).
 - **Done Task Editing**: You can now edit tasks marked as **Done** to add tags or adjust descriptions without losing metadata.

@@ -253,4 +253,42 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     assertTrue(updatedTask.rawText.contains("🆔 myid77"))
     assertEquals("Edited description", updatedTask.description)
   }
+
+  fun testGetRecentVersions() {
+    val content =
+      """
+      - [ ] Task 1 #v1.0.1
+      - [ ] Task 2 #v1.0.2
+      - [ ] Task 3 #v1.0.3
+      - [ ] Task 4 #v1.0.4
+      - [ ] Task 5 #v1.0.1
+      """
+        .trimIndent()
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val versions = service.getRecentVersions(3)
+    assertEquals(listOf("#v1.0.1", "#v1.0.2", "#v1.0.3"), versions)
+  }
+
+  fun testToggleTaskTagExclusivity() {
+    val content = "- [ ] Task with issue #issue 🆔 testid"
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    service.toggleTaskTag(task, "#feature", listOf("#issue"))
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertTrue(updatedTask.tags.contains("feature"))
+    assertFalse(updatedTask.tags.contains("issue"))
+    assertTrue(updatedTask.rawText.contains("#feature"))
+    assertFalse(updatedTask.rawText.contains("#issue"))
+
+    // Toggle off
+    service.toggleTaskTag(updatedTask, "#feature")
+    val updatedTask2 = service.getTodoTasks()[0]
+    assertFalse(updatedTask2.tags.contains("feature"))
+    assertFalse(updatedTask2.rawText.contains("#feature"))
+  }
 }

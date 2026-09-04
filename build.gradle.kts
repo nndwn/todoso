@@ -16,3 +16,16 @@ dependencies {
     }
 }
 
+intellijPlatform {
+    pluginConfiguration {
+        description = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
+            it.substringAfter("## 🖼️ Visual Showcase").substringBeforeLast("---").trim()
+        }
+
+        changeNotes = providers.provider {
+            changelog.renderItem(
+                changelog.getLatest().withHeader(false).withEmptySections(false)
+            )
+        }
+    }
+}
