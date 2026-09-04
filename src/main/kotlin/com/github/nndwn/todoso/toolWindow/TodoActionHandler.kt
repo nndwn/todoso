@@ -76,23 +76,23 @@ class TodoActionHandler(
     }
   }
 
-  fun handleCancelAction(reason: String) {
+  fun handleCancelAction(noted: String) {
     val task = view.getSelectedTask() ?: return
-    val trimmedReason = reason.trim()
+    val trimmedNoted = noted.trim()
 
-    if (trimmedReason.isEmpty()) {
+    if (trimmedNoted.isEmpty()) {
       NotificationGroupManager.getInstance()
         .getNotificationGroup("com.github.nndwn.todoso.notifications")
         .createNotification(
           MyBundle.message("plugin.name"),
-          MyBundle.message("todo.action.cancel.reason.required"),
+          MyBundle.message("todo.action.cancel.noted.required"),
           NotificationType.WARNING,
         )
         .notify(project)
       return
     }
 
-    service.updateTaskStatus(task, MyProjectService.TaskStatus.CANCELLED, trimmedReason)
+    service.updateTaskStatus(task, MyProjectService.TaskStatus.CANCELLED, trimmedNoted)
     view.setEditMode(false)
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }

@@ -99,13 +99,17 @@ class TodoCellRenderer(
 
   private fun updateToolTip(task: MyProjectService.TodoTask) {
     toolTipText = buildString {
-      if (task.priority != MyProjectService.Priority.NONE) {
-        append("[${task.priority.label}] ")
+      append("<html><body style='width: 250px;'>")
+      if (task.isPersistentId) {
+        append("<b>[${task.id}]</b> ")
       }
-      append(task.description)
+      if (task.priority != MyProjectService.Priority.NONE) {
+        append("<b>[${task.priority.label}]</b> ")
+      }
+      append(task.description.replace("\n", "<br/>"))
 
       if (task.dates.isNotEmpty()) {
-        append("\nDates:")
+
         task.dates.forEach { (emoji, date) ->
           val label =
             when (emoji) {
@@ -114,18 +118,20 @@ class TodoCellRenderer(
               "⏳" -> "Scheduled"
               "✅" -> "Done"
               "➕" -> "Created"
-              "//" -> "Legacy Info"
+              "❌" -> "Cancelled"
+              "//" -> "Note"
               else -> "Info"
             }
-          append("\n  $emoji $label: $date")
+          append("<br/><b>$label</b>: $date")
         }
 
         if (task.status == MyProjectService.TaskStatus.DONE) {
           service.calculateDuration(task)?.let { duration ->
-            append("\n\n⏱ Duration: $duration")
+            append("<br/> <b>Duration</b>: $duration")
           }
         }
       }
+      append("</body></html>")
     }
   }
 }

@@ -119,6 +119,8 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     val doneTaskText = "- [x] Finished task 🛫 2026-09-01 08:00 ✅ 2026-09-01 10:30"
     val doneTask =
       MyProjectService.TodoTask(
+        id = "abc123",
+        isPersistentId = true,
         rawText = doneTaskText,
         description = "Finished task",
         status = MyProjectService.TaskStatus.DONE,
@@ -170,7 +172,7 @@ class MyProjectServiceTest : BasePlatformTestCase() {
   }
 
   fun testEditCancelledTaskPreservesMetadata() {
-    val content = "- [-] ⏫ Cancelled task ❌ 2026-09-01 12:00 // reason: too busy"
+    val content = "- [-] ⏫ Cancelled task ❌ 2026-09-01 12:00 // noted: too busy"
     myFixture.addFileToProject("todo.md", content)
     val service = project.service<MyProjectService>()
 
@@ -181,9 +183,9 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     assertEquals(MyProjectService.TaskStatus.CANCELLED, updatedTask.status)
     assertEquals("Cancelled but edited task #update", updatedTask.description)
     assertEquals("2026-09-01 12:00", updatedTask.dates["❌"])
-    assertEquals("reason: too busy", updatedTask.dates["//"])
+    assertEquals("noted: too busy", updatedTask.dates["//"])
     assertTrue(updatedTask.rawText.contains("❌ 2026-09-01 12:00"))
-    assertTrue(updatedTask.rawText.contains("// reason: too busy"))
+    assertTrue(updatedTask.rawText.contains("// noted: too busy"))
   }
 
   fun testUpdatePriorityDoneTaskPreservesMetadata() {
@@ -200,5 +202,55 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     assertEquals("2026-09-01 08:00", updatedTask.dates["🛫"])
     assertEquals("2026-09-01 10:30", updatedTask.dates["✅"])
     assertTrue(updatedTask.rawText.contains("✅ 2026-09-01 10:30"))
+  }
+
+  fun testTaskIdParsingAndGeneration() {
+    val content =
+      """
+      - [ ] Task with existing ID 🆔 id123
+      - [ ] Task without ID
+      - [ ] Task with duplicate ID 🆔 id123
+      """
+        .trimIndent()
+
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+    val tasks = service.getTodoTasks()
+
+    assertEquals(3, tasks.size)
+    assertEquals("id123", tasks[0].id)
+    assertNotNull(tasks[1].id)
+    assertEquals(6, tasks[1].id.length)
+    assertNotNull(tasks[2].id)
+    assertFalse(tasks[2].id == "id123")
+  }
+
+  fun testTaskIdPersistenceOnStatusChange() {
+    val content = "- [ ] Task for persistence"
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    val originalId = task.id
+
+    service.updateTaskStatus(task, MyProjectService.TaskStatus.DOING)
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertEquals(originalId, updatedTask.id)
+    assertTrue(updatedTask.rawText.contains("🆔 $originalId"))
+  }
+
+  fun testTaskIdPersistenceOnEdit() {
+    val content = "- [ ] Task to edit 🆔 myid77"
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    service.editTask(task, "Edited description")
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertEquals("myid77", updatedTask.id)
+    assertTrue(updatedTask.rawText.contains("🆔 myid77"))
+    assertEquals("Edited description", updatedTask.description)
   }
 }

@@ -32,7 +32,7 @@ Todoso implements a robust tagging system inspired by Obsidian:
     *   `[ ]` : **Todo** (Pending)
     *   `[/]` : **Doing** (In Progress) — Highlights in green and moves to the top.
     *   `[x]` : **Done** (Completed) — Strikethrough and grayed out.
-    *   `[-]` or `❌` : **Cancelled** (Requires a reason).
+    *   `[-]` or `❌` : **Cancelled** (Requires a noted).
 *   **Dual Priority Support**:
     *   **Emoji (Obsidian)**: `🔺`, `⏫`, `🔼`, `🔽`, `⏬`
     *   **Text (Legacy)**: `[HH]`, `[H]`, `[M]`, `[L]`, `[LL]`
@@ -41,7 +41,7 @@ Todoso implements a robust tagging system inspired by Obsidian:
     *   **Status Transitions**: 
         *   `TODO` -> `DOING`: Automatically adds Start Date (`🛫`).
         *   `DOING` -> `DONE`: Automatically adds Completion Date (`✅`).
-        *   `ANY` -> `CANCELLED`: Requires a **mandatory reason**, adds `❌`, and clears working dates to preserve history.
+        *   `ANY` -> `CANCELLED`: Requires a **mandatory noted**, adds `❌`, and clears working dates to preserve history.
         *   `DONE` -> `CANCELLED`: **Blocked**. A completed task cannot be logically cancelled.
     *   **Edit Restrictions**: 
         *   **Done Tasks**: Can be edited (to add tags), but priority is locked as urgency is no longer relevant.
@@ -55,11 +55,20 @@ Todoso implements a robust tagging system inspired by Obsidian:
 *   **Visual Mode**: Toggle priority colors and emojis via the toolbar for a cleaner look.
 *   **Duration Tracking**: Automatically calculates how long a task took once marked as Done.
 
-### 🤖 AI-Ready Context
+### AI-Ready Context
 Todoso is designed to bridge the gap between your intent and AI assistance. By maintaining a structured `todo.md` file at the project root, you provide AI coding assistants with a clear map of your goals.
+*   **Unique Task IDs**: Every task is assigned a unique 6-character ID (`🆔`). This allows AI to reference specific tasks accurately, even if their descriptions change.
 *   **Intent Mapping**: Helps AI understand the "why" and "when" behind your code, not just the "what".
 *   **Roadmap Clarity**: AI can scan your roadmap to provide suggestions that align with your current `#feature` or `#issue` focus.
 *   **Seamless Debugging**: Structured tags help AI assistants quickly identify and relate tasks to your codebase context.
+*   **AI Agent Protocol**: Automatic injection of an AI protocol instruction in `todo.md` to help AI assistants stay focused and avoid unwanted edits.
+
+### Task Metadata
+Todoso uses the `🆔` emoji to store unique identifiers for each task, following the Obsidian Tasks convention.
+*   **Automatic Management**: IDs are generated automatically by the plugin. You don't need to type them manually.
+*   **Lazy Persistence**: For existing tasks without IDs, an ID is created **in-memory** first. It is only written permanently to your `todo.md` file the first time you interact with that task (e.g., changing status, editing text, or updating priority).
+*   **New Tasks**: Tasks created via the plugin's "New Task" input will have an ID assigned and saved immediately.
+*   **Safe for Collaboration**: Duplicate IDs (e.g., from copy-pasting lines in the Markdown file) are automatically detected and resolved by assigning a new unique ID to the duplicate.
 
 ## Writing Rules
 

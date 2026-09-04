@@ -20,10 +20,20 @@ class MyProjectService(private val project: Project) {
 
   companion object {
     private const val DATE_PATTERN = """\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?"""
-    private const val REASON_REGEX = """//\s*reason:.*"""
+    private const val NOTED_REGEX = """//\s*noted:.*"""
     private const val START_DATE_REGEX = """🛫\s*$DATE_PATTERN"""
     private const val DONE_DATE_REGEX = """✅\s*$DATE_PATTERN"""
     private const val CANCEL_DATE_REGEX = """❌\s*$DATE_PATTERN"""
+
+    private const val AI_PROTOCOL =
+      """
+> [!NOTE]
+> **AI Agent Protocol**:
+> 1. DO NOT update task statuses (e.g., changing `[ ]` to `[x]`) unless explicitly requested.
+> 2. Focus on tasks marked with `[/]` (Doing) for the current context.
+> 3. Only edit this file to add new tasks or update IDs/metadata as per technical requirements.
+
+"""
   }
 
   enum class Priority(val emojis: List<String>, val code: String, val label: String, val color: Color) {
@@ -64,6 +74,8 @@ class MyProjectService(private val project: Project) {
   }
 
   data class TodoTask(
+    val id: String,
+    val isPersistentId: Boolean,
     val rawText: String,
     val description: String,
     val status: TaskStatus,
@@ -83,9 +95,13 @@ class MyProjectService(private val project: Project) {
     val todoFile =
       projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return emptyList()
 
+    injectAiProtocolIfNeeded()
+
     val taskRegex = Regex("""^- \[([ x/-]?)] (.*)$""")
     val tagRegex = Regex("""(?<=\s|^)#([\w/#.-]*[\w/#-])""")
+    val idRegex = Regex("""🆔\s*([a-zA-Z0-9]+)""")
     val dateEmojis = listOf("🛫", "📅", "⏳", "✅", "➕", "❌")
+    val usedIds = mutableSetOf<String>()
 
     return VfsUtil.loadText(todoFile)
       .lines()
@@ -97,6 +113,22 @@ class MyProjectService(private val project: Project) {
 
         val statusCode = match.groupValues[1].let { it.ifEmpty { " " } }
         var rawContent = match.groupValues[2].trim()
+
+        val idMatch = idRegex.find(rawContent)
+        val extractedId = idMatch?.groupValues?.get(1)
+        var isPersistent = false
+        val id =
+          if (extractedId != null && usedIds.add(extractedId)) {
+            rawContent = rawContent.replace(idMatch.value, "").trim()
+            isPersistent = true
+            extractedId
+          } else {
+            var newId = generateUniqueId()
+            while (!usedIds.add(newId)) {
+              newId = generateUniqueId()
+            }
+            newId
+          }
 
         val (priority, matchedPriorityText) = Priority.findPriority(rawContent)
         if (matchedPriorityText != null) {
@@ -121,10 +153,15 @@ class MyProjectService(private val project: Project) {
 
         val tags = tagRegex.findAll(rawContent).map { it.groupValues[1] }.toList()
 
-        TodoTask(line, rawContent, TaskStatus.fromCode(statusCode), priority, tags, dates, index)
+        TodoTask(id, isPersistent, line, rawContent, TaskStatus.fromCode(statusCode), priority, tags, dates, index)
       }
       .toList()
       .sortedWith(compareBy({ it.status.ordinal }, { it.priority.ordinal }))
+  }
+
+  private fun generateUniqueId(): String {
+    val chars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+    return (1..6).map { chars.random() }.joinToString("")
   }
 
   fun getTagCounts(): Map<String, Int> {
@@ -169,12 +206,15 @@ class MyProjectService(private val project: Project) {
     val fileName = settings.state.todoFileName
     val todoFile = projectDir.findChild(fileName)
 
+    injectAiProtocolIfNeeded()
+
     val trimmedInput = description.trim()
+    val newId = generateUniqueId()
     val newTaskLine =
       if (trimmedInput.startsWith("- [") && trimmedInput.contains("] ")) {
-        trimmedInput
+        if (trimmedInput.contains("🆔")) trimmedInput else "$trimmedInput 🆔 $newId"
       } else {
-        "- [ ] $trimmedInput"
+        "- [ ] $trimmedInput 🆔 $newId"
       }
 
     WriteCommandAction.runWriteCommandAction(project) {
@@ -220,41 +260,61 @@ class MyProjectService(private val project: Project) {
     }
   }
 
-  fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, reason: String? = null) {
+  fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, noted: String? = null) {
     modifyTaskLine(task) { line ->
       var lineContent = line.replaceFirst(Regex("""\[([ x/-]?)]"""), "[${newStatus.code}]")
       val now = LocalDateTime.now().format(dateFormatter)
+
+      if (!lineContent.contains("🆔")) {
+        lineContent = "$lineContent 🆔 ${task.id}"
+      }
 
       when (newStatus) {
         TaskStatus.TODO -> {
           lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
           lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
           lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
         }
         TaskStatus.DOING -> {
           lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
           lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
           if (!lineContent.contains("🛫")) lineContent = "$lineContent 🛫 $now"
         }
         TaskStatus.DONE -> {
           lineContent = lineContent.replace(Regex(CANCEL_DATE_REGEX), "").trim()
-          lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
+          lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
           if (!lineContent.contains("✅")) lineContent = "$lineContent ✅ $now"
         }
         TaskStatus.CANCELLED -> {
           lineContent = lineContent.replace(Regex(START_DATE_REGEX), "").trim()
           lineContent = lineContent.replace(Regex(DONE_DATE_REGEX), "").trim()
           if (!lineContent.contains("❌")) lineContent = "$lineContent ❌ $now"
-          if (!reason.isNullOrBlank()) {
-            lineContent = lineContent.replace(Regex(REASON_REGEX), "").trim()
-            lineContent = "$lineContent // reason: $reason"
+          if (!noted.isNullOrBlank()) {
+            lineContent = lineContent.replace(Regex(NOTED_REGEX), "").trim()
+            lineContent = "$lineContent // noted: $noted"
           }
         }
       }
       lineContent
     }
+  }
+
+  private fun injectAiProtocolIfNeeded() {
+    val settings = MyProjectSettingsService.getInstance(project)
+    if (settings.state.isProtocolInjected) return
+
+    val projectDir = project.guessProjectDir() ?: return
+    val todoFile = projectDir.findChild(settings.state.todoFileName) ?: return
+
+    val content = VfsUtil.loadText(todoFile)
+    if (!content.contains("AI Agent Protocol")) {
+      WriteCommandAction.runWriteCommandAction(project) {
+        VfsUtil.saveText(todoFile, AI_PROTOCOL.trimStart() + "\n" + content)
+      }
+    }
+    settings.state.isProtocolInjected = true
   }
 
   fun editTask(task: TodoTask, newContent: String) {
@@ -273,6 +333,7 @@ class MyProjectService(private val project: Project) {
         if (priorityPart.isNotEmpty()) append(priorityPart).append(" ")
         append(newContent.trim())
         if (datesPart.isNotEmpty()) append(" ").append(datesPart)
+        append(" 🆔 ").append(task.id)
         append(metadataPart)
       }
     }
@@ -298,6 +359,7 @@ class MyProjectService(private val project: Project) {
         if (newPriorityPart.isNotEmpty()) append(newPriorityPart).append(" ")
         append(task.description.trim())
         if (datesPart.isNotEmpty()) append(" ").append(datesPart)
+        append(" 🆔 ").append(task.id)
         append(metadataPart)
       }
     }

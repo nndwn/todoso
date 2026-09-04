@@ -54,6 +54,8 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
   fun testCanTransitionTo() {
     val task =
       MyProjectService.TodoTask(
+        "test-id",
+        true,
         "- [ ] Task",
         "Task",
         MyProjectService.TaskStatus.TODO,

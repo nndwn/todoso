@@ -5,14 +5,17 @@
 ## [Unreleased]
 
 ### Added
+- **Unique Task IDs**: Automatic generation and persistence of unique 6-character task IDs using the `🆔` emoji (Obsidian Tasks standard).
 - **Smart Tagging (Obsidian-style)**: Support for hierarchical tags (e.g., `#work/task`) and technical symbols (e.g., `#C#`).
 - **Done Task Editing**: You can now edit tasks marked as **Done** to add tags or adjust descriptions without losing metadata.
 
 ### Improved
 - **Hashtag Precision**: New regex ensures tags are only detected when preceded by a space and automatically cleans trailing punctuation (e.g., `#tag.` becomes `#tag`).
-- **Task Logic & Safety**: 
-    - **Cancelled** tasks are now read-only to prevent accidental history modification.
+- **Task Logic & Safety**:
+    - **Cancelled** tasks are now read-only to preserve history and require a **noted** (formerly 'reason').
     - **Done** tasks now have their priority locked, as urgency is no longer relevant after completion.
+- **Improved Tooltip**: Enhanced UI with HTML support for text wrapping, a clearer separator for metadata, and Task ID displayed at the front.
+- **AI Agent Protocol**: Automatic injection of an AI protocol instruction in `todo.md` to help AI assistants stay focused and avoid unwanted edits.
 
 ### Internal
 - **Code Refactoring**: Major refactor of `MyProjectService.kt` to reduce cognitive complexity and eliminate code duplication using a centralized `modifyTaskLine` helper.
