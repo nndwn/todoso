@@ -9,22 +9,27 @@
 - [x] [H] tambahkan dan integrasi filter status 
 - [x] [L] tags jadi nya untuk apa ?
 - [x] [H] publish plugin 
-- [ ] 🔼 ubah yang done sekarang bisa edit task dan tags #v1.0.4
-- [ ] 🔼 jika tidak ada file todo.md lebih baik letakakan placeholder intruksi #v1.0.4 #feature
+- [ ] 🔼 ubah yang done sekarang bisa edit task dan tags #v1.0.5
+- [ ] 🔼 jika tidak ada file todo.md lebih baik letakakan placeholder intruksi #v1.0.5 #feature
 - [x] 🔺 jika seandainya di tulis - [] data tidak terload #v1.0.4 #issue 🛫 2026-09-04 01:31 ✅ 2026-09-04 02:53
 - [-] [H] apakah bisa setiap data todo.md tersimpan plugin todoso langsung ke refress ❌ 2026-09-04 02:56 // reason: fitur ini tidak perlu di terapkan karena tidak stabil karena pengunaan user diasumsikan sangat jarang sekali mengedit langsung ke editor pada todo.md
-- [ ] [H] di klik kanan setiap task ada noted lalu ubah sebelumnya reason menjadi noted saja #v1.0.4 #feature
+- [ ] 🔼 di klik kanan setiap task ada noted lalu ubah sebelumnya reason menjadi noted saja #v1.0.5 #feature
 - [x] 🔼 ubah nama challage taks menjadi random task agar jelas fungsinya #v1.0.4 #issue 🛫 2026-09-04 03:15 ✅ 2026-09-04 04:55
-- [ ] 🔽 mengatasi task tulisan panjang lebih harusnya bagaimana ? #v1.0.4 #issue
+- [ ] 🔽 mengatasi task tulisan panjang lebih harusnya bagaimana ? #v1.0.5 #issue
 - [x] ⏫ tampilan task todo lebih baik tambahkan icon titik agar jelas sebagai list #v1.0.4 #issue 🛫 2026-09-04 05:29 ✅ 2026-09-04 05:38
 - [x] [HH] hindarin penulisan task kosong disable button new task #v1.0.4 #issue 🛫 2026-09-04 00:32 ✅ 2026-09-04 01:31
 - [x] 🔺 tombol update dan canceled task tidak berfungsi pada saat editd mode di test ide android studio 2026.1.04 #v1.0.4 #issue 🛫 2026-09-04 04:59 ✅ 2026-09-04 05:29
 - [x] [M] pada saat edit mode jika tidak ada perubahan jangan aktifin tombol update task #v1.0.4 #issue 🛫 2026-09-04 01:14 ✅ 2026-09-04 01:31
-- [ ] [H] kedepannya tidak ada tag  kosong secara default terdapat tag khusus bawaab `#issue` dan `#feature`. #feature #v1.0.4
-- [ ] [H] masih ada trouble penanganan hastag # tags #v1.0.4 #issue
-- [ ] [H] seperti perlu penaganan reformat untuk id task #feature #v1.0.4
-- [ ] [L] sepertinya perlu fitur history tapi mungkin next fitur nanti #feature
+- [ ] 🔼 kedepannya tidak ada tag  kosong secara default terdapat tag khusus bawaab `#issue` dan `#feature`. #feature #v1.0.5
+- [ ] ⏫ masih ada trouble penanganan hastag # tags #v1.0.5 #issue
+- [ ] 🔼 seperti perlu penaganan reformat untuk id task #feature #v1.0.5
+- [ ] ⏬ sepertinya perlu fitur history tapi mungkin next fitur nanti #feature
 - [x] [M] icon logo untuk dark mode theme tidak berubah menjadi warna putih dan sebalik #issue #v1.0.4 🛫 2026-09-04 05:51 ✅ 2026-09-04 06:24
-- [ ] [L] create screenshoot untuk market place dan tambahkan ke README.md #feature
-- [ ] [L] refactoring complesity MyProjectService.kt #issue 
-- [ ] [L] bagaimana membuat semacam slide screenshoot agar tampak menarik 
+- [ ] 🔼 create screenshoot untuk market place dan tambahkan ke READE.md #feature #v1.0.5
+- [x] 🔽 refactoring complesity MyProjectService.kt #issue #v1.0.5 🛫 2026-09-04 06:36 ✅ 2026-09-04 07:52
+- [ ] 🔽 bagaimana membuat semacam slide screenshoot agar tampak menarik #feature
+- [ ] 🔼 di panel tags mungkin perlu panel dapat klik kanan seperti rename dan delete #feature
+- [ ] ⏬ terdapat bug priority ketika di tulis manual dengan style legacy lalu di edit maka akan tampil di list prioroty dalam bentuk emoticon #issue #v1.0.5
+- [ ] 🔽 untuk done apakah bisa untuk urutannya berdasarkan waktu penyelesaian ?
+- [ ] 🔼 untuk README.MD susunan tulisannya berantakan sekali #issue
+- [ ] ada issue ketika di atas tidak punya tag tapi punya priority lalu penambahan task baru maka task baru tersebut mengikutin priority sebelumnya #issue

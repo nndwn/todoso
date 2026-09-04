@@ -68,7 +68,7 @@ class TodoViewPanel(
     setupDoubleClickListener()
     setupSelectionListener()
     setupVisibilityListener()
-
+    refreshTasks()
     updateButtonStates()
   }
 
