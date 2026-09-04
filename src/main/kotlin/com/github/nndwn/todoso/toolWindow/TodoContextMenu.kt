@@ -55,9 +55,10 @@ class TodoContextMenu(
       text = MyBundle.message("todo.menu.edit.task"),
       icon = AllIcons.Actions.EditSource,
       isEnabled = {
-        val selected = handler.getSelectedTask()
-        selected != null &&
-          (selected.status == MyProjectService.TaskStatus.TODO || selected.status == MyProjectService.TaskStatus.DOING)
+        val status = handler.getSelectedTask()?.status
+        status == MyProjectService.TaskStatus.TODO ||
+          status == MyProjectService.TaskStatus.DOING ||
+          status == MyProjectService.TaskStatus.DONE
       },
     ) {
       handler.getSelectedTask()?.let {
@@ -70,9 +71,8 @@ class TodoContextMenu(
       text = MyBundle.message("todo.menu.change.priority"),
       icon = AllIcons.General.ChevronUp,
       isEnabled = {
-        val selected = handler.getSelectedTask()
-        selected != null &&
-          (selected.status == MyProjectService.TaskStatus.TODO || selected.status == MyProjectService.TaskStatus.DOING)
+        val status = handler.getSelectedTask()?.status
+        status == MyProjectService.TaskStatus.TODO || status == MyProjectService.TaskStatus.DOING
       },
     ) {
       MyProjectService.Priority.entries

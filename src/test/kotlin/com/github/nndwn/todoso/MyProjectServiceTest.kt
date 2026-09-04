@@ -150,4 +150,55 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     assertEquals(MyProjectService.Priority.LOW, updatedTask2.priority)
     assertTrue(updatedTask2.rawText.contains("🔽"))
   }
+
+  fun testEditDoneTaskPreservesMetadata() {
+    val content = "- [x] ⏫ Done task 🛫 2026-09-01 08:00 ✅ 2026-09-01 10:30 #old"
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    service.editTask(task, "Updated task description #new")
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertEquals(MyProjectService.TaskStatus.DONE, updatedTask.status)
+    assertEquals(MyProjectService.Priority.HIGH, updatedTask.priority)
+    assertEquals("Updated task description #new", updatedTask.description)
+    assertEquals("2026-09-01 08:00", updatedTask.dates["🛫"])
+    assertEquals("2026-09-01 10:30", updatedTask.dates["✅"])
+    assertEquals(listOf("new"), updatedTask.tags)
+    assertTrue(updatedTask.rawText.contains("✅ 2026-09-01 10:30"))
+  }
+
+  fun testEditCancelledTaskPreservesMetadata() {
+    val content = "- [-] ⏫ Cancelled task ❌ 2026-09-01 12:00 // reason: too busy"
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    service.editTask(task, "Cancelled but edited task #update")
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertEquals(MyProjectService.TaskStatus.CANCELLED, updatedTask.status)
+    assertEquals("Cancelled but edited task #update", updatedTask.description)
+    assertEquals("2026-09-01 12:00", updatedTask.dates["❌"])
+    assertEquals("reason: too busy", updatedTask.dates["//"])
+    assertTrue(updatedTask.rawText.contains("❌ 2026-09-01 12:00"))
+    assertTrue(updatedTask.rawText.contains("// reason: too busy"))
+  }
+
+  fun testUpdatePriorityDoneTaskPreservesMetadata() {
+    val content = "- [x] ⏫ Done task 🛫 2026-09-01 08:00 ✅ 2026-09-01 10:30"
+    myFixture.addFileToProject("todo.md", content)
+    val service = project.service<MyProjectService>()
+
+    val task = service.getTodoTasks()[0]
+    service.updateTaskPriority(task, MyProjectService.Priority.LOW)
+
+    val updatedTask = service.getTodoTasks()[0]
+    assertEquals(MyProjectService.TaskStatus.DONE, updatedTask.status)
+    assertEquals(MyProjectService.Priority.LOW, updatedTask.priority)
+    assertEquals("2026-09-01 08:00", updatedTask.dates["🛫"])
+    assertEquals("2026-09-01 10:30", updatedTask.dates["✅"])
+    assertTrue(updatedTask.rawText.contains("✅ 2026-09-01 10:30"))
+  }
 }

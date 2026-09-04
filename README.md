@@ -1,91 +1,74 @@
 # Todoso - IntelliJ Todo Manager
 
-An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root, supporting standard formats from Obsidian and Notion.
+An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root. Designed for simplicity, it supports modern standards inspired by **Obsidian** and **Notion**.
 
-I created this for my own needs because I often forget what needs to be done for the next day. Usually, I use Sticky Notes, Google Keep, Notion, and Obsidian, but I found myself lazy to open those apps. Instead of opening another app every time I work on something, I thought it would be better to just create a `todo.md` file within the project. My goal is simplicity in reading and writing project tasks. I've added features that match my own standards while also integrating with Notion and Obsidian for easier analysis.
+I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.
 
-## 🚀 Key Features
-*   **todo.md Integration**: Reads tasks directly from a Markdown file in the project root.
-    * The plugin reads a file named `todo.md`. If the file does not exist, it will be automatically created when you add your first task via the plugin.
-    * You can also customize the path and filename in `.idea/TodosoSettings.xml` like this:
+##  Key Features
+
+### File-Based Workflow
+*   **Automatic Integration**: Reads from `todo.md` at your project root. If the file doesn't exist, it's created automatically when you add your first task.
+*   **Customizable**: You can change the filename and path in `.idea/TodosoSettings.xml`.
     ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-       <project version="4">
-        <component name="com.github.nndwn.todoso.services.MyProjectSettingsService">
-            <option name="todoFileName" value="todo.md"/>  // Path relative to the project root
-        </component>
-       </project>
+    <component name="com.github.nndwn.todoso.services.MyProjectSettingsService">
+        <option name="todoFileName" value="todo.md"/>
+    </component>
     ```
-*   **Interactive Tool Window**: A clean, selectable task list.
-    * I have some knowledge of UX, so I've tried to make it as simple as possible for users.
-*   **Dynamic Tag Cloud**: A horizontal scrollable area above the footer that displays all active tags with their task counts. Click any tag chip to filter the list instantly, or use the `#all` chip to reset.
-*   **Comprehensive Task Status**:
-    * Tasks can be created in two ways: you can write them directly in `todo.md` or edit them within the plugin. Common statuses are as follows:
-    *   `[ ]` : Todo (Not started).
-    *   `[/]` : **Doing** (In progress) - Bold green text, automatically moves to the top.
-    *   `[x]` : Done (Completed) - Strikethrough gray text.
-    *   `[-]` or `❌` : Cancelled.
-    
-*   **Dual Priority System**:
-    * **Obsidian Style**: `🔺` (Highest), `⏫` (High), `🔼` (Medium), `🔽` (Low), `⏬` (Lowest).
-    * **My Style**: `[HH]` (Highest), `[H]` (High), `[M]` (Medium), `[L]` (Low), `[LL]` (Lowest).
-    * These are the standard ones I know, as shown above. I added priority because Obsidian uses emoji standards, so I included them as follows:
-    * In the plugin, writing uses the standard Obsidian style, but since I usually write directly, I made a version where both are readable and then added tags after.
-    
-*   **Dynamic Hashtags (`#tag`)**: Automatic tag detection (e.g., `#ui`, `#bug`, `#v1.3.1`) with Cyan color highlighting. 
-    * Basically, every tag created will be collected. If there is a `#` inside a task, don't worry—the plugin is smart enough to handle it. For my scenarios, there seem to be no issues. Additionally, I tried to add a track record starting from when the user marks a task as 'Doing' until it is 'Done'.
- 
-* **Time Management & Metadata**:
-  *   Supports Obsidian date emojis with optional time: `🛫` (Start), `📅` (Due), `⏳` (Scheduled), `✅` (Completed), `➕` (Created).
-  *   Format supported: `YYYY-MM-DD` or `YYYY-MM-DD HH:mm` or `YYYY-MM-DD HH:mm:ss`.
-  *   Supports additional metadata using a space and ` // ` at the end of the line.
-  * You don't need to worry about the number of records in the plugin; there's a certain satisfaction in seeing how long a task took to complete.
-     
-* **Persistent Settings**:
-  * Currently, there are settings for visual mode, todo.md path, and filters.
-  *   Toggle **Visual Mode** via the toolbar to show/hide priority colors and emojis (helps you focus!).
-  *   **Persistent Filters**: Your choices for **Priority Filter** and **Status Filter** are saved per project, so your focus remains consistent even after restarting the IDE.
-  *   Settings are saved per project in `.idea/TodosoSettings.xml`.
-  
-*   **Smart UI**:
-  * This UX is based on my own needs; if you have suggestions, feel free to open an issue.
-    *   Hides marker icons/dates from the main list for a clean look, but shows them fully in the **Tooltip**.
-    *   Automatic sorting: **Doing > Todo (by Priority) > Done**.
-    *   Integrated toolbar for instant task list **Refresh**.
-    *   **Auto-Refresh on Visibility**: The task list automatically updates whenever you open or switch back to the "Todo" tool window, ensuring you always see the latest changes from your `todo.md` file.
-    *   Double-click to navigate to the specific line in `todo.md`.
-    *   Right-click context menu for:
-        *   **Change Status**: Move tasks between Todo, Doing, and Done.
-        *   **Edit Task and Tags**: Modify task descriptions and hashtags directly.
-        *   **Change Priority**: Assign urgency levels.
-        *   **Delete**: Remove tasks permanently with confirmation.
-        *   **Random Task**: Pick a random Todo task to start working on.
-        *   **Filter Priority**: Focus on specific urgency levels.
-        *   **Filter Status**: Focus on specific task states.
-        *   **Visual Mode**: Toggle priority colors and emojis.
-    *   **Change Status**:
-        * TODO -> DOING : OK (Add Start Date)
-        * DOING -> DONE : OK (Add End Date)
-        * DONE -> DOING : OK (Remove End Date, Update Start Date)
-        * ANY -> CANCELLED : OK (Strikethrough, removes Start/End dates, adds ❌ and reason)
-        * DONE -> CANCELLED : Blocked (Logically, a finished item cannot be cancelled).
-    *   Duplicate status actions are not allowed.
-    *   If a task was previously marked as 'Done', its previous time is reset when moved back to 'Todo' or 'Doing'.
-    *   Automatic duration calculation is displayed on hover when a task is completed.
-    *   **Random Task**: A "gamification" feature that randomly picks a task from your **Todo** list and marks it as **Doing** (`🛫`), helping you overcome procrastination by deciding what to work on next.
-    *   **Edit and Priority Restriction**: Editing text or changing priority is only allowed for tasks with **Todo** or **Doing** status. Completed (**Done**) or **Cancelled** tasks are read-only to preserve history (but can still be deleted).
-    *   **Task Deletion**: Tasks can be deleted permanently from the `todo.md` file. A confirmation dialog will appear to prevent accidental deletion.
-    *   **Mandatory Cancellation Reason**: Cancelled tasks must include a reason. When cancelled via the plugin, existing Start (`🛫`) and Done (`✅`) dates are automatically removed to keep the record clean, and replaced with the Cancellation date (`❌`) and the provided reason.
 
-## 📝 Writing Rules for `todo.md`
+> [!IMPORTANT]
+> **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues, we highly recommend adding `todo.md` (or your custom filename) to your **`.gitignore`** file.
 
-These rules apply **both** when writing directly in the `todo.md` file and when using the **New Task** input field in the plugin. 
+### Smart Tagging System
+Todoso implements a robust tagging system inspired by Obsidian:
+*   **Boundary Awareness**: Tags must be preceded by a space or start at the beginning of a line (e.g., `#tag` is valid, but `word#tag` is not).
+*   **Hierarchy Support**: Use `/` to create nested tags (e.g., `#project/feature`).
+*   **Technical Tags**: Supports special symbols like `#C#`.
+*   **Clean Parsing**: Trailing punctuation (like `.`, `,`, `!`, `?`) is automatically excluded from the tag.
+*   **Tag Cloud**: A dynamic, scrollable tag cloud allows you to filter tasks instantly.
+*   **Recommended Tags**: `#issue` and `#feature` are suggested as default tags for consistency.
 
-Write your tasks using the following format:
+### Task Management
+*   **Status Tracking**:
+    *   `[ ]` : **Todo** (Pending)
+    *   `[/]` : **Doing** (In Progress) — Highlights in green and moves to the top.
+    *   `[x]` : **Done** (Completed) — Strikethrough and grayed out.
+    *   `[-]` or `❌` : **Cancelled** (Requires a reason).
+*   **Dual Priority Support**:
+    *   **Emoji (Obsidian)**: `🔺`, `⏫`, `🔼`, `🔽`, `⏬`
+    *   **Text (Legacy)**: `[HH]`, `[H]`, `[M]`, `[L]`, `[LL]`
+*   **Auto-Sorting**: Tasks are automatically ordered: **Doing > Todo (by Priority) > Done**.
+*   **Business Logic & Safety**: 
+    *   **Status Transitions**: 
+        *   `TODO` -> `DOING`: Automatically adds Start Date (`🛫`).
+        *   `DOING` -> `DONE`: Automatically adds Completion Date (`✅`).
+        *   `ANY` -> `CANCELLED`: Requires a **mandatory reason**, adds `❌`, and clears working dates to preserve history.
+        *   `DONE` -> `CANCELLED`: **Blocked**. A completed task cannot be logically cancelled.
+    *   **Edit Restrictions**: 
+        *   **Done Tasks**: Can be edited (to add tags), but priority is locked as urgency is no longer relevant.
+        *   **Cancelled Tasks**: Strictly read-only to prevent accidental history modification.
+    *   **Deletion**: Requires manual confirmation to prevent accidental loss of data.
+
+### Interactive Tool Window
+*   **Seamless Sync**: Auto-refreshes when you open the tool window or edit the file.
+*   **Navigation**: Double-click any task to jump directly to its line in `todo.md`.
+*   **Gamification**: Use the **Random Task** feature to pick your next item and beat procrastination.
+*   **Visual Mode**: Toggle priority colors and emojis via the toolbar for a cleaner look.
+*   **Duration Tracking**: Automatically calculates how long a task took once marked as Done.
+
+### 🤖 AI-Ready Context
+Todoso is designed to bridge the gap between your intent and AI assistance. By maintaining a structured `todo.md` file at the project root, you provide AI coding assistants with a clear map of your goals.
+*   **Intent Mapping**: Helps AI understand the "why" and "when" behind your code, not just the "what".
+*   **Roadmap Clarity**: AI can scan your roadmap to provide suggestions that align with your current `#feature` or `#issue` focus.
+*   **Seamless Debugging**: Structured tags help AI assistants quickly identify and relate tasks to your codebase context.
+
+## Writing Rules
+
+You can write directly in `todo.md` or use the plugin's UI. The format is:
 `- [status] [Priority] Task Description #tag1 #tag2 [Date Emoji] // Metadata`
 
-> [!TIP]
-> If you omit the `- [ ]` prefix in the plugin's input field, it will be added automatically. You can also directly type a full line (e.g., `- [/] ⏫ Task #tag`) to create a task with a specific status and priority immediately.
+### Time & Metadata
+*   **Date Emojis**: `🛫` (Start), `📅` (Due), `⏳` (Scheduled), `✅` (Completed), `➕` (Created).
+*   **Metadata**: Add notes at the end of a line using ` // your notes`.
 
 ### Usage Example:
 ```markdown
@@ -93,6 +76,8 @@ Write your tasks using the following format:
 - [ ] 🔺 Migration to Navigation3 #migration ⏳ 2026-09-05 14:00
 - [x] 🔼 Finished cleaning up icons #design ✅ 2026-08-30 18:00
 - [ ] [HH] Urgent legacy task #refactor
-- [ ] [LL] Very low priority legacy task
 - [ ] Regular task with metadata // additional notes here
 ```
+
+---
+*Developed with focus and UX in mind. If you have suggestions, feel free to open an issue!*

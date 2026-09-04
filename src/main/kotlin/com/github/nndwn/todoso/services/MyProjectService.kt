@@ -84,8 +84,8 @@ class MyProjectService(private val project: Project) {
       projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return emptyList()
 
     val taskRegex = Regex("""^- \[([ x/-]?)] (.*)$""")
-    val tagRegex = Regex("""#([\w.-]+)""")
-    val dateEmojis = listOf("🛫", "📅", "⏳", "✅", "➕")
+    val tagRegex = Regex("""(?<=\s|^)#([\w/#.-]*[\w/#-])""")
+    val dateEmojis = listOf("🛫", "📅", "⏳", "✅", "➕", "❌")
 
     return VfsUtil.loadText(todoFile)
       .lines()
