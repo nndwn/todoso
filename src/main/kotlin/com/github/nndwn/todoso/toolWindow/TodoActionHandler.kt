@@ -32,7 +32,15 @@ class TodoActionHandler(
     fun setStatusFilter(status: MyProjectService.TaskStatus?)
 
     fun setTagFilter(tag: String?)
+
+    fun setCancelMode(enabled: Boolean)
+
+    fun getInputText(): String
+
+    fun clearInputText()
   }
+
+  private var pendingCancelTask: MyProjectService.TodoTask? = null
 
   fun getSelectedTask() = view.getSelectedTask()
 
@@ -60,6 +68,8 @@ class TodoActionHandler(
 
   fun handleCancelEdit() {
     view.setEditMode(false)
+    view.setCancelMode(false)
+    pendingCancelTask = null
     view.updateButtonStates()
   }
 
@@ -83,29 +93,29 @@ class TodoActionHandler(
     CopyPasteManager.getInstance().setContents(StringSelection(selected.rawText))
   }
 
-  fun handleCancelAction(noted: String) {
-    val task = view.getSelectedTask() ?: return
-    val trimmedNoted = noted.trim()
+  fun updateTaskStatus(task: MyProjectService.TodoTask, status: MyProjectService.TaskStatus) {
+    if (status == MyProjectService.TaskStatus.CANCELLED) {
+      val noted = view.getInputText().trim()
 
-    if (trimmedNoted.isEmpty()) {
-      NotificationGroupManager.getInstance()
-        .getNotificationGroup("com.github.nndwn.todoso.notifications")
-        .createNotification(
-          MyBundle.message("plugin.name"),
-          MyBundle.message("todo.action.cancel.noted.required"),
-          NotificationType.WARNING,
-        )
-        .notify(project)
-      return
+      if (noted.isEmpty()) {
+        pendingCancelTask = task
+        view.setCancelMode(true)
+        return
+      }
+      service.updateTaskStatus(task, status, noted)
+      view.clearInputText()
+    } else {
+      service.updateTaskStatus(task, status)
     }
-
-    service.updateTaskStatus(task, MyProjectService.TaskStatus.CANCELLED, trimmedNoted)
-    view.setEditMode(false)
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 
-  fun updateTaskStatus(task: MyProjectService.TodoTask, status: MyProjectService.TaskStatus) {
-    service.updateTaskStatus(task, status)
+  fun handleConfirmCancel(note: String) {
+    val task = pendingCancelTask ?: return
+    service.updateTaskStatus(task, MyProjectService.TaskStatus.CANCELLED, note.trim())
+    pendingCancelTask = null
+    view.setCancelMode(false)
+    view.clearInputText()
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 

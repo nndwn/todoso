@@ -39,16 +39,14 @@ class TodoContextMenu(
 
   private fun TodoMenuBuilder.editorTask() {
     subMenu(MyBundle.message("todo.menu.change.status"), AllIcons.Actions.Diff) {
-      MyProjectService.TaskStatus.entries
-        .filter { it != MyProjectService.TaskStatus.CANCELLED }
-        .forEach { status ->
-          item(
-            text = status.name.toTitleCase(),
-            isEnabled = { handler.canTransitionTo(handler.getSelectedTask(), status) },
-          ) {
-            handler.getSelectedTask()?.let { handler.updateTaskStatus(it, status) }
-          }
+      MyProjectService.TaskStatus.entries.forEach { status ->
+        item(
+          text = status.name.toTitleCase(),
+          isEnabled = { handler.canTransitionTo(handler.getSelectedTask(), status) },
+        ) {
+          handler.getSelectedTask()?.let { handler.updateTaskStatus(it, status) }
         }
+      }
     }
 
     subMenu(

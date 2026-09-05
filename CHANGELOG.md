@@ -4,12 +4,18 @@
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-09-05
+
 ### Added
+- **Integrated Cancel Flow**: Selecting "Cancelled" from the context menu now focuses the footer input, allowing users to provide a cancellation note directly without pop-ups.
+- **Contextual Footer Buttons**: A new "Cancel" button appears in the footer only during Edit or Cancellation modes to allow quick exit from those states.
 - **Copy for AI**: New context menu action to quickly copy the full task context (Status, ID, Tags, Metadata) for easy sharing with AI assistants.
 - **Task Instructions Header**: Automatic insertion of an instructions link in `todo.md` for better project onboarding.
 - **Project Setup Instructions**: Informative placeholder text and guidance links when the `todo.md` file is missing.
 
 ### Improved
+- **Footer UI Refactor**: Removed the permanent "Canceled Task" button to prevent accidental clicks, replacing it with a more focused "Update" flow for cancellations.
+- **Keyboard Shortcuts**: Added `Esc` key support to quickly exit Edit or Cancellation mode.
 - **Smarter Versioning**: Dynamic version tags in the context menu are now automatically sorted (descending) to show the most recent releases first.
 - **List Readability**: Task descriptions in the tool window are now truncated if they exceed 100 characters, maintaining a clean UI for long notes.
 - **Robustness**: Improved task selection stability using unique IDs during list refreshes.

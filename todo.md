@@ -41,10 +41,11 @@
 - [ ] ⏬ di beberapa versi yang di test ada terdapat depcrapted API #issue
 - [x] ⏫ terkadang ai agent mengedit ini secara langsung ketika task yang di tujukan sudah selesai #issue 🆔 quIOuL 🛫 2026-09-05 02:10 ✅ 2026-09-05 02:53
 - [x] ⏫ issue pada manage tags sama sekali tidak berfungsi di versi android studio 2026.1.4 #v1.0.7 #issue 🆔 Vj1U6Z 🛫 2026-09-05 11:01 ✅ 2026-09-05 11:11
-- [ ] ⏫ untuk canceled task di balik seperti semula #v1.0.7 #issue 🆔 mC6CGX
+- [x] ⏫ untuk canceled task di balik seperti semula #v1.0.7 #issue 🆔 mC6CGX 🛫 2026-09-05 15:16 ✅ 2026-09-05 15:39
 - [ ] 🔽 untuk klik 2x seperti nya perlu di ubah aturannya ke detail task #feature 🆔 E1z9v4
 - [ ] 🔽 #issue ketika di awal di buka di posisi Todoso plugin aktif list muncul setelah itu dia langsung index null atau app tidak jalan sama sekali abis beberapa detik muncul lagi panel nya  🆔 4pFyE8
 - [ ] ⏬ gunakan collection-icon untuk icon #feature 🆔 tdzei8
 - [x] 🔼 #issue kenapa urutan tag lebih v1.0.5 di atas sementara v1.0.7 di bawah ? 🆔 5u1Asj 🛫 2026-09-05 11:14 ✅ 2026-09-05 11:22
 - [ ] ⏫ mengatasi teks panjang di list user tidak memahami dengan tanda \n dan <br/> dia hanya mengetik panjang di input #v1.0.7 #issue 🆔 a8ZNrO
 - [x] ⏫ add copy context di klik kanan berguna sekali buat ai agent untuk context task yang mungkin terhubung #feature #v1.0.7 🛫 2026-09-05 11:32 ✅ 2026-09-05 11:46 🆔 vpEqv3
+- [ ] 🔼 apakah bisa di panel tags ketika di scroll mengunkan mouse dia scroll secara horizontal #v1.0.7 #feature 🆔 0mtBO7

@@ -10,17 +10,22 @@ import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import javax.swing.JButton
 import javax.swing.event.DocumentEvent
 
 class TodoFooterPanel(
   val onNewTask: (String) -> Unit,
-  val onCancelTask: (String) -> Unit,
   val onUpdateTask: (String) -> Unit,
+  val onConfirmCancel: (String) -> Unit,
   val onCancelEdit: () -> Unit,
 ) : JBPanel<TodoFooterPanel>(BorderLayout()) {
 
   var isEditMode: Boolean = false
+    private set
+
+  var isCancelMode: Boolean = false
     private set
 
   private var originalText: String = ""
@@ -39,36 +44,65 @@ class TodoFooterPanel(
   val newTaskButton =
     JButton(MyBundle.message("todo.button.new.task")).apply {
       addActionListener {
-        if (isEditMode) onUpdateTask(inputTextArea.text) else onNewTask(inputTextArea.text)
+        when {
+          isEditMode -> onUpdateTask(inputTextArea.text)
+          isCancelMode -> onConfirmCancel(inputTextArea.text)
+          else -> onNewTask(inputTextArea.text)
+        }
         inputTextArea.requestFocusInWindow()
       }
     }
 
-  val canceledTaskButton =
-    JButton(MyBundle.message("todo.button.cancel.task")).apply {
+  val cancelButton =
+    JButton(MyBundle.message("todo.button.cancel.edit")).apply {
+      isVisible = false
       addActionListener {
-        if (isEditMode) onCancelEdit() else onCancelTask(inputTextArea.text)
+        onCancelEdit()
         inputTextArea.requestFocusInWindow()
       }
     }
 
   fun setEditMode(enabled: Boolean, text: String = "") {
     isEditMode = enabled
+    isCancelMode = false
     originalText = text
     if (enabled) {
       inputTextArea.text = text
       inputTextArea.background = JBColor.namedColor("Todo.Input.EditBackground", JBColor(0xE6F2FF, 0x2D3548))
       newTaskButton.text = MyBundle.message("todo.button.update")
-      canceledTaskButton.text = MyBundle.message("todo.button.cancel.edit")
+      cancelButton.isVisible = true
       inputTextArea.requestFocusInWindow()
     } else {
       inputTextArea.text = ""
       inputTextArea.background = JBColor.namedColor("Todo.Input.Background", JBColor(0xF2F2F2, 0x1E1F22))
       newTaskButton.text = MyBundle.message("todo.button.new.task")
-      canceledTaskButton.text = MyBundle.message("todo.button.cancel.task")
+      cancelButton.isVisible = false
     }
     updateActionButtons()
     repaint()
+  }
+
+  fun setCancelMode(enabled: Boolean) {
+    isCancelMode = enabled
+    isEditMode = false
+    if (enabled) {
+      inputTextArea.background = JBColor.namedColor("Todo.Input.CancelBackground", JBColor(0xFFE6E6, 0x482D2D))
+      newTaskButton.text = MyBundle.message("todo.button.update")
+      cancelButton.isVisible = true
+      inputTextArea.requestFocusInWindow()
+    } else {
+      inputTextArea.text = ""
+      inputTextArea.background = JBColor.namedColor("Todo.Input.Background", JBColor(0xF2F2F2, 0x1E1F22))
+      newTaskButton.text = MyBundle.message("todo.button.new.task")
+      cancelButton.isVisible = false
+    }
+    updateActionButtons()
+    repaint()
+  }
+
+  fun clearInputText() {
+    inputTextArea.text = ""
+    updateActionButtons()
   }
 
   private fun updateActionButtons() {
@@ -159,8 +193,18 @@ class TodoFooterPanel(
         isOpaque = false
         border = JBUI.Borders.empty(0, 3, 5, 3)
         add(newTaskButton)
-        add(canceledTaskButton)
+        add(cancelButton)
       }
+
+    inputTextArea.addKeyListener(
+      object : KeyAdapter() {
+        override fun keyPressed(e: KeyEvent) {
+          if (e.keyCode == KeyEvent.VK_ESCAPE && (isEditMode || isCancelMode)) {
+            onCancelEdit()
+          }
+        }
+      }
+    )
 
     add(marginWrapper, BorderLayout.CENTER)
     add(buttonsPanel, BorderLayout.SOUTH)

@@ -39,6 +39,12 @@ class TodoActionHandlerTest : BasePlatformTestCase() {
       override fun setTagFilter(tag: String?) {
         tagFilter = tag
       }
+
+      override fun setCancelMode(enabled: Boolean) {}
+
+      override fun getInputText(): String = ""
+
+      override fun clearInputText() {}
     }
 
   private var statusFilter: MyProjectService.TaskStatus? = null

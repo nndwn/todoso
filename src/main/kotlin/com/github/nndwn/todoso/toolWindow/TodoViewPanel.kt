@@ -40,8 +40,8 @@ class TodoViewPanel(
   private val footerPanel =
     TodoFooterPanel(
       onNewTask = { handler.handleAddTask(it) },
-      onCancelTask = { handler.handleCancelAction(it) },
       onUpdateTask = { handler.handleUpdateTask(it) },
+      onConfirmCancel = { handler.handleConfirmCancel(it) },
       onCancelEdit = { handler.handleCancelEdit() },
     )
 
@@ -129,18 +129,18 @@ class TodoViewPanel(
     footerPanel.setEditMode(enabled, text)
   }
 
+  override fun setCancelMode(enabled: Boolean) {
+    footerPanel.setCancelMode(enabled)
+  }
+
+  override fun getInputText(): String = footerPanel.inputTextArea.text
+
+  override fun clearInputText() = footerPanel.clearInputText()
+
   override fun getSelectedTask(): MyProjectService.TodoTask? = list.selectedValue
 
   override fun updateButtonStates() {
-    if (footerPanel.isEditMode) {
-      footerPanel.canceledTaskButton.isEnabled = true
-      return
-    }
-    val selected = list.selectedValue
-    footerPanel.canceledTaskButton.isEnabled =
-      selected != null &&
-        selected.status != MyProjectService.TaskStatus.DONE &&
-        selected.status != MyProjectService.TaskStatus.CANCELLED
+    // No-op for footer buttons state update for now as we removed the cancel button
   }
 
   private fun setupSelectionListener() {

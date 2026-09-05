@@ -4,6 +4,9 @@ An IntelliJ plugin to manage your todo list directly from a `todo.md` file in th
 
 I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.
 
+## Usage
+just type task in field and click right select priority and select tags or if you want fast [H] task description #tags1 #tag2 #v1.0.1
+I’m not good at typing in English but this AI agent typing is more pathetic than me
 
 ##  Key Features
 
@@ -19,7 +22,7 @@ I created Todoso because I wanted a way to manage tasks without leaving my IDE. 
 > [!IMPORTANT]
 > **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues, we highly recommend adding `todo.md` (or your custom filename) to your **`.gitignore`** file.
 
-### Smart Tagging System
+### Tagging System
 Todoso implements a robust tagging system inspired by Obsidian:
 *   **Boundary Awareness**: Tags must be preceded by a space or start at the beginning of a line (e.g., `#tag` is valid, but `word#tag` is not).
 *   **Hierarchy Support**: Use `/` to create nested tags (e.g., `#project/feature`).
