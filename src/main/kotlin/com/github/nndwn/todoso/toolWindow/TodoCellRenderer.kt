@@ -36,7 +36,13 @@ class TodoCellRenderer(
       }
 
     val baseAttributes = getBaseAttributes(value, isDone, isDoing, isCancelled, visualEnabled)
-    renderDescriptionWithTags(value.description, baseAttributes, isDone, isDoing, isCancelled)
+    val displayDescription =
+      if (value.description.length > 100) {
+        value.description.substring(0, 97) + "..."
+      } else {
+        value.description
+      }
+    renderDescriptionWithTags(displayDescription, baseAttributes, isDone, isDoing, isCancelled)
     updateToolTip(value)
   }
 

@@ -5,6 +5,20 @@
 ## [Unreleased]
 
 ### Added
+- **Copy for AI**: New context menu action to quickly copy the full task context (Status, ID, Tags, Metadata) for easy sharing with AI assistants.
+- **Task Instructions Header**: Automatic insertion of an instructions link in `todo.md` for better project onboarding.
+- **Project Setup Instructions**: Informative placeholder text and guidance links when the `todo.md` file is missing.
+
+### Improved
+- **Smarter Versioning**: Dynamic version tags in the context menu are now automatically sorted (descending) to show the most recent releases first.
+- **List Readability**: Task descriptions in the tool window are now truncated if they exceed 100 characters, maintaining a clean UI for long notes.
+- **Robustness**: Improved task selection stability using unique IDs during list refreshes.
+
+
+
+
+## [1.0.6] - 2026-09-05
+### Added
 - **Quick Tags Menu**: A new context menu sub-menu to toggle `#feature`, `#issue`, and the top 3 recently used version tags automatically detected from your file.
 - **Unique Task IDs**: Automatic generation and persistence of unique 6-character task IDs using the `🆔` emoji (Obsidian Tasks standard).
 - **Smart Tagging (Obsidian-style)**: Support for hierarchical tags (e.g., `#work/task`) and technical symbols (e.g., `#C#`).
@@ -17,7 +31,6 @@
     - **Done** tasks now have their priority locked, as urgency is no longer relevant after completion.
 - **Improved Tooltip**: Enhanced UI with HTML support for text wrapping, a clearer separator for metadata, and Task ID displayed at the front.
 - **AI Agent Protocol**: Automatic injection of an AI protocol instruction in `todo.md` to help AI assistants stay focused and avoid unwanted edits.
-
 
 
 ## [1.0.5] - 2026-09-05

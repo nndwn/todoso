@@ -15,7 +15,6 @@ class MyProjectSettingsService(val project: Project) : PersistentStateComponent<
     var todoFileName: String = "todo.md"
     var priorityFilterName: String? = null
     var statusFilterName: String? = null
-    var isProtocolInjected: Boolean = false
   }
 
   private var myState = State()

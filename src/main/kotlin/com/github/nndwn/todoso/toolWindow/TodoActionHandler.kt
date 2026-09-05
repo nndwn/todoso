@@ -6,8 +6,10 @@ import com.github.nndwn.todoso.services.MyProjectSettingsService
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import java.awt.datatransfer.StringSelection
 
 class TodoActionHandler(
   private val project: Project,
@@ -74,6 +76,11 @@ class TodoActionHandler(
       service.deleteTask(selected)
       ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
     }
+  }
+
+  fun handleCopyContext() {
+    val selected = view.getSelectedTask() ?: return
+    CopyPasteManager.getInstance().setContents(StringSelection(selected.rawText))
   }
 
   fun handleCancelAction(noted: String) {

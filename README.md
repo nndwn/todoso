@@ -61,6 +61,7 @@ Todoso implements a robust tagging system inspired by Obsidian:
 *   **Gamification**: Use the **Random Task** feature to pick your next item and beat procrastination.
 *   **Visual Mode**: Toggle priority colors and emojis via the toolbar for a cleaner look.
 *   **Duration Tracking**: Automatically calculates how long a task took once marked as Done.
+*   **Copy Task**: Right-click any task and select "Copy Task" to copy the full Markdown line (including ID and tags) to your clipboard—perfect for sharing context with AI assistants.
 
 ### AI-Ready Context
 Todoso is designed to bridge the gap between your intent and AI assistance. By maintaining a structured `todo.md` file at the project root, you provide AI coding assistants with a clear map of your goals.
@@ -68,7 +69,6 @@ Todoso is designed to bridge the gap between your intent and AI assistance. By m
 *   **Intent Mapping**: Helps AI understand the "why" and "when" behind your code, not just the "what".
 *   **Roadmap Clarity**: AI can scan your roadmap to provide suggestions that align with your current `#feature` or `#issue` focus.
 *   **Seamless Debugging**: Structured tags help AI assistants quickly identify and relate tasks to your codebase context.
-*   **AI Agent Protocol**: Automatic injection of an AI protocol instruction in `todo.md` to help AI assistants stay focused and avoid unwanted edits.
 
 ### Task Metadata
 Todoso uses the `🆔` emoji to store unique identifiers for each task, following the Obsidian Tasks convention.

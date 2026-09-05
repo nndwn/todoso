@@ -25,15 +25,8 @@ class MyProjectService(private val project: Project) {
     private const val DONE_DATE_REGEX = """✅\s*$DATE_PATTERN"""
     private const val CANCEL_DATE_REGEX = """❌\s*$DATE_PATTERN"""
 
-    private const val AI_PROTOCOL =
-      """
-> [!NOTE]
-> **AI Agent Protocol**:
-> 1. DO NOT update task statuses (e.g., changing `[ ]` to `[x]`) unless explicitly requested.
-> 2. Focus on tasks marked with `[/]` (Doing) for the current context.
-> 3. Only edit this file to add new tasks or update IDs/metadata as per technical requirements.
-
-"""
+    const val GITHUB_URL = "https://github.com/nndwn/todoso"
+    private const val INSTRUCTIONS_HEADER = "<!-- For instructions, read more here: $GITHUB_URL -->"
   }
 
   enum class Priority(val emojis: List<String>, val code: String, val label: String, val color: Color) {
@@ -101,8 +94,6 @@ class MyProjectService(private val project: Project) {
     val settings = MyProjectSettingsService.getInstance(project)
     val todoFile =
       projectDir.children.find { it.name.equals(settings.state.todoFileName, ignoreCase = true) } ?: return emptyList()
-
-    injectAiProtocolIfNeeded()
 
     val taskRegex = Regex("""^- \[([ x/-]?)] (.*)$""")
     val tagRegex = Regex("""(?<=\s|^)#([\w/#.-]*[\w/#-])""")
@@ -183,18 +174,13 @@ class MyProjectService(private val project: Project) {
       .asSequence()
       .flatMap { line -> versionRegex.findAll(line).map { it.value } }
       .distinct()
-      .take(limit)
       .toList()
+      .sortedDescending()
+      .take(limit)
   }
 
-  fun getTagCounts(): Map<String, Int> {
-    return getTodoTasks()
-      .flatMap { it.tags }
-      .groupingBy { it }
-      .eachCount()
-      .toList()
-      .sortedByDescending { it.second }
-      .toMap()
+  fun getTagCounts(tasks: List<TodoTask>): Map<String, Int> {
+    return tasks.flatMap { it.tags }.groupingBy { it }.eachCount().toList().sortedByDescending { it.second }.toMap()
   }
 
   fun calculateDuration(task: TodoTask): String? {
@@ -229,31 +215,37 @@ class MyProjectService(private val project: Project) {
     val fileName = settings.state.todoFileName
     val todoFile = projectDir.findChild(fileName)
 
-    injectAiProtocolIfNeeded()
-
-    val trimmedInput = description.trim()
-    val newId = generateUniqueId()
-    val newTaskLine =
-      if (trimmedInput.startsWith("- [") && trimmedInput.contains("] ")) {
-        if (trimmedInput.contains("🆔")) trimmedInput else "$trimmedInput 🆔 $newId"
-      } else {
-        "- [ ] $trimmedInput 🆔 $newId"
-      }
+    val newTaskLine = formatNewTaskLine(description)
 
     WriteCommandAction.runWriteCommandAction(project) {
-      if (todoFile == null) {
-        val newFile = projectDir.createChildData(this, fileName)
-        VfsUtil.saveText(newFile, newTaskLine)
-      } else {
-        val content = VfsUtil.loadText(todoFile)
-        val finalContent =
-          if (content.isEmpty() || content.endsWith("\n")) {
-            content + newTaskLine
-          } else {
-            content + "\n" + newTaskLine
-          }
-        VfsUtil.saveText(todoFile, finalContent)
-      }
+      val finalFile = todoFile ?: projectDir.createChildData(this, fileName)
+      val currentContent = VfsUtil.loadText(finalFile)
+
+      val contentWithInstructions =
+        if (!currentContent.contains(GITHUB_URL)) {
+          if (currentContent.trim().isEmpty()) INSTRUCTIONS_HEADER else INSTRUCTIONS_HEADER + "\n\n" + currentContent
+        } else {
+          currentContent
+        }
+
+      val finalContent =
+        if (contentWithInstructions.isEmpty() || contentWithInstructions.endsWith("\n")) {
+          contentWithInstructions + newTaskLine
+        } else {
+          contentWithInstructions + "\n" + newTaskLine
+        }
+      VfsUtil.saveText(finalFile, finalContent)
+      VfsUtil.markDirtyAndRefresh(false, true, true, finalFile)
+    }
+  }
+
+  private fun formatNewTaskLine(description: String): String {
+    val trimmedInput = description.trim()
+    val newId = generateUniqueId()
+    return if (trimmedInput.startsWith("- [") && trimmedInput.contains("] ")) {
+      if (trimmedInput.contains("🆔")) trimmedInput else "$trimmedInput 🆔 $newId"
+    } else {
+      "- [ ] $trimmedInput 🆔 $newId"
     }
   }
 
@@ -328,20 +320,24 @@ class MyProjectService(private val project: Project) {
     return result
   }
 
-  private fun injectAiProtocolIfNeeded() {
+  fun injectInstructionsIfNeeded() {
     val settings = MyProjectSettingsService.getInstance(project)
-    if (settings.state.isProtocolInjected) return
-
     val projectDir = project.guessProjectDir() ?: return
     val todoFile = projectDir.findChild(settings.state.todoFileName) ?: return
 
     val content = VfsUtil.loadText(todoFile)
-    if (!content.contains("AI Agent Protocol")) {
+    if (!content.contains(GITHUB_URL)) {
       WriteCommandAction.runWriteCommandAction(project) {
-        VfsUtil.saveText(todoFile, AI_PROTOCOL.trimStart() + "\n" + content)
+        val newContent =
+          if (content.trim().isEmpty()) {
+            INSTRUCTIONS_HEADER
+          } else {
+            INSTRUCTIONS_HEADER + "\n\n" + content
+          }
+        VfsUtil.saveText(todoFile, newContent)
+        VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
       }
     }
-    settings.state.isProtocolInjected = true
   }
 
   fun editTask(task: TodoTask, newContent: String) {

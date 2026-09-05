@@ -10,9 +10,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.ui.SimpleToolWindowPanel
-import com.intellij.ui.CollectionListModel
-import com.intellij.ui.DoubleClickListener
-import com.intellij.ui.PopupHandler
+import com.intellij.ui.*
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
@@ -31,13 +29,12 @@ class TodoViewPanel(
 ) : SimpleToolWindowPanel(true, true), TodoActionHandler.TodoViewActions {
 
   private val handler = TodoActionHandler(project, service, settings, this)
-  private val listModel = CollectionListModel(service.getTodoTasks())
+  private val listModel = CollectionListModel<MyProjectService.TodoTask>()
   private val list =
     JBList(listModel).apply {
       selectionMode = ListSelectionModel.SINGLE_SELECTION
       emptyText.text = MyBundle.message("todo.window.empty")
       cellRenderer = TodoCellRenderer(service, settings)
-      if (!isEmpty) selectedIndex = 0
     }
 
   private val footerPanel =
@@ -68,6 +65,8 @@ class TodoViewPanel(
     setupDoubleClickListener()
     setupSelectionListener()
     setupVisibilityListener()
+
+    service.injectInstructionsIfNeeded()
     refreshTasks()
     updateButtonStates()
   }
@@ -83,7 +82,7 @@ class TodoViewPanel(
   private var currentTagFilter: String? = null
 
   override fun refreshTasks() {
-    val selectedIndex = list.selectedIndex
+    val selectedId = list.selectedValue?.id
     val pFilterName = settings.state.priorityFilterName
     val sFilterName = settings.state.statusFilterName
 
@@ -97,12 +96,17 @@ class TodoViewPanel(
     }
     listModel.replaceAll(filteredTasks)
 
-    val tags = service.getTagCounts()
+    val tags = service.getTagCounts(allTasks)
     tagCloudPanel.isVisible = tags.isNotEmpty()
     tagCloudPanel.setTags(tags, currentTagFilter)
 
-    if (selectedIndex != -1 && selectedIndex < listModel.size) {
-      list.selectedIndex = selectedIndex
+    if (selectedId != null) {
+      val newIndex = filteredTasks.indexOfFirst { it.id == selectedId }
+      if (newIndex != -1) {
+        list.selectedIndex = newIndex
+      }
+    } else if (!list.isEmpty) {
+      list.selectedIndex = 0
     }
   }
 

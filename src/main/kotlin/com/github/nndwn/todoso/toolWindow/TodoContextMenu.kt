@@ -86,18 +86,27 @@ class TodoContextMenu(
 
     item(MyBundle.message("todo.menu.delete"), AllIcons.General.Remove) { handler.handleDeleteAction() }
 
+    item(
+      text = MyBundle.message("todo.menu.copy.context"),
+      icon = AllIcons.Actions.Copy,
+      isEnabled = { handler.getSelectedTask() != null },
+    ) {
+      handler.handleCopyContext()
+    }
+
     separator()
 
     subMenu(text = MyBundle.message("todo.menu.manage.tags"), icon = AllIcons.Nodes.Tag) {
-      val selected = handler.getSelectedTask()
-
       MyProjectService.DefaultLabel.entries.forEach { label ->
         item(
           text = label.tag,
-          iconProvider = { if (selected?.tags?.contains(label.tagName) == true) AllIcons.Actions.Checked else null },
-          isEnabled = { selected != null },
+          iconProvider = {
+            val selected = handler.getSelectedTask()
+            if (selected?.tags?.contains(label.tagName) == true) AllIcons.Actions.Checked else null
+          },
+          isEnabled = { handler.getSelectedTask() != null },
         ) {
-          selected?.let { handler.handleToggleTag(it, label.tag, label.exclusiveWith) }
+          handler.getSelectedTask()?.let { handler.handleToggleTag(it, label.tag, label.exclusiveWith) }
         }
       }
 
@@ -108,10 +117,13 @@ class TodoContextMenu(
           val versionTagName = version.removePrefix("#")
           item(
             text = version,
-            iconProvider = { if (selected?.tags?.contains(versionTagName) == true) AllIcons.Actions.Checked else null },
-            isEnabled = { selected != null },
+            iconProvider = {
+              val selected = handler.getSelectedTask()
+              if (selected?.tags?.contains(versionTagName) == true) AllIcons.Actions.Checked else null
+            },
+            isEnabled = { handler.getSelectedTask() != null },
           ) {
-            selected?.let { handler.handleToggleTag(it, version) }
+            handler.getSelectedTask()?.let { handler.handleToggleTag(it, version) }
           }
         }
       }

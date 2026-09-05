@@ -72,7 +72,7 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     assertEquals(1, tasks.size)
     assertEquals(listOf("v1.2.3", "feature-login", "bug_fix"), tasks[0].tags)
 
-    val tagCounts = service.getTagCounts()
+    val tagCounts = service.getTagCounts(tasks)
     assertTrue(tagCounts.containsKey("v1.2.3"))
     assertTrue(tagCounts.containsKey("feature-login"))
     assertTrue(tagCounts.containsKey("bug_fix"))
@@ -268,7 +268,7 @@ class MyProjectServiceTest : BasePlatformTestCase() {
     val service = project.service<MyProjectService>()
 
     val versions = service.getRecentVersions(3)
-    assertEquals(listOf("#v1.0.1", "#v1.0.2", "#v1.0.3"), versions)
+    assertEquals(listOf("#v1.0.4", "#v1.0.3", "#v1.0.2"), versions)
   }
 
   fun testToggleTaskTagExclusivity() {
