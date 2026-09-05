@@ -3,10 +3,12 @@
     <id>com.github.nndwn.todoso</id>
     <name>Todoso</name>
     <vendor email="nandawan.libya@gmail.com" url="https://github.com/nndwn/todoso">nndwn</vendor>
-    <description><![CDATA[
+    <description>
         <p>An IntelliJ plugin to manage your todo list directly from a todo.md file in the project root. Designed for simplicity, it supports modern standards inspired by Obsidian and Notion.</p>
+
         <p>I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.</p>
-        <p><a href="https://github.com/nndwn/todoso">Read more on GitHub</a></p>]]>
+
+        <p>[Read more on GitHub](https://github.com/nndwn/todoso)</p>
   </description>
 
     <depends>com.intellij.modules.platform</depends>
