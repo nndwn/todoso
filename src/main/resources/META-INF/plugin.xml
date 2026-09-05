@@ -8,7 +8,7 @@
 
         <p>I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.</p>
 
-        <p>[Read more on GitHub](https://github.com/nndwn/todoso)</p>
+        [Read more on GitHub](https://github.com/nndwn/todoso)
   </description>
 
     <depends>com.intellij.modules.platform</depends>
