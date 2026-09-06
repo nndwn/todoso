@@ -15,11 +15,16 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-            factoryClass="com.github.nndwn.todoso.toolWindow.MyToolWindowFactory"
+            factoryClass="com.github.nndwn.todoso.toolWindow.TodosoToolWindowFactory"
             id="Todo"
-            icon="com.github.nndwn  .todoso.MyIcons.Logo"
+            icon="com.github.nndwn.todoso.toolWindow.TodosoIcons.Logo"
         />
         <postStartupActivity implementation="com.github.nndwn.todoso.startup.MyProjectActivity" />
         <notificationGroup id="com.github.nndwn.todoso.notifications" displayType="BALLOON" />
     </extensions>
+    <projectListeners>
+        <listener
+            class="com.github.nndwn.todoso.listeners.TodosoVfsListener"
+            topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+    </projectListeners>
 </idea-plugin>

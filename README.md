@@ -12,23 +12,19 @@ just type task in field and click right select priority and select tags or if yo
 
 I’m not good at typing in English but this AI agent typing is more pathetic than me
 
-##  Key Features
 
-# Todoso - IntelliJ Todo Manager
 
-An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root. Designed for simplicity, it supports modern standards inspired by **Obsidian** and **Notion**.
 
-I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.
 
-## Usage
-just type task in field and click right select priority and select tags or if you want fast
-```txt
-[H] task description #tags1 #tag2 #v1.0.1
-```
 
-I’m not good at typing in English but this AI agent typing is more pathetic than me
-
-Sebuah baris hanya boleh diakui sebagai TodoTask jika karakter - [ atau -[] berada di paling awal baris (pola prefix baris), bukan di tengah-tengah kalimat deskripsi.
+#### File-Based Workflow
+*   **Automatic Integration**: Reads from `todo.md` at your project root. If the file doesn't exist, it's created automatically when you add your first task.
+*   **Customizable**: You can change the filename and path in `.idea/TodosoSettings.xml`.
+    ```xml
+    <component name="com.github.nndwn.todoso.services.TodosoSettingsService">
+        <option name="todoFilePath" value="path-relative-to-project-root/todo.md"/>
+    </component>
+    ```
 
 #### Strict Line Parsing Rules
 
@@ -118,6 +114,12 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
 
 3. **Execution Duration Calculation**:
    * Automatically calculates execution duration between Start Date (🛫) and Completion Date (✅) upon completion (e.g., `1h 45m` or `30m`).
+
+
+#### Metadata Comment Isolation (//)
+1.   Any text placed after the metadata comment separator // is isolated as metadata.notes (e.g., - [ ] Fix UI #ui // check details).
+2.   URL protocol slashes (such as http:// or https://) are protected and will never be falsely parsed as comment separators
+
 
 ---
 *Developed with focus and UX in mind. If you have suggestions, feel free to open an issue!*
