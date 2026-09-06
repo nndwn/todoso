@@ -1,9 +1,10 @@
 package com.github.nndwn.todoso
 
-object TodosoConstant {
-    const val GITHUB_URL = "https://github.com/nndwn/todoso"
+object TodosoConstants {
+    const val GITHUB_REPO_URL = "https://github.com/nndwn/todoso"
     const val PLUGIN_ID = "com.github.nndwn.todoso"
     const val PLUGIN_NAME = "Todoso"
+    const val FILENAME = "TODO.md"
 
     fun getInstructionHtml(): String = """
         <html>
@@ -18,7 +19,7 @@ object TodosoConstant {
                     <code style="background-color: #2B2D30; color: #A9B7C6; padding: 2px 4px;">[H] task description #tags</code>
                 </li>
             </ul>
-            <p>${TodosoBundle.message("instruction.doc.link", GITHUB_URL)}</p>
+            <p>${TodosoBundle.message("instruction.doc.link", GITHUB_REPO_URL)}</p>
         </body>
         </html>
     """.trimIndent()

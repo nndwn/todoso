@@ -1,7 +1,7 @@
 package com.github.nndwn.todoso.toolWindow
 
 import com.github.nndwn.todoso.TodosoBundle
-import com.github.nndwn.todoso.TodosoConstant
+import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
@@ -127,23 +127,25 @@ class TodoActionHandler(
     }
 
     fun handleToggleTag(task: TodoTask, tag: String, exclusiveWith: List<String> = emptyList()) {
-        service.toggleTaskTag(task, tag, exclusiveWith)
+        service.applyTaskTag(task, tag, exclusiveWith)
         ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
     }
 
     fun handleRandomTask() {
-        val todoTasks = service.getTodoTasks().filter { it.status == TaskStatus.TODO }
+        val tasks = service.loadTask()
+        val todoTasks = tasks.filter { it.status == TaskStatus.TODO }
+
         if (todoTasks.isEmpty()) {
             NotificationGroupManager.getInstance()
                 .getNotificationGroup("com.github.nndwn.todoso.notifications")
                 .createNotification(
-                    TodosoConstant.PLUGIN_NAME,
+                    TodosoConstants.PLUGIN_NAME,
                     TodosoBundle.message("todo.action.random.no_tasks"),
                     NotificationType.INFORMATION,
                 )
                 .notify(project)
-            return
         }
+
         val randomTask = todoTasks.random()
         service.updateTaskStatus(randomTask, TaskStatus.DOING)
         ApplicationManager.getApplication().invokeLater { view.refreshTasks() }

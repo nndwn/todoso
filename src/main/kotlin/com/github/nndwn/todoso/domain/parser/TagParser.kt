@@ -14,4 +14,15 @@ object TagParser {
             .distinct()
             .toList()
     }
+
+    fun sanitizeTags(rawTags: List<String>): List<String> {
+        return rawTags
+            .map { it.trim().removePrefix("#") }
+            .filter { it.isNotBlank() }
+            .distinct()
+    }
+
+    fun formatTagsToString(tags: List<String>): String {
+        return sanitizeTags(tags).joinToString(" ") { "#$it" }
+    }
 }

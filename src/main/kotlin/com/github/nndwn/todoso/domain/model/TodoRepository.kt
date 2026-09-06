@@ -20,7 +20,15 @@ data class Metadata(
     val cancelDate: String? = null,
     val createdDate: String? = null,
     val notes: String = ""
-)
+){
+    fun toEmojiTokens(): List<String> = listOfNotNull(
+        startDate?.let { "🛫 $it" },
+        dueDate?.let { "📅 $it" },
+        endDate?.let { "✅ $it" },
+        cancelDate?.let { "❌ $it" },
+        createdDate?.let { "➕ $it" }
+    )
+}
 
 data class ExtractedId(
     val id: String,

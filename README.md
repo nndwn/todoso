@@ -13,6 +13,8 @@ just type task in field and click right select priority and select tags or if yo
 I’m not good at typing in English but this AI agent typing is more pathetic than me
 
 
+
+
 #### File-Based Workflow
 *   **Automatic Integration**: Reads from `todo.md` at your project root. If the file doesn't exist, it's created automatically when you add your first task.
 *   **Customizable**: You can change the filename and path in `.idea/TodosoSettings.xml`.
@@ -22,6 +24,16 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
     </component>
     ```
 
+#### Flexible Input Field Behavior
+flexible single-input field that intelligently processes both plain text descriptions and full Markdown task syntax.
+Supported Input Styles
+*    **Plain Text (Simple Task)**
+        * Simply type your task description (e.g., `Update layout navbar`). 
+        * Priority and existing tags are preserved or assigned default values.
+*    **Explicit Format & Shortcodes (Quick Input)**
+        * Type priority bracket shortcodes or emojis along with tags directly in the input bar (e.g., `[H] Fix navbar bug #ui #v1.0.1`). 
+        * The parser automatically extracts and assigns the priority (HIGH / ⏫) and tags (#ui, #v1.0.1), removing syntax tokens to keep the description clean.
+     
 #### Strict Line Parsing Rules
 
 To ensure reliable parsing and prevent false positives, Todoso enforces strict syntax rules when scanning your `todo.md` file:

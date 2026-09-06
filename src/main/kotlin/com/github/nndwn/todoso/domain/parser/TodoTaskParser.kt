@@ -82,19 +82,12 @@ object TodoTaskParser {
 
         clean = clean.replace(Regex("""🆔\s*$extractedId"""), "")
 
-        val dateTokens = listOfNotNull(
-            metadata.startDate?.let { "🛫 $it" },
-            metadata.dueDate?.let { "📅 $it" },
-            metadata.endDate?.let { "✅ $it" },
-            metadata.cancelDate?.let { "❌ $it" },
-            metadata.createdDate?.let { "➕ $it" }
-        )
-        dateTokens.forEach { token ->
+        metadata.toEmojiTokens().forEach { token ->
             clean = clean.replace(token, "")
         }
 
         tags.forEach { tag ->
-            clean = clean.replace(Regex("""(?<=\s|^)#$tag(?=\s||[.,!?]|$)"""), "")
+            clean = clean.replace(Regex("""(?<=\s|^)#${Regex.escape(tag)}(?=\s|[.,!?]|$)"""), "")
         }
 
         return clean.replace(Regex("""\s+"""), " ").trim()

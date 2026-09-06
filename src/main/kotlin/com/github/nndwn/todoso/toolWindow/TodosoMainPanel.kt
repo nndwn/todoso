@@ -1,7 +1,7 @@
 package com.github.nndwn.todoso.toolWindow
 
 import com.github.nndwn.todoso.TodosoBundle
-import com.github.nndwn.todoso.TodosoConstant
+import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.services.TodoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
@@ -13,9 +13,7 @@ import com.intellij.ui.components.JBScrollPane
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import javax.swing.BorderFactory
-import javax.swing.BoxLayout
 import javax.swing.JEditorPane
-import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.ListSelectionModel
 
@@ -34,7 +32,6 @@ class TodosoMainPanel(
     private val cardLayout = CardLayout()
     private val centerContainer = JPanel(cardLayout)
 
-    // 1. List Model & JBList yang terhubung ke TodosoCell Renderer
     private val listModel = CollectionListModel<TodoTask>()
     private val list = JBList(listModel).apply {
         selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -42,7 +39,7 @@ class TodosoMainPanel(
         cellRenderer = TodosoCell(service, settings)
     }
 
-    private val instructionPane = JEditorPane(HTML, TodosoConstant.getInstructionHtml()).apply {
+    private val instructionPane = JEditorPane(HTML, TodosoConstants.getInstructionHtml()).apply {
         isEditable = false
         isOpaque = false
         isFocusable = false
@@ -69,7 +66,7 @@ class TodosoMainPanel(
 
         centerContainer.add(instructionScrollPane, CARD_INSTRUCTION)
         centerContainer.add(JBScrollPane(list), CARD_TASK_LIST)
-
+        service.injectInstructionsIfNeeded()
         add(centerContainer, BorderLayout.CENTER)
 
         refreshUiState()
