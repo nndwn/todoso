@@ -1,16 +1,20 @@
 package com.github.nndwn.todoso.domain.model
 
+import com.intellij.ui.JBColor
+import java.awt.Color
+
 enum class Priority(
     val emoji: String,
     val code: String,
-    val label: String
+    val label: String,
+    val color : Color
 ) {
-    HIGHEST("🔺", "HH", "Highest"),
-    HIGH("⏫", "H", "High"),
-    MEDIUM("🔼", "M", "Medium"),
-    LOW("🔽", "L", "Low"),
-    LOWEST("⏬", "LL", "Lowest"),
-    NONE("", "", "None");
+    HIGHEST("🔺", "HH", "Highest", JBColor.MAGENTA),
+    HIGH("⏫", "H", "High", JBColor.RED),
+    MEDIUM("🔼", "M", "Medium",JBColor.ORANGE),
+    LOW("🔽", "L", "Low", JBColor.BLUE),
+    LOWEST("⏬", "LL", "Lowest", JBColor.CYAN),
+    NONE("", "", "None",JBColor.GRAY);
 
     companion object {
         private val STRICT_PRIORITY_REGEX = Regex(

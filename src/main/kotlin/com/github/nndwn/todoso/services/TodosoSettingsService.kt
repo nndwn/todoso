@@ -13,7 +13,10 @@ import com.intellij.openapi.project.Project
 class TodosoSettingsService (val project : Project) : PersistentStateComponent<TodosoSettingsService.State>{
 
     data class State(
-        var todoFilePath: String = ""
+        var visualEnabled: Boolean = true,
+        var todoFilePath: String = "",
+        var priorityFilterName: String? = null,
+        var statusFilterName: String? = null
     )
 
     private var stateSettings = State()

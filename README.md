@@ -13,10 +13,6 @@ just type task in field and click right select priority and select tags or if yo
 I’m not good at typing in English but this AI agent typing is more pathetic than me
 
 
-
-
-
-
 #### File-Based Workflow
 *   **Automatic Integration**: Reads from `todo.md` at your project root. If the file doesn't exist, it's created automatically when you add your first task.
 *   **Customizable**: You can change the filename and path in `.idea/TodosoSettings.xml`.

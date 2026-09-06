@@ -13,13 +13,11 @@ class TodosoVfsListener(private val project: Project) : BulkFileListener {
         val service = project.service<TodoService>()
         val targetFile = service.getTodoFile() ?: return
 
-        // Only trigger reload if the content of our specific todo file actually changed
         val isTargetFileContentChanged = events.any { event ->
             event is VFileContentChangeEvent && event.file.path == targetFile.path
         }
 
         if (isTargetFileContentChanged) {
-            // Reload tasks in background thread
             service.loadTask()
         }
     }

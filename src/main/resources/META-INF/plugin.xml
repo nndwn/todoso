@@ -17,7 +17,7 @@
         <toolWindow
             factoryClass="com.github.nndwn.todoso.toolWindow.TodosoToolWindowFactory"
             id="Todo"
-            icon="com.github.nndwn.todoso.toolWindow.TodosoIcons.Logo"
+            icon="com.github.nndwn.todoso.TodosoIcons.Logo"
         />
         <postStartupActivity implementation="com.github.nndwn.todoso.startup.MyProjectActivity" />
         <notificationGroup id="com.github.nndwn.todoso.notifications" displayType="BALLOON" />
