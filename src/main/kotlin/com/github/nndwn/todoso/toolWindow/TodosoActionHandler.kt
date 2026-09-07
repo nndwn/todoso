@@ -15,7 +15,7 @@ import com.intellij.openapi.ui.Messages
 import java.awt.datatransfer.StringSelection
 
 
-class TodoActionHandler(
+class TodosoActionHandler(
     private val project: Project,
     private val service:  TodosoService,
     private val view: TodoViewActions,

@@ -24,7 +24,8 @@ class TodosoToolbar(
     enum class SortOption {
         DEFAULT,
         PRIORITY,
-        STATUS
+        STATUS,
+        DATE
     }
 
     private var currentSort: SortOption = SortOption.DEFAULT

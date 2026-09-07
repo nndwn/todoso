@@ -57,43 +57,73 @@ object TodoTaskParser {
         metadata: Metadata,
         ignoreId: Boolean = false
     ): String {
-        var clean = contentPart
+        var clean = contentPart.replaceFirst(Regex("""^\s*-\s*\[[\s/xX-]?]"""), "")
 
-        clean = clean.replaceFirst(Regex("""^\s*-\s*\[[\s/xX-]?]"""), "")
+        clean = removePriorityMarkers(clean, priority)
+        clean = removeTailMarkers(clean, extractedId, metadata.toEmojiTokens(), ignoreId)
 
-        if (priority != Priority.NONE) {
-            if (priority.emoji.isNotEmpty()) clean = clean.replaceFirst(priority.emoji, "")
-            if (priority.code.isNotEmpty()) clean = clean.replaceFirst(Regex("""\[\s*${priority.code}\s*]""", RegexOption.IGNORE_CASE), "")
-            if (priority.label.isNotEmpty()) clean = clean.replaceFirst(Regex("""\[\s*${priority.label}\s*]""", RegexOption.IGNORE_CASE), "")
+        return clean.replace(Regex("""[ \t]+"""), " ").trim()
+    }
+
+    private fun removePriorityMarkers(text: String, priority: Priority): String {
+        if (priority == Priority.NONE) return text
+        var result = text
+        if (priority.emoji.isNotEmpty()) {
+            result = result.replaceFirst(priority.emoji, "")
         }
+        if (priority.code.isNotEmpty()) {
+            result = result.replaceFirst(Regex("""\[\s*${priority.code}\s*]""", RegexOption.IGNORE_CASE), "")
+        }
+        if (priority.label.isNotEmpty()) {
+            result = result.replaceFirst(Regex("""\[\s*${priority.label}\s*]""", RegexOption.IGNORE_CASE), "")
+        }
+        return result
+    }
 
-        val dateTokens = metadata.toEmojiTokens()
+    private fun removeTailMarkers(
+        text: String,
+        extractedId: String,
+        dateTokens: List<String>,
+        ignoreId: Boolean
+    ): String {
+        var clean = text
         var changed = true
-
         while (changed) {
             changed = false
             val current = clean.trimEnd()
 
-            if (!ignoreId && extractedId.isNotBlank()) {
-                val idTailRegex = Regex("""\s*🆔\s*${Regex.escape(extractedId)}\s*$""")
-                if (idTailRegex.containsMatchIn(current)) {
-                    clean = current.replace(idTailRegex, "").trimEnd()
-                    changed = true
-                    continue
-                }
+            val cleanAfterId = tryRemoveIdTail(current, extractedId, ignoreId)
+            if (cleanAfterId != null) {
+                clean = cleanAfterId
+                changed = true
+                continue
             }
 
-            for (token in dateTokens) {
-                val dateTailRegex = Regex("""\s*${Regex.escape(token)}\s*$""")
-                if (dateTailRegex.containsMatchIn(current)) {
-                    clean = current.replace(dateTailRegex, "").trimEnd()
-                    changed = true
-                    break
-                }
+            val cleanAfterDate = tryRemoveDateTail(current, dateTokens)
+            if (cleanAfterDate != null) {
+                clean = cleanAfterDate
+                changed = true
             }
         }
+        return clean
+    }
 
-        return clean.replace(Regex("""[ \t]+"""), " ").trim()
+    private fun tryRemoveIdTail(text: String, extractedId: String, ignoreId: Boolean): String? {
+        if (ignoreId || extractedId.isBlank()) return null
+        val idTailRegex = Regex("""\s*🆔\s*${Regex.escape(extractedId)}\s*$""")
+        return if (idTailRegex.containsMatchIn(text)) {
+            text.replace(idTailRegex, "").trimEnd()
+        } else null
+    }
+
+    private fun tryRemoveDateTail(text: String, dateTokens: List<String>): String? {
+        for (token in dateTokens) {
+            val dateTailRegex = Regex("""\s*${Regex.escape(token)}\s*$""")
+            if (dateTailRegex.containsMatchIn(text)) {
+                return text.replace(dateTailRegex, "").trimEnd()
+            }
+        }
+        return null
     }
 }
 

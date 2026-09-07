@@ -10,7 +10,6 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class TodoFileParserTest : BasePlatformTestCase() {
 
-    // --- Task Status Tests ---
 
     fun testTaskStatusParsing() {
         val validCases = mapOf(
@@ -40,7 +39,6 @@ class TodoFileParserTest : BasePlatformTestCase() {
         }
     }
 
-    // --- Priority Tests ---
 
     fun testPriorityParsing() {
         val cases = mapOf(
@@ -71,7 +69,6 @@ class TodoFileParserTest : BasePlatformTestCase() {
         }
     }
 
-    // --- Tag Tests ---
 
     fun testTagParsing() {
         val cases = mapOf(
@@ -89,12 +86,9 @@ class TodoFileParserTest : BasePlatformTestCase() {
         }
     }
 
-    // --- Task ID Tests ---
 
     fun testTaskIdParsing() {
         val usedIds = mutableSetOf<String>()
-
-        // Persistent ID parsing
         val res1 = TaskIdParser.parseId("- [ ] 🆔 8x2k1a #ui", usedIds)
         assertEquals("8x2k1a", res1.id)
         assertTrue(res1.isPersistentId)
@@ -114,7 +108,6 @@ class TodoFileParserTest : BasePlatformTestCase() {
         assertEquals(6, resComment.id.length)
     }
 
-    // --- Date and Duration Tests ---
 
     fun testDateAndDurationParsing() {
         // Parse dates with time
@@ -133,8 +126,6 @@ class TodoFileParserTest : BasePlatformTestCase() {
         val meta3 = DateParser.parseDates("- [ ] 🛫 2026-09-06")
         assertNull(DateParser.calculateDuration(meta3))
     }
-
-    // --- Full Integration Tests ---
 
     fun testFullTaskParsing() {
         val rawLine = "- [ ] Visit https://github.com/nndwn/todoso#readme #ui 🆔 8x2k1a // check details"

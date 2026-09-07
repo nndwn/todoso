@@ -63,13 +63,20 @@ class TodosoService(private val project: Project) {
         }
     }
 
-    private fun getOrCreateTodoFile(): VirtualFile?{
+    private fun getOrCreateTodoFile(): VirtualFile? {
         getTodoFile()?.let { return it }
+
         val projectDir = project.guessProjectDir() ?: return null
-        val filePath = settings.state.todoFilePath.trim().ifBlank { TodosoConstants.FILENAME }
+        val targetPath = settings.state.todoFilePath.trim().ifBlank { TodosoConstants.FILENAME }
+
+        val existingFile = projectDir.children.find {
+            it.name.equals(targetPath, ignoreCase = true)
+        }
+        if (existingFile != null) return existingFile
+
         return try {
-            projectDir.createChildData(this, filePath)
-        } catch (_: Exception){
+            projectDir.createChildData(this, targetPath)
+        } catch (_: Exception) {
             null
         }
     }
@@ -223,7 +230,7 @@ class TodosoService(private val project: Project) {
     private fun modifyTaskLine(task: TodoTask, action: (TodoTask) -> String?) {
         val todoFile = getTodoFile() ?: return
 
-        WriteCommandAction.runWriteCommandAction(project, "Modify Todo Task", null, Runnable {
+        runWriteCommandAction(project, "Modify Todo Task", null, Runnable {
             val content = try {
                 VfsUtil.loadText(todoFile)
             } catch (_: Exception) {
@@ -231,26 +238,46 @@ class TodosoService(private val project: Project) {
             }
 
             val lines = content.lines().toMutableList()
-            val targetIndex = task.lineNumber - 1
-            if (targetIndex !in lines.indices) return@Runnable
+            val targetIndex = findTaskIndex(lines, task) ?: return@Runnable
 
             val updatedLine = action(task)
-            if (updatedLine == null) {
-                lines.removeAt(targetIndex)
-            } else {
-                lines[targetIndex] = updatedLine.replace("\n", "").trimEnd()
-            }
+            updateTaskAt(lines, targetIndex, updatedLine)
 
-            val cleanedLines = lines.dropLastWhile { it.isBlank() }
-            val newContent = if (cleanedLines.isNotEmpty()) {
-                cleanedLines.joinToString("\n") + "\n"
-            } else {
-                ""
-            }
-
-            VfsUtil.saveText(todoFile, newContent)
-            VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+            saveContent(todoFile, lines)
         })
+    }
+
+    private fun findTaskIndex(lines: List<String>, task: TodoTask): Int? {
+        val initialIndex = task.lineNumber - 1
+        if (initialIndex !in lines.indices) return null
+
+        if (!task.isPersistentId || task.id.isBlank()) return initialIndex
+
+        val currentLineAtTarget = lines[initialIndex]
+        if (currentLineAtTarget.contains(task.id)) return initialIndex
+
+        val actualIndex = lines.indexOfFirst { it.contains("🆔 ${task.id}") }
+        return if (actualIndex != -1) actualIndex else initialIndex
+    }
+
+    private fun updateTaskAt(lines: MutableList<String>, index: Int, updatedLine: String?) {
+        if (updatedLine == null) {
+            lines.removeAt(index)
+        } else {
+            lines[index] = updatedLine.replace("\n", "").trimEnd()
+        }
+    }
+
+    private fun saveContent(file: VirtualFile, lines: List<String>) {
+        val cleanedLines = lines.dropLastWhile { it.isBlank() }
+        val newContent = if (cleanedLines.isNotEmpty()) {
+            cleanedLines.joinToString("\n") + "\n"
+        } else {
+            ""
+        }
+
+        VfsUtil.saveText(file, newContent)
+        VfsUtil.markDirtyAndRefresh(false, true, true, file)
     }
 
     fun deleteTask(task: TodoTask) {
