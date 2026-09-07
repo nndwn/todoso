@@ -10,7 +10,8 @@ object TodoTaskParser {
     fun parseLine(
         rawLine: String,
         lineNumber: Int,
-        usedIds: MutableSet<String> = mutableSetOf()
+        usedIds: MutableSet<String> = mutableSetOf(),
+        ignoreId: Boolean = false
     ): TodoTask? {
         if (rawLine.isBlank()) return null
 
@@ -20,7 +21,11 @@ object TodoTaskParser {
 
         val priority = Priority.parseFromLine(contentBeforeComment)
 
-        val extractedId = TaskIdParser.parseId(contentBeforeComment, usedIds)
+        val extractedId = if (ignoreId) {
+            TaskIdParser.parseId(null, usedIds)
+        } else {
+            TaskIdParser.parseId(contentBeforeComment, usedIds)
+        }
 
         val tags = TagParser.parseTags(contentBeforeComment)
 
@@ -30,13 +35,13 @@ object TodoTaskParser {
             contentPart = contentBeforeComment,
             priority = priority,
             extractedId = extractedId.id,
-            tags = tags,
-            metadata = metadata
+            metadata = metadata,
+            ignoreId = ignoreId
         )
 
         return TodoTask(
             id = extractedId.id,
-            isPersistentId = extractedId.isPersistentId,
+            isPersistentId = extractedId.isPersistentId || !ignoreId,
             rawText = rawLine,
             description = cleanDescription,
             status = status,
@@ -51,8 +56,8 @@ object TodoTaskParser {
         contentPart: String,
         priority: Priority,
         extractedId: String,
-        tags: List<String>,
-        metadata: Metadata
+        metadata: Metadata,
+        ignoreId: Boolean = false
     ): String {
         var clean = contentPart
 
@@ -80,17 +85,41 @@ object TodoTaskParser {
             }
         }
 
-        clean = clean.replace(Regex("""🆔\s*$extractedId"""), "")
-
-        metadata.toEmojiTokens().forEach { token ->
-            clean = clean.replace(token, "")
+        if (!ignoreId) {
+            val matchResult = TaskIdParser.TASK_ID_REGEX.findAll(clean).lastOrNull()
+            if (matchResult != null && matchResult.groupValues[1] == extractedId) {
+                val remaining = clean.substring(matchResult.range.last + 1).trim()
+                if (remaining.isEmpty()) {
+                    clean = clean.substring(0, matchResult.range.first).trimEnd()
+                }
+            }
         }
 
-        tags.forEach { tag ->
-            clean = clean.replace(Regex("""(?<=\s|^)#${Regex.escape(tag)}(?=\s|[.,!?]|$)"""), "")
+        // Remove ONLY date tokens at the end. 
+        // Tags are preserved in description regardless of position per user request.
+        
+        val dateTokens = metadata.toEmojiTokens()
+        
+        fun removeEndMetadata() {
+            var changed = true
+            while (changed) {
+                changed = false
+                val current = clean.trimEnd()
+                
+                // Try remove date token at end
+                for (token in dateTokens) {
+                    if (current.endsWith(token)) {
+                        clean = current.substring(0, current.length - token.length).trimEnd()
+                        changed = true
+                        break
+                    }
+                }
+            }
         }
 
-        return clean.replace(Regex("""\s+"""), " ").trim()
+        removeEndMetadata()
+
+        return clean.replace(Regex("""[ \t]+"""), " ").trim()
     }
 }
 

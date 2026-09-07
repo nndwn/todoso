@@ -6,7 +6,7 @@ import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.intellij.openapi.project.Project
-import com.github.nndwn.todoso.services.TodoService
+import com.github.nndwn.todoso.services.TodosoService
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
@@ -17,7 +17,7 @@ import java.awt.datatransfer.StringSelection
 
 class TodoActionHandler(
     private val project: Project,
-    private val service:  TodoService,
+    private val service:  TodosoService,
     private val view: TodoViewActions,
 ) {
     interface TodoViewActions {

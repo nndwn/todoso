@@ -6,7 +6,7 @@ import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TagParser
-import com.github.nndwn.todoso.services.TodoService
+import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.intellij.ui.ColoredListCellRenderer
 import com.intellij.ui.JBColor
@@ -14,7 +14,7 @@ import com.intellij.ui.SimpleTextAttributes
 import javax.swing.JList
 
 class TodosoCell(
-    private val service: TodoService,
+    private val service: TodosoService,
     private val settings: TodosoSettingsService
 ) : ColoredListCellRenderer<TodoTask>() {
     override fun customizeCellRenderer(

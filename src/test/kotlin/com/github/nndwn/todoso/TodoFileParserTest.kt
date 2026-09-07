@@ -77,10 +77,10 @@ class TodoFileParserTest : BasePlatformTestCase() {
         val cases = mapOf(
             "- [ ] #ui #project/frontend #C# #F#" to listOf("ui", "project/frontend", "C#", "F#"),
             "- [ ] #issue, and #core." to listOf("issue", "core"),
-            "- [ ] Visit https://github.com/nndwn/todoso#readme" to emptyList<String>(),
-            "- [ ] Email user#domain or normal text#anchor" to emptyList<String>(),
+            "- [ ] Visit https://github.com/nndwn/todoso#readme" to emptyList(),
+            "- [ ] Email user#domain or normal text#anchor" to emptyList(),
             "- [ ] #v1.0.1." to listOf("v1.0.1"),
-            "- [ ] #123 numeric" to emptyList<String>(),
+            "- [ ] #123 numeric" to emptyList(),
             "- [ ] #core // #note in comment" to listOf("core")
         )
 
@@ -139,9 +139,8 @@ class TodoFileParserTest : BasePlatformTestCase() {
     fun testFullTaskParsing() {
         val rawLine = "- [ ] Visit https://github.com/nndwn/todoso#readme #ui 🆔 8x2k1a // check details"
 
-        // Buat set untuk menampung ID agar collision detection berjalan tepat
         val usedIds = mutableSetOf<String>()
-        val task = TodoTaskParser.parseLine(rawLine, lineNumber = 10, usedIds = usedIds)
+        val task = TodoTaskParser.parseLine(rawLine, 10, usedIds, false)
 
         assertNotNull(task)
         task?.let {
@@ -150,7 +149,7 @@ class TodoFileParserTest : BasePlatformTestCase() {
             assertEquals(TaskStatus.TODO, it.status)
             assertEquals(listOf("ui"), it.tags)
             assertEquals("check details", it.metadata.notes)
-            assertEquals("Visit https://github.com/nndwn/todoso#readme", it.description)
+            assertEquals("Visit https://github.com/nndwn/todoso#readme #ui", it.description)
             assertEquals(10, it.lineNumber)
         }
     }

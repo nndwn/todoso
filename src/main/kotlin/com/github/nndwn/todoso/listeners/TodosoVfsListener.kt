@@ -1,6 +1,6 @@
 package com.github.nndwn.todoso.listeners
 
-import com.github.nndwn.todoso.services.TodoService
+import com.github.nndwn.todoso.services.TodosoService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 class TodosoVfsListener(private val project: Project) : BulkFileListener {
 
     override fun after(events: List<VFileEvent>) {
-        val service = project.service<TodoService>()
+        val service = project.service<TodosoService>()
         val targetFile = service.getTodoFile() ?: return
 
         val isTargetFileContentChanged = events.any { event ->

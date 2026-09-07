@@ -3,7 +3,7 @@ package com.github.nndwn.todoso.toolWindow
 import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.TodoTask
-import com.github.nndwn.todoso.services.TodoService
+import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -19,7 +19,7 @@ import javax.swing.ListSelectionModel
 
 class TodosoMainPanel(
     private val project: Project,
-    private val service: TodoService = project.service(),
+    private val service: TodosoService = project.service(),
     private val settings: TodosoSettingsService = TodosoSettingsService.getInstance(project)
 ) : JPanel(BorderLayout()) {
 

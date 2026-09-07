@@ -3,7 +3,7 @@ package com.github.nndwn.todoso.domain.parser
 import com.github.nndwn.todoso.domain.model.ExtractedId
 
 object TaskIdParser {
-    private val TASK_ID_REGEX = Regex("""🆔\s*([a-zA-Z0-9]{3,12})""")
+    internal val TASK_ID_REGEX = Regex("""🆔\s*([a-zA-Z0-9]{3,12})""")
     private val ALPHA_NUMERIC_CHARS = ('a'..'z') + ('A'..'Z') + ('0'..'9')
 
     fun parseId(input: String?, usedIds: MutableSet<String> = mutableSetOf()): ExtractedId {

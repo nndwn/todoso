@@ -6,6 +6,7 @@ import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
+import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
@@ -16,7 +17,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 
 @Service(Service.Level.PROJECT)
-class TodoService(private val project: Project) {
+class TodosoService(private val project: Project) {
 
     private val instructionHeader: String
         get() = TodosoBundle.message("todo.instruction.inject", TodosoConstants.GITHUB_REPO_URL)
@@ -133,7 +134,7 @@ class TodoService(private val project: Project) {
     fun addTask(rawInputText: String) {
         val trimmedInput = rawInputText.trim()
         if (trimmedInput.isBlank()) return
-        val formattedTaskLine = formatNewTaskLine(rawInputText)
+        val formattedTaskLine = formatNewTaskLine(rawInputText) ?: return
         runWriteCommandAction(project, "Add Task", null, Runnable {
             val todoFile = getOrCreateTodoFile() ?: return@Runnable
             val currentContent = try {
@@ -151,24 +152,32 @@ class TodoService(private val project: Project) {
             VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
         })
     }
-    private fun formatNewTaskLine(input: String): String {
-        val dummyLine = if (input.startsWith("- [")) {
-            input
-        } else {
-            "- [ ] $input"
-        }
+    internal fun formatNewTaskLine(input: String): String? {
+        val dummyLine = "- [ ] $input"
 
         val parsedTask = TodoTaskParser.parseLine(
             rawLine = dummyLine,
-            lineNumber = 1
+            lineNumber = 1,
+            ignoreId = true
         )
 
-        return if (parsedTask != null) {
-            val newTask = parsedTask.copy(isPersistentId = true)
+        if (parsedTask == null) return null
+
+        val cleanForCheck = parsedTask.description
+            .replace(TagParser.TAG_REGEX, "")
+            .replace(TaskIdParser.TASK_ID_REGEX, "")
+            .replace(Regex("""[🛫📅✅❌➕]"""), "")
+            .trim()
+
+        return if (cleanForCheck.isNotBlank()) {
+            val generatedId = TaskIdParser.parseId(null).id
+            val newTask = parsedTask.copy(
+                id = generatedId,
+                isPersistentId = true
+            )
             TodoTaskBuilder.rebuildTaskLine(newTask)
         } else {
-            val generatedId = TaskIdParser.parseId(null).id
-            "- [ ] $input 🆔 $generatedId"
+            null
         }
     }
     fun editTask(task: TodoTask, rawInputText: String) {

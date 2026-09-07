@@ -12,19 +12,32 @@ object TodoTaskBuilder {
         if (task.priority != Priority.NONE && task.priority.emoji.isNotEmpty()) {
             append("${task.priority.emoji} ")
         }
-        append(task.description.trim())
+        val description = task.description.trim()
+        append(description)
 
         if (task.tags.isNotEmpty()) {
-            append(" ").append(task.tags.joinToString(" ") { if (it.startsWith("#")) it else "#$it" })
+            val tagsToAppend = task.tags.filter { tag ->
+                !description.contains("#$tag")
+            }
+            if (tagsToAppend.isNotEmpty()) {
+                append(" ").append(tagsToAppend.joinToString(" ") { if (it.startsWith("#")) it else "#$it" })
+            }
         }
 
         val dateTokens = task.metadata.toEmojiTokens()
         if (dateTokens.isNotEmpty()) {
-            append(" ").append(dateTokens.joinToString(" "))
+            val tokensToAppend = dateTokens.filter { token ->
+                !description.contains(token)
+            }
+            if (tokensToAppend.isNotEmpty()) {
+                append(" ").append(tokensToAppend.joinToString(" "))
+            }
         }
         
         if (task.isPersistentId || task.id.isNotBlank()) {
-            append(" 🆔 ").append(task.id)
+            if (!description.contains("🆔 ${task.id}") && !description.contains("🆔${task.id}")) {
+                append(" 🆔 ").append(task.id)
+            }
         }
 
         if (task.metadata.notes.isNotBlank()) {
