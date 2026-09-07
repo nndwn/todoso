@@ -12,7 +12,8 @@ object TaskIdParser {
         }
 
         val contentBeforeComment = stripComment(input)
-        val matchResult = TASK_ID_REGEX.find(contentBeforeComment)
+
+        val matchResult = TASK_ID_REGEX.findAll(contentBeforeComment).lastOrNull()
 
         if (matchResult != null) {
             val extractedId = matchResult.groupValues[1]

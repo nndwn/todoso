@@ -1,5 +1,11 @@
 package com.github.nndwn.todoso.services
 
+import com.github.nndwn.todoso.TodosoConstants
+import com.github.nndwn.todoso.domain.model.Priority
+import com.github.nndwn.todoso.domain.model.TaskStatus
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class TodosoServiceTest : BasePlatformTestCase() {
@@ -11,58 +17,106 @@ class TodosoServiceTest : BasePlatformTestCase() {
         service = project.getService(TodosoService::class.java)
     }
 
-    fun testFormatNewTaskLine() {
-        // Case: sample description -> - [ ] sample description 🆔 8XnWwK
-        val res1 = service.formatNewTaskLine("sample description")
-        assertNotNull(res1)
-        assertTrue("Expected to start with '- [ ] sample description 🆔 ', but was: $res1", 
-            res1!!.startsWith("- [ ] sample description 🆔 "))
-        
-        // Case: - [ ] sample description -> - [ ] - [ ] sample description 🆔 8XnWwK
-        val res2 = service.formatNewTaskLine("- [ ] sample description")
-        assertNotNull(res2)
-        assertTrue("Expected to start with '- [ ] - [ ] sample description 🆔 ', but was: $res2",
-            res2!!.startsWith("- [ ] - [ ] sample description 🆔 "))
 
-        // Case: [H] sample description -> - [ ] ⏫ sample description 🆔 8XnWwK
-        val res3 = service.formatNewTaskLine("[H] sample description")
-        assertNotNull(res3)
-        assertTrue("Expected to start with '- [ ] ⏫ sample description 🆔 ', but was: $res3",
-            res3!!.startsWith("- [ ] ⏫ sample description 🆔 "))
+    fun testAddMultipleTasks() {
 
-        // Case: sample description [H] -> - [ ] sample description [H] 🆔 8XnWwK
-        val res4 = service.formatNewTaskLine("sample description [H]")
-        assertNotNull(res4)
-        assertTrue("Expected to start with '- [ ] sample description [H] 🆔 ', but was: $res4",
-            res4!!.startsWith("- [ ] sample description [H] 🆔 "))
+        service.addTask("Task Pertama #core")
+        service.addTask("Task Kedua #ui")
 
-        // Case: https://github.com/nndwn/todoso#readme -> - [ ] https://github.com/nndwn/todoso#readme 🆔 8XnWwK
-        val res5 = service.formatNewTaskLine("https://github.com/nndwn/todoso#readme")
-        assertNotNull(res5)
-        assertTrue("Expected to start with '- [ ] https://github.com/nndwn/todoso#readme 🆔 ', but was: $res5",
-            res5!!.startsWith("- [ ] https://github.com/nndwn/todoso#readme 🆔 "))
 
-        // Case: "Beli Susu\nBeli Roti" -> - [ ] Beli Susu\nBeli Roti 🆔 ...
-        val resMultiline = service.formatNewTaskLine("Beli Susu\nBeli Roti")
-        assertNotNull(resMultiline)
-        assertTrue("Expected to contain newline, but was: $resMultiline", resMultiline!!.contains("Beli Susu\nBeli Roti"))
+        val tasks = service.loadTask()
+        assertEquals(2, tasks.size)
 
-        // Case: #apasaja a -> - [ ] #apasaja a 🆔 ...
-        val resTagStart = service.formatNewTaskLine("#apasaja a")
-        assertNotNull(resTagStart)
-        assertTrue("Expected to contain tag at start, but was: $resTagStart", resTagStart!!.contains("#apasaja a"))
+        assertEquals("Task Pertama #core", tasks[0].description)
+        assertEquals(listOf("core"), tasks[0].tags)
+        assertEquals(1, tasks[0].lineNumber)
+        assertNotNull("Created date harus tercatat otomatis", tasks[0].metadata.createdDate)
 
-        // Case: Cek 🆔 lama -> - [ ] Cek 🆔 lama 🆔 ...
-        val resIdSymbol = service.formatNewTaskLine("Cek 🆔 lama")
-        assertNotNull(resIdSymbol)
-        assertTrue("Expected to preserve existing ID-like symbol, but was: $resIdSymbol", resIdSymbol!!.contains("Cek 🆔 lama 🆔 "))
+        assertEquals("Task Kedua #ui", tasks[1].description)
+        assertEquals(listOf("ui"), tasks[1].tags)
+        assertEquals(2, tasks[1].lineNumber)
+        assertNotNull("Created date harus tercatat otomatis", tasks[1].metadata.createdDate)
 
-        // Case: fail #apasaja #apasaja2
-        val resFailTags = service.formatNewTaskLine("#apasaja #apasaja2")
-        assertNull("Expected null for only tags input, but was: $resFailTags", resFailTags)
-        
-        // Case: fail //sample description
-        val resFail = service.formatNewTaskLine("//sample description")
-        assertNull("Expected null for comment-only input, but was: $resFail", resFail)
+        assertTrue("Task pertama harus memiliki persistent ID", tasks[0].isPersistentId)
+        assertTrue("Task kedua harus memiliki persistent ID", tasks[1].isPersistentId)
+        assertFalse("ID task tidak boleh sama", tasks[0].id == tasks[1].id)
     }
+
+    fun testAddTaskWithSpecialSymbolsAndUrls() {
+        val input = "Refactor module https://github.com/nndwn/todoso#readme dengan #C# dan #F# & <script>alert(1)</script>"
+
+        service.addTask(input)
+
+        val tasks = service.loadTask()
+        assertEquals(1, tasks.size)
+
+        val task = tasks.first()
+        // URL anchor #readme harus tetap utuh di deskripsi, dan tag C# serta F# terekstrak bersih
+        assertEquals("Refactor module https://github.com/nndwn/todoso#readme dengan #C# dan #F# & <script>alert(1)</script>", task.description)
+        assertEquals(listOf("C#", "F#"), task.tags)
+    }
+
+    fun testAddTaskWithEmbeddedMetadataEmojisInDescription() {
+        val input = "Beli tiket 📅 konser dan check 🆔 tiket di tempat #event"
+
+        service.addTask(input)
+
+        val tasks = service.loadTask()
+        assertEquals(1, tasks.size)
+
+        val task = tasks.first()
+        // Emoji di tengah kalimat harus dipertahankan sebagai teks deskripsi biasa (tidak boleh terpotong)
+        assertEquals("Beli tiket 📅 konser dan check 🆔 tiket di tempat #event", task.description)
+        assertEquals(listOf("event"), task.tags)
+        assertTrue("Task tetap mendapat persistent ID resmi di ekor", task.isPersistentId)
+    }
+    fun testAddTaskWithAccidentalStatusPrefixInput() {
+        val input = "- [ ] Task yang diketik manual dengan prefix"
+
+        service.addTask(input)
+
+        val tasks = service.loadTask()
+        assertEquals(1, tasks.size)
+
+        val task = tasks.first()
+        // Prefix ganda dibersihkan, deskripsi bersih dari duplikasi `- [ ]`
+        assertEquals("- [ ] Task yang diketik manual dengan prefix", task.description)
+        assertEquals(TaskStatus.TODO, task.status)
+    }
+
+    fun testAddTaskWithUnicodeAndMultibyteCharacters() {
+        val input = "[H] 🇯🇵 タスクを作成する #日本語 #v1.0.0"
+
+        service.addTask(input)
+
+        val tasks = service.loadTask()
+        assertEquals(1, tasks.size)
+
+        val task = tasks.first()
+        assertEquals("🇯🇵 タスクを作成する #日本語 #v1.0.0", task.description)
+        assertEquals(Priority.HIGH, task.priority)
+        assertEquals(listOf("日本語", "v1.0.0"), task.tags)
+    }
+
+    fun testAddTaskWithExistingCommentsAndBlankLines() {
+        WriteCommandAction.runWriteCommandAction(project) {
+            val projectDir = project.guessProjectDir()!!
+            val file = projectDir.createChildData(this, TodosoConstants.FILENAME)
+            VfsUtil.saveText(file, "- [ ] Task Lama 🆔 init01 // ini catatan awal\n")
+        }
+
+        service.addTask("Task Baru Setelah Komentar #test")
+
+        val tasks = service.loadTask()
+        assertEquals(2, tasks.size)
+
+        assertEquals("Task Lama", tasks[0].description)
+        assertEquals("ini catatan awal", tasks[0].metadata.notes)
+        assertEquals(1, tasks[0].lineNumber)
+
+        assertEquals("Task Baru Setelah Komentar #test", tasks[1].description)
+        assertEquals(listOf("test"), tasks[1].tags)
+        assertEquals(2, tasks[1].lineNumber)
+    }
+
 }

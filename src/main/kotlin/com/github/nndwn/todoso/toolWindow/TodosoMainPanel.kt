@@ -57,7 +57,8 @@ class TodosoMainPanel(
         targetComponent = list,
         onRefresh = { refreshUiState() },
         onRandomTask = { /* panggil handler random task */ },
-        onToggleVisualMode = { list.repaint() }
+        onToggleVisualMode = { list.repaint() },
+        onSortChanged = { /* panggil handler sort task */ }
     )
 
     init {

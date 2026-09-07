@@ -9,12 +9,15 @@ import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service(Service.Level.PROJECT)
 class TodosoService(private val project: Project) {
@@ -23,18 +26,19 @@ class TodosoService(private val project: Project) {
         get() = TodosoBundle.message("todo.instruction.inject", TodosoConstants.GITHUB_REPO_URL)
 
     private val settings = TodosoSettingsService.getInstance(project)
+
+    private fun sanitizeInputText(input: String): String {
+        return input.replace("\r\n", " ")
+            .replace("\n", " ")
+            .replace("\r", " ")
+            .replace(Regex("""[ \t]+"""), " ")
+            .trim()
+    }
     fun getTodoFile(): VirtualFile? {
         val projectDir = project.guessProjectDir() ?: return null
-        val path = TodosoSettingsService.getInstance(project).state.todoFilePath.trim()
-
-        return if (path.isNotBlank()) {
-            projectDir.findFileByRelativePath(path)
-        } else {
-            projectDir.children.find { it.name.equals(TodosoConstants.FILENAME, ignoreCase = true) }
-        }
+        val path = settings.state.todoFilePath.trim().ifBlank { TodosoConstants.FILENAME }
+        return projectDir.findFileByRelativePath(path)
     }
-
-
     fun injectInstructionsIfNeeded() {
         val todoFile = getTodoFile() ?: return
 
@@ -69,10 +73,10 @@ class TodosoService(private val project: Project) {
             null
         }
     }
-
-
     fun loadTask(): List<TodoTask> {
+
         val todoFile = getTodoFile() ?: return emptyList()
+
         val content = try {
             VfsUtil.loadText(todoFile)
         } catch (_: Exception) {
@@ -111,8 +115,6 @@ class TodosoService(private val project: Project) {
             .toList()
     }
 
-
-
     fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
         modifyTaskLine(task) { currentTask ->
             val updatedMeta = if (!note.isNullOrBlank()) {
@@ -132,9 +134,12 @@ class TodosoService(private val project: Project) {
     }
 
     fun addTask(rawInputText: String) {
-        val trimmedInput = rawInputText.trim()
-        if (trimmedInput.isBlank()) return
-        val formattedTaskLine = formatNewTaskLine(rawInputText) ?: return
+        // 1. Jalankan sanitasi teks input
+        val cleanInput = sanitizeInputText(rawInputText)
+        if (cleanInput.isBlank()) return
+
+        val formattedTaskLine = formatNewTaskLine(cleanInput) ?: return
+
         runWriteCommandAction(project, "Add Task", null, Runnable {
             val todoFile = getOrCreateTodoFile() ?: return@Runnable
             val currentContent = try {
@@ -143,11 +148,15 @@ class TodosoService(private val project: Project) {
                 ""
             }
 
-            val newContent = if (currentContent.isEmpty() || currentContent.endsWith("\n")){
-                currentContent + formattedTaskLine
-            } else {
-                "$currentContent\n$formattedTaskLine"
-            }
+            // 2. Bersihkan baris kosong di ekor file
+            val existingLines = currentContent.lines()
+                .map { it.trimEnd() }
+                .dropLastWhile { it.isBlank() }
+
+            // 3. Susun baris baru secara simetris
+            val newLines = existingLines + formattedTaskLine
+            val newContent = newLines.joinToString("\n") + "\n"
+
             VfsUtil.saveText(todoFile, newContent)
             VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
         })
@@ -171,9 +180,12 @@ class TodosoService(private val project: Project) {
 
         return if (cleanForCheck.isNotBlank()) {
             val generatedId = TaskIdParser.parseId(null).id
+            val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+            val updatedMetadata = parsedTask.metadata.copy(createdDate = nowFormatted)
             val newTask = parsedTask.copy(
                 id = generatedId,
-                isPersistentId = true
+                isPersistentId = true,
+                metadata = updatedMetadata
             )
             TodoTaskBuilder.rebuildTaskLine(newTask)
         } else {
@@ -185,14 +197,7 @@ class TodosoService(private val project: Project) {
         if (trimmedInput.isBlank()) return
 
         modifyTaskLine(task) { currentTask ->
-            val hasExplicitStatus = trimmedInput.startsWith("- [")
-            val hasExplicitPriority = Priority.parseFromLine("- [ ] $trimmedInput") != Priority.NONE
-
-            val dummyLine = if (hasExplicitStatus) {
-                trimmedInput
-            } else {
-                "- [${currentTask.status.code}] $trimmedInput"
-            }
+            val dummyLine = "- [${currentTask.status.code}] $trimmedInput"
 
             val parsedTask = TodoTaskParser.parseLine(
                 rawLine = dummyLine,
@@ -200,30 +205,11 @@ class TodosoService(private val project: Project) {
             )
 
             val updatedTask = if (parsedTask != null) {
-                if (hasExplicitPriority || hasExplicitStatus) {
-                    currentTask.copy(
-                        priority = parsedTask.priority,
-                        description = parsedTask.description,
-                        tags = parsedTask.tags,
-                        metadata = if (parsedTask.metadata.notes.isNotBlank()) {
-                            currentTask.metadata.copy(notes = parsedTask.metadata.notes)
-                        } else {
-                            currentTask.metadata
-                        },
-                        isPersistentId = true
-                    )
-                } else {
-                    currentTask.copy(
-                        description = parsedTask.description,
-                        tags = parsedTask.tags,
-                        metadata = if (parsedTask.metadata.notes.isNotBlank()) {
-                            currentTask.metadata.copy(notes = parsedTask.metadata.notes)
-                        } else {
-                            currentTask.metadata
-                        },
-                        isPersistentId = true
-                    )
-                }
+                currentTask.copy(
+                    description = parsedTask.description,
+                    tags = parsedTask.tags,
+                    isPersistentId = true
+                )
             } else {
                 currentTask.copy(
                     description = trimmedInput,
@@ -237,7 +223,7 @@ class TodosoService(private val project: Project) {
     private fun modifyTaskLine(task: TodoTask, action: (TodoTask) -> String?) {
         val todoFile = getTodoFile() ?: return
 
-        runWriteCommandAction(project, "Modify Todo Task", null, Runnable {
+        WriteCommandAction.runWriteCommandAction(project, "Modify Todo Task", null, Runnable {
             val content = try {
                 VfsUtil.loadText(todoFile)
             } catch (_: Exception) {
@@ -247,14 +233,21 @@ class TodosoService(private val project: Project) {
             val lines = content.lines().toMutableList()
             val targetIndex = task.lineNumber - 1
             if (targetIndex !in lines.indices) return@Runnable
+
             val updatedLine = action(task)
             if (updatedLine == null) {
                 lines.removeAt(targetIndex)
             } else {
-                lines[targetIndex] = updatedLine
+                lines[targetIndex] = updatedLine.replace("\n", "").trimEnd()
             }
 
-            val newContent = lines.joinToString("\n")
+            val cleanedLines = lines.dropLastWhile { it.isBlank() }
+            val newContent = if (cleanedLines.isNotEmpty()) {
+                cleanedLines.joinToString("\n") + "\n"
+            } else {
+                ""
+            }
+
             VfsUtil.saveText(todoFile, newContent)
             VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
         })
@@ -294,8 +287,4 @@ class TodosoService(private val project: Project) {
             TodoTaskBuilder.rebuildTaskLine(updatedTask)
         }
     }
-
-
-
-
 }

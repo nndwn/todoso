@@ -3,6 +3,7 @@ package com.github.nndwn.todoso.toolWindow
 import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
@@ -17,11 +18,22 @@ class TodosoToolbar(
     private val onRefresh: () -> Unit,
     private val onRandomTask: () -> Unit,
     private val onToggleVisualMode: () -> Unit,
+    private val onSortChanged: (SortOption) -> Unit
 ) {
+
+    enum class SortOption {
+        DEFAULT,
+        PRIORITY,
+        STATUS
+    }
+
+    private var currentSort: SortOption = SortOption.DEFAULT
     fun createComponent(): JComponent {
         val actionGroup = DefaultActionGroup().apply {
             add(createRefreshAction())
             add(createRandomTaskAction())
+            addSeparator()
+            add(createSortActionGroup())
             addSeparator()
             add(createVisualModeToggleAction())
         }
@@ -48,6 +60,53 @@ class TodosoToolbar(
             AllIcons.Actions.Lightning,
         ) {
             override fun actionPerformed(e: AnActionEvent) = onRandomTask()
+        }
+
+    private fun createSortToggleAction(label: String, option: SortOption): ToggleAction {
+        return object : ToggleAction(label) {
+            override fun isSelected(e: AnActionEvent): Boolean {
+                return currentSort == option
+            }
+
+            override fun setSelected(e: AnActionEvent, state: Boolean) {
+                if (state) {
+                    currentSort = option
+                    onSortChanged(option)
+                }
+            }
+
+            override fun getActionUpdateThread(): ActionUpdateThread {
+                return ActionUpdateThread.EDT
+            }
+        }
+    }
+    private fun createSortActionGroup(): ActionGroup {
+        val sortGroup = DefaultActionGroup().apply {
+            add(createSectionHeader("Sort"))
+
+            add(createSortToggleAction("Default", SortOption.DEFAULT))
+            add(createSortToggleAction("By Priority", SortOption.PRIORITY))
+            add(createSortToggleAction("By Status", SortOption.STATUS))
+        }
+
+        return object : DefaultActionGroup("Sort Tasks", true) {
+            init {
+                templatePresentation.icon = AllIcons.Actions.ListChanges
+                templatePresentation.text = "Sort Tasks"
+            }
+
+            override fun getChildren(e: AnActionEvent?): Array<AnAction> {
+                return sortGroup.getChildren(e)
+            }
+        }
+    }
+
+    private fun createSectionHeader(title: String): AnAction =
+        object : AnAction(title) {
+            override fun actionPerformed(e: AnActionEvent) {}
+            override fun update(e: AnActionEvent) {
+                e.presentation.isEnabled = false // Mencegah item diklik & berwarna abu-abu
+            }
         }
     private fun createVisualModeToggleAction(): ToggleAction =
         object : ToggleAction(
