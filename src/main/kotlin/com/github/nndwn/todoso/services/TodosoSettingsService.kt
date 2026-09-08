@@ -17,7 +17,8 @@ class TodosoSettingsService : PersistentStateComponent<TodosoSettingsService.Sta
         var visualEnabled: Boolean = true,
         var todoFilePath: String = TodosoConstants.FILENAME,
         var priorityFilterName: String? = null,
-        var statusFilterName: String? = null
+        var statusFilterName: String? = null,
+        var sortOption: String = "DEFAULT"
     )
 
     private val myState = State()

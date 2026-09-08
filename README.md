@@ -14,15 +14,22 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
 
 
 
-
 #### File-Based Workflow
-*   **Automatic Integration**: Reads from `todo.md` at your project root. If the file doesn't exist, it's created automatically when you add your first task.
-*   **Customizable**: You can change the filename and path in `.idea/TodosoSettings.xml`.
+* **Automatic Integration**: Reads from `todo.md` at your project root by default[cite: 1].
+* **Flexible Casing**: Automatically detects `todo.md`, `TODO.md`, `Todo.md`, or any casing variation without issues[cite: 1].
+* **Absolute & Relative Path Support**: Select any Markdown file inside your project directory (relative path) or connect an external file from your personal **Obsidian Vault** anywhere on your system (absolute path).
+* **Customizable Settings**: Select your file interactively via the Toolbar search icon or specify its path in `.idea/TodosoSettings.xml`:
     ```xml
     <component name="com.github.nndwn.todoso.services.TodosoSettingsService">
-        <option name="todoFilePath" value="path-relative-to-project-root/todo.md"/>
+        <!-- Relative path inside project OR absolute path to external file -->
+        <option name="todoFilePath" value="docs/todo.md"/>
     </component>
     ```
+  
+> [!IMPORTANT]
+> **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues. we highly recommend adding todo.md (or your custom path) to your `.gitignore` file.
+
+
 
 #### Flexible Input Field Behavior
 flexible single-input field that intelligently processes both plain text descriptions and full Markdown task syntax.
@@ -33,6 +40,24 @@ Supported Input Styles
 *    **Explicit Format & Shortcodes (Quick Input)**
         * Type priority bracket shortcodes or emojis along with tags directly in the input bar (e.g., `[H] Fix navbar bug #ui #v1.0.1`). 
         * The parser automatically extracts and assigns the priority (HIGH / ⏫) and tags (#ui, #v1.0.1), removing syntax tokens to keep the description clean.
+*    **Empty Checkbox Protection**: Submitting inputs containing only empty status checkboxes (e.g., `- [ ]` or `- [/]`) is automatically rejected to prevent blank task creation.
+*    **Multi-State UI Modes**: Supports seamless UI transitions between **New Task**, **Edit Mode**, **Cancel Task Mode**, and **Note Mode** with contextual background highlights.
+*    **Automatic Note Prefixing**: Entering Note Mode automatically injects the `//`  prefix and guarantees proper formatting.
+
+
+####  Multi-Criteria Toolbar & Sorting Features
+Todoso provides an interactive toolbar with dynamic view options and multi-criteria sorting to help you organize your tasks effortlessly:
+
+* **File Selection**: Click the file search icon on the toolbar to choose any Markdown file directly from your project directory or your computer
+*   **Multi-Criteria Sorting Options**:
+      * **Default (File Order)**: Keeps the natural line order as written in `todo.md`.
+      * **By Priority**: Orders tasks by urgency (`Highest` 🔺 → `Lowest` ⏬).
+      * **By Status**: Groups tasks by progress state (`Doing` →  `Todo` →  `Done` / `Canceled`).
+      * **By Date**: Sorts tasks chronologically using the earliest available date token (`Due Date` 📅 → `Start Date` 🛫 → `Created Date` ➕).
+      * **Date then Priority (Combined Sort)**: Evaluates tasks by date first; if dates are equal or missing, it automatically falls back to sorting by priority.
+*   **Persistent Sort State**: Selected sorting preferences are automatically saved in .idea/TodosoSettings.xml and restored across IDE restarts.
+*   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
+*   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
      
 #### Strict Line Parsing Rules
 
@@ -106,6 +131,8 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
    * Tasks lacking a physical `🆔` in `todo.md` are assigned a 6-character ID in-memory (`isPersistentId = false`).
    * Temporary IDs are only written permanently to `todo.md` upon the first user interaction (e.g., editing, toggling status, or changing priority).
      Todoso extracts standard Obsidian Tasks date emojis to track task lifecycles and completion duration:
+4. **Line Drift Safety Net**:
+   File mutations include an automatic ID fallback check (`findTaskIndex`) to prevent accidental line overwrites if external edits shift line positions before background VFS listeners trigger.
 
 #### Date Metadata & Duration Tracking Rules
 
@@ -125,8 +152,8 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
 
 
 #### Metadata Comment Isolation (//)
-1.   Any text placed after the metadata comment separator // is isolated as metadata.notes (e.g., - [ ] Fix UI #ui // check details).
-2.   URL protocol slashes (such as http:// or https://) are protected and will never be falsely parsed as comment separators
+1.   Any text placed after the metadata comment separator `//` is isolated as `metadata.notes` (e.g.,` - [ ] Fix UI #ui // check details`).
+2.   URL protocol slashes (such as `http://` or `https://`) are protected and will never be falsely parsed as comment separators
 
 
 ---

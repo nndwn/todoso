@@ -9,13 +9,13 @@ import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
+import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -26,7 +26,8 @@ class TodosoService(private val project: Project) {
         get() = TodosoBundle.message("todo.instruction.inject", TodosoConstants.GITHUB_REPO_URL)
 
     private val settings = TodosoSettingsService.getInstance(project)
-
+    private var cachedTasks: List<TodoTask> = emptyList()
+    private var isCacheDirty = true
     private fun sanitizeInputText(input: String): String {
         return input.replace("\r\n", " ")
             .replace("\n", " ")
@@ -35,10 +36,46 @@ class TodosoService(private val project: Project) {
             .trim()
     }
     fun getTodoFile(): VirtualFile? {
-        val projectDir = project.guessProjectDir() ?: return null
         val path = settings.state.todoFilePath.trim().ifBlank { TodosoConstants.FILENAME }
-        return projectDir.findFileByRelativePath(path)
+        val projectDir = project.guessProjectDir()
+
+        val relativeFile = projectDir?.findFileByRelativePath(path)
+        if (relativeFile != null) return relativeFile
+
+        val ioFile = File(path)
+        if (ioFile.isAbsolute && ioFile.exists()) {
+            return VfsUtil.findFileByIoFile(ioFile, true)
+        }
+
+        return projectDir?.children?.find { it.name.equals(path, ignoreCase = true) }
     }
+
+    private fun getOrCreateTodoFile(): VirtualFile? {
+        getTodoFile()?.let { return it }
+
+        val path = settings.state.todoFilePath.trim().ifBlank { TodosoConstants.FILENAME }
+        val projectDir = project.guessProjectDir()
+
+        val ioFile = File(path)
+        if (ioFile.isAbsolute) {
+            return try {
+                if (!ioFile.exists()) {
+                    ioFile.parentFile?.mkdirs()
+                    ioFile.createNewFile()
+                }
+                VfsUtil.findFileByIoFile(ioFile, true)
+            } catch (_: Exception) {
+                null
+            }
+        }
+
+        return try {
+            projectDir?.createChildData(this, path)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     fun injectInstructionsIfNeeded() {
         val todoFile = getTodoFile() ?: return
 
@@ -62,40 +99,36 @@ class TodosoService(private val project: Project) {
             })
         }
     }
-
-    private fun getOrCreateTodoFile(): VirtualFile? {
-        getTodoFile()?.let { return it }
-
-        val projectDir = project.guessProjectDir() ?: return null
-        val targetPath = settings.state.todoFilePath.trim().ifBlank { TodosoConstants.FILENAME }
-
-        val existingFile = projectDir.children.find {
-            it.name.equals(targetPath, ignoreCase = true)
-        }
-        if (existingFile != null) return existingFile
-
-        return try {
-            projectDir.createChildData(this, targetPath)
-        } catch (_: Exception) {
-            null
-        }
+    fun markCacheDirty() {
+        isCacheDirty = true
     }
-    fun loadTask(): List<TodoTask> {
 
-        val todoFile = getTodoFile() ?: return emptyList()
+    fun loadTask(): List<TodoTask> {
+        if (!isCacheDirty) return cachedTasks
+
+        val todoFile = getTodoFile() ?: run {
+            cachedTasks = emptyList()
+            return emptyList()
+        }
+
+        todoFile.refresh(false, false)
 
         val content = try {
             VfsUtil.loadText(todoFile)
         } catch (_: Exception) {
+            cachedTasks = emptyList()
             return emptyList()
         }
 
-        if (content.isBlank()) return emptyList()
+        if (content.isBlank()) {
+            cachedTasks = emptyList()
+            return emptyList()
+        }
 
         val usedIds = mutableSetOf<String>()
         val tasks = mutableListOf<TodoTask>()
 
-        content.lines().forEachIndexed { index, rawLine ->
+        content.lineSequence().forEachIndexed { index, rawLine ->
             val task = TodoTaskParser.parseLine(
                 rawLine = rawLine,
                 lineNumber = index + 1,
@@ -106,7 +139,9 @@ class TodosoService(private val project: Project) {
             }
         }
 
-        return tasks
+        cachedTasks = tasks
+        isCacheDirty = false
+        return cachedTasks
     }
 
     fun getRecentVersions(limit: Int = 3): List<String> {
@@ -141,7 +176,6 @@ class TodosoService(private val project: Project) {
     }
 
     fun addTask(rawInputText: String) {
-        // 1. Jalankan sanitasi teks input
         val cleanInput = sanitizeInputText(rawInputText)
         if (cleanInput.isBlank()) return
 
@@ -155,12 +189,10 @@ class TodosoService(private val project: Project) {
                 ""
             }
 
-            // 2. Bersihkan baris kosong di ekor file
             val existingLines = currentContent.lines()
                 .map { it.trimEnd() }
                 .dropLastWhile { it.isBlank() }
 
-            // 3. Susun baris baru secara simetris
             val newLines = existingLines + formattedTaskLine
             val newContent = newLines.joinToString("\n") + "\n"
 

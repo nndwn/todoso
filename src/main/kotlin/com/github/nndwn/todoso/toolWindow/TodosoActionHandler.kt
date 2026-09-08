@@ -90,6 +90,17 @@ class TodosoActionHandler(
         }
     }
 
+    fun handleErrorNotification( message: String) {
+        NotificationGroupManager.getInstance()
+            .getNotificationGroup("com.github.nndwn.todoso.notifications")
+            .createNotification(
+                TodosoBundle.message("todo.action.error"),
+                message,
+                NotificationType.WARNING
+            )
+            .notify(project)
+    }
+
     fun handleCopyContext() {
         val selected = view.getSelectedTask() ?: return
         CopyPasteManager.getInstance().setContents(StringSelection(selected.rawText))

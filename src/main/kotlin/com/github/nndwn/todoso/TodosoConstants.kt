@@ -12,12 +12,14 @@ object TodosoConstants {
             <h1 style="margin-top: 0; color: #FFFFFF;">${TodosoBundle.message("instruction.welcome.title")}</h1>
             <p>${TodosoBundle.message("instruction.empty.desc")}</p>
             <ul>
+              <li>${TodosoBundle.message("instruction.step.open.file")}</li>
                 <li>${TodosoBundle.message("instruction.step.submit")}</li>
                 <li>${TodosoBundle.message("instruction.step.context")}</li>
                 <li>
                     ${TodosoBundle.message("instruction.step.format")}<br/>
                     <code style="background-color: #2B2D30; color: #A9B7C6; padding: 2px 4px;">[H] task description #tags</code>
                 </li>
+               
             </ul>
             <p>${TodosoBundle.message("instruction.doc.link", GITHUB_REPO_URL)}</p>
         </body>

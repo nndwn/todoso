@@ -13,6 +13,7 @@ import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
 import java.awt.BorderLayout
@@ -38,8 +39,12 @@ class TodosoMainPanel(
 
     private val handler = TodosoActionHandler(project, service, this)
 
-    private var currentSortOption: TodosoToolbar.SortOption = TodosoToolbar.SortOption.DEFAULT
+    private var currentSortOption: Set<TodosoToolbar.SortOption> = settings.state.sortOption
+        .split(",")
+        .mapNotNull { TodosoToolbar.SortOption.fromKey(it.trim()) }
+        .toSet()
 
+    private var currentTagFilter: String? = null
     private val cardLayout = CardLayout()
     private val centerContainer = JPanel(cardLayout)
     private val instructionPane = JEditorPane(HTML, TodosoConstants.getInstructionHtml()).apply {
@@ -60,18 +65,31 @@ class TodosoMainPanel(
         selectionMode = ListSelectionModel.SINGLE_SELECTION
         emptyText.text = TodosoBundle.message("todo.list.empty")
         cellRenderer = TodosoCell(service, settings)
+
+        accessibleContext.accessibleName = TodosoBundle.message("todo.list.accessible.name")
+        accessibleContext.accessibleDescription = TodosoBundle.message("todo.list.accessible.desc")
     }
 
-    private val toolbarPanel = TodosoToolbar(
-        settings = settings,
-        targetComponent = list,
-        onRefresh = { refreshUiState() },
-        onRandomTask = { handler.handleRandomTask() },
-        onToggleVisualMode = { list.repaint() },
-        onSortChanged = { sortOption ->
-            currentSortOption = sortOption
-            refreshTasks() }
-    )
+    private val toolbarPanel by lazy {
+        TodosoToolbar(
+            settings = settings,
+            targetComponent = this, // Menggunakan 'this' agar targetComponent selalu visible
+            onRefresh = { refreshUiState() },
+            onRandomTask = { handler.handleRandomTask() },
+            onToggleVisualMode = { list.repaint() },
+            onErrorHandler = { errorMessage ->
+                handler.handleErrorNotification(errorMessage)
+            },
+            onSortChanged = { sortOptions ->
+                currentSortOption = sortOptions
+                refreshTasks()
+            }
+        )
+    }
+
+    private val tagsNavigationPanel = TodosoTagsNavigation { selectedTag ->
+        setTagFilter(selectedTag)
+    }
 
     private val inputPanel = TodosoInputPanel(
         onNewTask = { text -> handler.handleAddTask(text) },
@@ -89,33 +107,73 @@ class TodosoMainPanel(
         centerContainer.add(instructionScrollPane, CARD_INSTRUCTION)
         centerContainer.add(JBScrollPane(list), CARD_TASK_LIST)
         add(centerContainer, BorderLayout.CENTER)
-        add(inputPanel, BorderLayout.SOUTH)
+        val southContainer = JBPanel<JBPanel<*>>(BorderLayout()).apply {
+            isOpaque = false
+            add(tagsNavigationPanel, BorderLayout.NORTH)
+            add(inputPanel, BorderLayout.SOUTH)
+        }
+        add(southContainer, BorderLayout.SOUTH)
 
         service.injectInstructionsIfNeeded()
         refreshUiState()
     }
 
     fun refreshUiState() {
-        val tasks = service.loadTask()
+        val allTasks = service.loadTask()
 
-        if (tasks.isEmpty()) {
+        if (allTasks.isEmpty()) {
             listModel.removeAll()
+            tagsNavigationPanel.isVisible = false
             cardLayout.show(centerContainer, CARD_INSTRUCTION)
         } else {
+            val tagCounts = extractTagCounts(allTasks)
+            tagsNavigationPanel.isVisible = tagCounts.isNotEmpty()
+            tagsNavigationPanel.setTags(tagCounts, currentTagFilter)
 
-            listModel.replaceAll(tasks)
+            val filteredTasks = if (currentTagFilter == null) {
+                allTasks
+            } else {
+                allTasks.filter { task -> task.tags.contains(currentTagFilter) }
+            }
+
+            val sortedTasks = applySorting(filteredTasks, currentSortOption)
+            listModel.replaceAll(sortedTasks)
             cardLayout.show(centerContainer, CARD_TASK_LIST)
         }
     }
-    private fun applySorting(tasks: List<TodoTask>, option: TodosoToolbar.SortOption): List<TodoTask> {
-        return when (option) {
-            TodosoToolbar.SortOption.DEFAULT -> tasks
-            TodosoToolbar.SortOption.PRIORITY -> tasks.sortedBy { it.priority }
-            TodosoToolbar.SortOption.STATUS -> tasks.sortedBy { it.status }
-            TodosoToolbar.SortOption.DATE -> tasks.sortedBy { task ->
-                task.metadata.dueDate ?: task.metadata.startDate ?: "9999-99-99"
+
+    private fun extractTagCounts(tasks: List<TodoTask>): Map<String, Int> {
+        val counts = mutableMapOf<String, Int>()
+        tasks.forEach { task ->
+            task.tags.forEach { tag ->
+                counts[tag] = counts.getOrDefault(tag, 0) + 1
             }
         }
+        return counts
+    }
+    private fun applySorting(tasks: List<TodoTask>, options: Set<TodosoToolbar.SortOption>): List<TodoTask> {
+        if (options.isEmpty()) return tasks
+
+        val comparators = mutableListOf<Comparator<TodoTask>>()
+
+        if (options.contains(TodosoToolbar.SortOption.STATUS)) {
+            comparators.add(compareBy { it.status })
+        }
+        if (options.contains(TodosoToolbar.SortOption.DATE)) {
+            comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: "9999-99-99" })
+        }
+        if (options.contains(TodosoToolbar.SortOption.PRIORITY)) {
+            comparators.add(compareBy { it.priority })
+        }
+
+        if (comparators.isEmpty()) return tasks
+
+        var finalComparator = comparators[0]
+        for (i in 1 until comparators.size) {
+            finalComparator = finalComparator.then(comparators[i])
+        }
+
+        return tasks.sortedWith(finalComparator)
     }
 
     override fun refreshTasks() {
@@ -138,11 +196,16 @@ class TodosoMainPanel(
         inputPanel.clearInputText()
     }
 
+    override fun setTagFilter(tag: String?) {
+        currentTagFilter = tag
+        refreshUiState()
+    }
+
     override fun updateButtonStates() {
         // Callback untuk update state tombol jika ada dependensi eksternal
     }
 
     override fun setPriorityFilter(priority: Priority?) {}
     override fun setStatusFilter(status: TaskStatus?) {}
-    override fun setTagFilter(tag: String?) {}
+
 }

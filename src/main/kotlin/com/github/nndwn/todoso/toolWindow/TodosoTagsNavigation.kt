@@ -33,6 +33,14 @@ class TodosoTagsNavigation(private val onTagSelected: (String?) -> Unit) : JBPan
                 horizontalScrollBarPolicy = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
                 verticalScrollBarPolicy = ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
                 preferredSize = JBUI.size(-1, 42)
+                addMouseWheelListener { e ->
+                    val hBar = horizontalScrollBar
+                    if (hBar != null && hBar.isVisible) {
+                        val increment = if (hBar.unitIncrement > 0) hBar.unitIncrement else 16
+                        hBar.value += e.unitsToScroll * increment
+                        e.consume()
+                    }
+                }
             }
         add(scrollPane, BorderLayout.CENTER)
     }
