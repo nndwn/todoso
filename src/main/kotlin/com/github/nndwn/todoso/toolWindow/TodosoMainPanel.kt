@@ -5,6 +5,8 @@ import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
+import com.github.nndwn.todoso.domain.parser.TagParser
+import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.intellij.openapi.components.service
@@ -93,12 +95,14 @@ class TodosoMainPanel(
 
     private val inputPanel by lazy {
         TodosoInputPanel(
+            project = project,
             onNewTask = { text -> handler.handleAddTask(text) },
             onUpdateTask = { text -> handler.handleUpdateTask(text) },
             onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
             onCreateNote = { note -> handler.handleConfirmCancel(note) },
             onCancelEdit = { handler.handleCancelEdit() },
-            fontInput = editorFont
+            fontInput = editorFont,
+            getPopularTags = { TagParser.getPopularTags(service.loadTask()) }
         )
     }
 
@@ -122,6 +126,18 @@ class TodosoMainPanel(
             }
         }
         service.injectInstructionsIfNeeded()
+        subsChange()
+    }
+
+    private fun subsChange(){
+        project.messageBus.connect().subscribe(
+            TodosoDataChangeListener.TOPIC,
+            TodosoDataChangeListener {
+                com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
+                    refreshUiState()
+                }
+            }
+        )
     }
 
     fun refreshUiState() {

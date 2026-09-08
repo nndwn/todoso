@@ -19,6 +19,18 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+
+fun interface TodosoDataChangeListener {
+    fun onDataChanged()
+
+    companion object {
+        val TOPIC = com.intellij.util.messages.Topic.create(
+            "Todoso Data Change",
+            TodosoDataChangeListener::class.java
+        )
+    }
+}
+
 @Service(Service.Level.PROJECT)
 class TodosoService(private val project: Project) {
 
@@ -150,18 +162,7 @@ class TodosoService(private val project: Project) {
         return cachedTasks
     }
 
-    fun getRecentVersions(limit: Int = 3): List<String> {
-        val currentTasks = loadTask()
-        return currentTasks
-            .asSequence()
-            .flatMap { it.tags }
-            .filter { it.startsWith("v") || it.startsWith("#v") }
-            .map { if (it.startsWith("#")) it else "#$it" }
-            .distinct()
-            .sortedDescending()
-            .take(limit)
-            .toList()
-    }
+
 
     fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
         modifyTaskLine(task) { currentTask ->

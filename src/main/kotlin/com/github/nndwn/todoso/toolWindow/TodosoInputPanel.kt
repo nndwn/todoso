@@ -1,26 +1,30 @@
 package com.github.nndwn.todoso.toolWindow
 
 import com.github.nndwn.todoso.TodosoBundle
+import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.ListItemDescriptorAdapter
+import com.intellij.openapi.util.IconLoader
+import com.intellij.psi.search.FilenameIndex
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextArea
+import com.intellij.ui.popup.list.GroupedItemsListRenderer
 import com.intellij.util.ui.JBUI
-import java.awt.BasicStroke
-import java.awt.BorderLayout
-import java.awt.FlowLayout
-import java.awt.Font
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.RenderingHints
+import java.awt.*
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import javax.swing.Icon
 import javax.swing.JButton
+import javax.swing.JList
+import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
-
 
 /**
  * State visual & mode input untuk TodosoInputPanel
@@ -32,13 +36,25 @@ sealed class InputMode {
     object Note : InputMode()
 }
 
+/**
+ * Representasi item dalam popup saran (Tags atau Files)
+ */
+data class SuggestionItem(
+    val text: String,
+    val category: String,
+    val icon: Icon? = null,
+    val subText: String? = null
+)
+
 class TodosoInputPanel(
+    private val project: Project,
     val onNewTask: (String) -> Unit,
     val onUpdateTask: (String) -> Unit,
     val onConfirmCancel: (String) -> Unit,
     val onCreateNote: (String) -> Unit,
     val onCancelEdit: () -> Unit,
-    val fontInput: Font
+    val fontInput: Font,
+    val getPopularTags: () -> List<String>
 ) : JBPanel<TodosoInputPanel>(BorderLayout()) {
 
     companion object {
@@ -178,6 +194,96 @@ class TodosoInputPanel(
         setMode(InputMode.Normal)
     }
 
+    private fun showSuggestionsPopup(triggerChar: Char) {
+        val items = runReadAction {
+            when (triggerChar) {
+                '#' -> getPopularTags().map { SuggestionItem(it, "Popular Tags", IconLoader.getIcon("/actions/checked.png", javaClass)) }
+                '@' -> getProjectFiles().take(15).map { SuggestionItem(it.name, "Files", IconLoader.getIcon("/nodes/ppFile.png", javaClass), it.path) }
+                else -> emptyList()
+            }
+        }
+
+        if (items.isEmpty()) return
+
+        val caretPos = inputTextArea.caretPosition
+        val caretRect = try {
+            inputTextArea.modelToView2D(caretPos)?.bounds
+        } catch (_: Exception) {
+            null
+        } ?: return
+
+        val renderer = object : GroupedItemsListRenderer<SuggestionItem>(object : ListItemDescriptorAdapter<SuggestionItem>() {
+            override fun getTextFor(value: SuggestionItem) = value.text
+            override fun getIconFor(value: SuggestionItem) = value.icon
+            override fun getCaptionAboveOf(value: SuggestionItem): String? {
+                val index = items.indexOf(value)
+                if (index == 0) return value.category
+                if (items[index - 1].category != value.category) return value.category
+                return null
+            }
+            override fun hasSeparatorAboveOf(value: SuggestionItem): Boolean {
+                return getCaptionAboveOf(value) != null
+            }
+        }) {
+            override fun customizeComponent(list: JList<out SuggestionItem>?, value: SuggestionItem, isSelected: Boolean) {
+                super.customizeComponent(list, value, isSelected)
+                // Kita bisa menambahkan sub-teks (path) jika diperlukan di masa depan
+            }
+        }
+
+        val popup = JBPopupFactory.getInstance()
+            .createPopupChooserBuilder(items)
+            .setRenderer(renderer)
+            .setMovable(false)
+            .setResizable(false)
+            .setRequestFocus(true)
+            .setItemChosenCallback { selectedItem ->
+                insertItemAtCaret(selectedItem.text)
+            }
+            .createPopup()
+
+        val locationOnScreen = inputTextArea.locationOnScreen
+        val popupPoint = Point(
+            locationOnScreen.x + caretRect.x,
+            locationOnScreen.y + caretRect.y + caretRect.height + 2
+        )
+        popup.showInScreenCoordinates(inputTextArea, popupPoint)
+    }
+
+    private data class FileInfo(val name: String, val path: String)
+
+    private fun getProjectFiles(): List<FileInfo> {
+        val files = mutableListOf<FileInfo>()
+        val scope = GlobalSearchScope.projectScope(project)
+
+        FilenameIndex.getAllFilenames(project).forEach { fileName ->
+            if (fileName.endsWith(".kt") || fileName.endsWith(".java") || fileName.endsWith(".md")) {
+                FilenameIndex.getVirtualFilesByName(fileName, scope).forEach{ file ->
+                    files.add(FileInfo(file.name, file.path))
+                }
+            }
+        }
+        return files.distinctBy { it.path }.sortedBy { it.name }
+    }
+
+    private fun insertItemAtCaret(text: String) {
+        val doc = inputTextArea.document
+        val caretPos = inputTextArea.caretPosition
+
+        // Memasukkan teks dengan spasi di akhir
+        doc.insertString(caretPos, "$text ", null)
+        inputTextArea.requestFocusInWindow()
+    }
+
+    private fun shouldTriggerPopup(): Boolean {
+        val caretPos = inputTextArea.caretPosition
+        val text = inputTextArea.text
+        if (text.isEmpty()) return true
+
+        val charBefore = if (caretPos > 0) text[caretPos - 1] else ' '
+        return charBefore.isWhitespace()
+    }
+
     init {
         border = JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 1, 0, 0, 0)
         background = JBUI.CurrentTheme.ToolWindow.background()
@@ -243,9 +349,25 @@ class TodosoInputPanel(
         }
 
         inputTextArea.addKeyListener(object : KeyAdapter() {
+            override fun keyTyped(e: KeyEvent) {
+                val char = e.keyChar
+                if ((char == '#' || char == '@') && shouldTriggerPopup()) {
+                    SwingUtilities.invokeLater {
+                        showSuggestionsPopup(char)
+                    }
+                }
+            }
             override fun keyPressed(e: KeyEvent) {
                 if (e.keyCode == KeyEvent.VK_ESCAPE && currentMode !is InputMode.Normal) {
                     onCancelEdit()
+                }
+                
+                // Submit dengan Enter (Shift+Enter untuk baris baru)
+                if (e.keyCode == KeyEvent.VK_ENTER && !e.isShiftDown) {
+                    e.consume()
+                    if (newTaskButton.isEnabled) {
+                        newTaskButton.doClick()
+                    }
                 }
             }
         })

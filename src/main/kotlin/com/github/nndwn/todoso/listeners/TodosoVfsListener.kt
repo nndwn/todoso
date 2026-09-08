@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.listeners
 
+import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -20,6 +21,7 @@ class TodosoVfsListener(private val project: Project) : BulkFileListener {
         if (isTargetFileContentChanged) {
             service.markCacheDirty()
             service.loadTask()
+            project.messageBus.syncPublisher(TodosoDataChangeListener.TOPIC).onDataChanged()
         }
     }
 }
