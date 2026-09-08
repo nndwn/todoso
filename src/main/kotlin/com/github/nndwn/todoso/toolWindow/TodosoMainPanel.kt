@@ -15,7 +15,6 @@ import com.intellij.ui.CollectionListModel
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.components.JBTextField
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import javax.swing.BorderFactory
@@ -73,13 +72,14 @@ class TodosoMainPanel(
     private val toolbarPanel by lazy {
         TodosoToolbar(
             settings = settings,
-            targetComponent = this, // Menggunakan 'this' agar targetComponent selalu visible
-            onRefresh = { refreshUiState() },
+            targetComponent = this,
+            onRefreshUI = { refreshUiState() },
             onRandomTask = { handler.handleRandomTask() },
             onToggleVisualMode = { list.repaint() },
             onErrorHandler = { errorMessage ->
                 handler.handleErrorNotification(errorMessage)
             },
+            onRefreshTasks = {handler.refreshTasks()},
             onSortChanged = { sortOptions ->
                 currentSortOption = sortOptions
                 refreshTasks()
@@ -91,14 +91,16 @@ class TodosoMainPanel(
         setTagFilter(selectedTag)
     }
 
-    private val inputPanel = TodosoInputPanel(
-        onNewTask = { text -> handler.handleAddTask(text) },
-        onUpdateTask = { text -> handler.handleUpdateTask(text) },
-        onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
-        onCreateNote = { note -> handler.handleConfirmCancel(note) },
-        onCancelEdit = { handler.handleCancelEdit() },
-        fontInput = editorFont
-    )
+    private val inputPanel by lazy {
+        TodosoInputPanel(
+            onNewTask = { text -> handler.handleAddTask(text) },
+            onUpdateTask = { text -> handler.handleUpdateTask(text) },
+            onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
+            onCreateNote = { note -> handler.handleConfirmCancel(note) },
+            onCancelEdit = { handler.handleCancelEdit() },
+            fontInput = editorFont
+        )
+    }
 
     init {
         val toolbarComponent = toolbarPanel.createComponent()
@@ -114,8 +116,12 @@ class TodosoMainPanel(
         }
         add(southContainer, BorderLayout.SOUTH)
 
+        addHierarchyListener { event ->
+            if ((event.changeFlags and java.awt.event.HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
+                refreshTasks()
+            }
+        }
         service.injectInstructionsIfNeeded()
-        refreshUiState()
     }
 
     fun refreshUiState() {
@@ -177,6 +183,7 @@ class TodosoMainPanel(
     }
 
     override fun refreshTasks() {
+        service.markCacheDirty()
         refreshUiState()
     }
 

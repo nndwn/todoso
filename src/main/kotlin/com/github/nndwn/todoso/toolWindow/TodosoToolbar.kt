@@ -23,7 +23,8 @@ import javax.swing.JComponent
 class TodosoToolbar(
     private val settings: TodosoSettingsService,
     private val targetComponent: JComponent,
-    private val onRefresh: () -> Unit,
+    private val onRefreshUI: () -> Unit,
+    private val onRefreshTasks: () -> Unit,
     private val onRandomTask: () -> Unit,
     private val onToggleVisualMode: () -> Unit,
     private val onErrorHandler : (String)-> Unit,
@@ -67,7 +68,7 @@ class TodosoToolbar(
             TodosoBundle.message("todo.action.refresh.desc"),
             AllIcons.Actions.Refresh,
         ) {
-            override fun actionPerformed(e: AnActionEvent) = onRefresh()
+            override fun actionPerformed(e: AnActionEvent) = onRefreshTasks()
         }
     private fun createRandomTaskAction(): AnAction =
         object : AnAction(
@@ -195,7 +196,7 @@ class TodosoToolbar(
 
                     val settings = TodosoSettingsService.getInstance(project)
                     settings.state.todoFilePath = pathToSave
-                    onRefresh()
+                    onRefreshUI()
                 }
             }
         }

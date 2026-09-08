@@ -15,8 +15,8 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
 
 
 #### File-Based Workflow
-* **Automatic Integration**: Reads from `todo.md` at your project root by default[cite: 1].
-* **Flexible Casing**: Automatically detects `todo.md`, `TODO.md`, `Todo.md`, or any casing variation without issues[cite: 1].
+* **Automatic Integration**: Reads from `todo.md` at your project root by default.
+* **Flexible Casing**: Automatically detects `todo.md`, `TODO.md`, `Todo.md`, or any casing variation without issues.
 * **Absolute & Relative Path Support**: Select any Markdown file inside your project directory (relative path) or connect an external file from your personal **Obsidian Vault** anywhere on your system (absolute path).
 * **Customizable Settings**: Select your file interactively via the Toolbar search icon or specify its path in `.idea/TodosoSettings.xml`:
     ```xml
@@ -29,7 +29,11 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
 > [!IMPORTANT]
 > **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues. we highly recommend adding todo.md (or your custom path) to your `.gitignore` file.
 
-
+#### Data Synchronization & Performance
+To ensure a seamless experience when working with external Markdown editors (like Obsidian) and large task lists, Todoso uses a specialized synchronization engine:
+* **Why Caching?** Parsing Markdown with regex is resource-intensive. We cache tasks in memory so that switching tags or sorting feels instant, without laggy reparsing on every click.
+* **Why Path Awareness?** Switching between different todo files or clearing settings triggers an immediate cache invalidation. This ensures you never see "ghost tasks" from a previously selected file.
+* **Why a Refresh Button?** While we auto-sync via IntelliJ's VFS, external file changes can sometimes lag. The Refresh button acts as a "hard reset" that bypasses the cache to read directly from the disk.
 
 #### Flexible Input Field Behavior
 flexible single-input field that intelligently processes both plain text descriptions and full Markdown task syntax.

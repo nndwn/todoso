@@ -18,6 +18,7 @@ class TodosoVfsListener(private val project: Project) : BulkFileListener {
         }
 
         if (isTargetFileContentChanged) {
+            service.markCacheDirty()
             service.loadTask()
         }
     }

@@ -28,6 +28,8 @@ class TodosoService(private val project: Project) {
     private val settings = TodosoSettingsService.getInstance(project)
     private var cachedTasks: List<TodoTask> = emptyList()
     private var isCacheDirty = true
+
+    private var lastLoadedPath: String? = null
     private fun sanitizeInputText(input: String): String {
         return input.replace("\r\n", " ")
             .replace("\n", " ")
@@ -104,10 +106,13 @@ class TodosoService(private val project: Project) {
     }
 
     fun loadTask(): List<TodoTask> {
-        if (!isCacheDirty) return cachedTasks
+        val currentPath = settings.state.todoFilePath
+
+        if (!isCacheDirty && currentPath == lastLoadedPath) return cachedTasks
 
         val todoFile = getTodoFile() ?: run {
             cachedTasks = emptyList()
+            lastLoadedPath = currentPath
             return emptyList()
         }
 
@@ -141,6 +146,7 @@ class TodosoService(private val project: Project) {
 
         cachedTasks = tasks
         isCacheDirty = false
+        lastLoadedPath = currentPath
         return cachedTasks
     }
 
@@ -198,6 +204,7 @@ class TodosoService(private val project: Project) {
 
             VfsUtil.saveText(todoFile, newContent)
             VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+            markCacheDirty()
         })
     }
     internal fun formatNewTaskLine(input: String): String? {
@@ -276,6 +283,7 @@ class TodosoService(private val project: Project) {
             updateTaskAt(lines, targetIndex, updatedLine)
 
             saveContent(todoFile, lines)
+            markCacheDirty()
         })
     }
 
