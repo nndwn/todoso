@@ -10,6 +10,7 @@ import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
+import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
@@ -20,11 +21,18 @@ import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Font
+import java.awt.Rectangle
 import java.awt.event.HierarchyEvent
 import javax.swing.BorderFactory
 import javax.swing.JEditorPane
+import javax.swing.JLayeredPane
 import javax.swing.JPanel
 import javax.swing.ListSelectionModel
+import java.awt.Dimension
+import java.awt.Point
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
+import javax.swing.SwingUtilities
 
 class TodosoMainPanel(
     private val project: Project,
@@ -95,6 +103,10 @@ class TodosoMainPanel(
         setTagFilter(selectedTag)
     }
 
+    private val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
+        inputPanel.insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask)
+    }
+
     private val inputPanel by lazy {
         TodosoInputPanel(
             onNewTask = { text -> handler.handleAddTask(text) },
@@ -104,20 +116,52 @@ class TodosoMainPanel(
             onCancelEdit = { handler.handleCancelEdit() },
             fontInput = uiFont,
             getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
-            getAllTasks = { service.loadTask() }
+            getAllTasks = { service.loadTask() },
+            onSuggestionRequest = { items ->
+                if (items != null) {
+                    suggestionOverlay.updateItems(items)
+                    updateOverlayPosition()
+                } else {
+                    suggestionOverlay.hideOverlay()
+                }
+            },
+            onNavigationRequest = { direction ->
+                when (direction) {
+                    "UP" -> suggestionOverlay.moveUp()
+                    "DOWN" -> suggestionOverlay.moveDown()
+                    "ENTER" -> suggestionOverlay.confirmSelection()
+                    "ESCAPE" -> suggestionOverlay.hideOverlay()
+                }
+            }
         )
     }
 
+    private val layeredPane = JLayeredPane()
+    private val mainContent = JPanel(BorderLayout())
+
     init {
         val toolbarComponent = toolbarPanel.createComponent()
-        add(toolbarComponent, BorderLayout.NORTH)
+        mainContent.add(toolbarComponent, BorderLayout.NORTH)
 
         centerContainer.add(instructionScrollPane, CARD_INSTRUCTION)
         centerContainer.add(JBScrollPane(list), CARD_TASK_LIST)
-        add(centerContainer, BorderLayout.CENTER)
+        mainContent.add(centerContainer, BorderLayout.CENTER)
 
-        add(inputPanel, BorderLayout.SOUTH)
+        mainContent.add(inputPanel, BorderLayout.SOUTH)
 
+        // Setup layered pane
+        layeredPane.add(mainContent, JLayeredPane.DEFAULT_LAYER)
+        layeredPane.add(suggestionOverlay, JLayeredPane.POPUP_LAYER)
+
+        add(layeredPane, BorderLayout.CENTER)
+
+        // Sync mainContent size with layeredPane
+        layeredPane.addComponentListener(object : ComponentAdapter() {
+            override fun componentResized(e: ComponentEvent?) {
+                mainContent.bounds = layeredPane.bounds
+                updateOverlayPosition()
+            }
+        })
 
         addHierarchyListener { event ->
             if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
@@ -246,4 +290,21 @@ class TodosoMainPanel(
     override fun setPriorityFilter(priority: Priority?) {}
     override fun setStatusFilter(status: TaskStatus?) {}
 
+    private fun updateOverlayPosition() {
+        if (!suggestionOverlay.isVisible) return
+
+        // Konversi koordinat inputPanel relatif terhadap layeredPane
+        val relativeBounds = SwingUtilities.convertRectangle(inputPanel.parent, inputPanel.bounds, layeredPane)
+        
+        val overlayWidth = relativeBounds.width - JBUI.scale(16)
+        val overlayHeight = suggestionOverlay.preferredSize.height.coerceAtMost(JBUI.scale(400))
+        
+        val x = relativeBounds.x + JBUI.scale(8)
+        val y = relativeBounds.y - overlayHeight - JBUI.scale(4)
+        
+        suggestionOverlay.bounds = Rectangle(x, y, overlayWidth, overlayHeight)
+        layeredPane.moveToFront(suggestionOverlay) // Jaminan overlay ada di depan
+        suggestionOverlay.revalidate()
+        suggestionOverlay.repaint()
+    }
 }

@@ -30,7 +30,9 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
             onCancelEdit = { cancelEditCalled = true },
             fontInput = Font("Monospaced", Font.PLAIN, 12),
             getPopularTags = { emptyList() },
-            getAllTasks = { emptyList() }
+            getAllTasks = { emptyList() },
+            onSuggestionRequest = {},
+            onNavigationRequest = {}
         )
     }
 

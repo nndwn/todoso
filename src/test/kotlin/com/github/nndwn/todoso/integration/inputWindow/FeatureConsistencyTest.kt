@@ -54,7 +54,9 @@ class FeatureConsistencyTest : BasePlatformTestCase() {
             onCreateNote = {}, onCancelEdit = {}, 
             fontInput = Font("Monospaced", 0, 12),
             getPopularTags = { emptyList() },
-            getAllTasks = { emptyList() }
+            getAllTasks = { emptyList() },
+            onSuggestionRequest = {},
+            onNavigationRequest = {}
         )
         
         // Direct access to internal method

@@ -42,7 +42,9 @@ class TodosoInputPanel(
     private val onCancelEdit: () -> Unit,
     private val fontInput: Font,
     private val getPopularTags: () -> List<String>,
-    private val getAllTasks: () -> List<TodoTask>
+    private val getAllTasks: () -> List<TodoTask>,
+    private val onSuggestionRequest: (List<SuggestionItem>?) -> Unit,
+    private val onNavigationRequest: (String) -> Unit
 ) : JBPanel<TodosoInputPanel>(BorderLayout()) {
 
     companion object {
@@ -55,7 +57,7 @@ class TodosoInputPanel(
         private const val BACKGROUND_COLOR_NORMAL = "Todo.Input.Background"
     }
 
-    private var activePopup: JBPopup? = null
+    private var isOverlayVisible = false
 
     var currentMode: InputMode = InputMode.Normal
         private set
@@ -121,30 +123,39 @@ class TodosoInputPanel(
         })
 
         inputTextArea.document.addDocumentListener(object : DocumentAdapter() {
-            override fun textChanged(e: DocumentEvent) = updateActionButtons()
+            override fun textChanged(e: DocumentEvent) {
+                updateActionButtons()
+                
+                // Trigger otomatis saat teks berubah (termasuk backspace)
+                SwingUtilities.invokeLater {
+                    val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition)
+                    if (prefix != null) {
+                        showSuggestionsPopup('#')
+                    } else {
+                        hideOverlay()
+                    }
+                }
+            }
         })
 
         inputTextArea.addKeyListener(object : KeyAdapter() {
             override fun keyTyped(e: KeyEvent) {
-                val char = e.keyChar
-                if (char == '#' && shouldTriggerPopup()) {
-                    SwingUtilities.invokeLater { showSuggestionsPopup(char) }
-                } else {
-                    SwingUtilities.invokeLater {
-                        if (getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) != null) {
-                            showSuggestionsPopup('#')
-                        } else {
-                            activePopup?.cancel()
-                        }
-                    }
-                }
+                // keyTyped sekarang hanya menangani inisiasi awal jika diperlukan
+                // Sebagian besar logika sudah ditangani oleh DocumentListener di atas
             }
 
             override fun keyPressed(e: KeyEvent) {
                 if (handlePopupNavigation(e)) return
 
-                if (e.keyCode == KeyEvent.VK_ESCAPE && currentMode !is InputMode.Normal) {
-                    onCancelEdit()
+                if (e.keyCode == KeyEvent.VK_ESCAPE) {
+                    if (isOverlayVisible) {
+                        hideOverlay()
+                        e.consume()
+                        return
+                    }
+                    if (currentMode !is InputMode.Normal) {
+                        onCancelEdit()
+                    }
                 }
                 if (e.keyCode == KeyEvent.VK_ESCAPE) return
 
@@ -163,30 +174,21 @@ class TodosoInputPanel(
     }
 
     private fun handlePopupNavigation(e: KeyEvent): Boolean {
-        val popup = activePopup ?: return false
-        if (!popup.isVisible) return false
-
-        @Suppress("UNCHECKED_CAST")
-        val list = UIUtil.findComponentOfType(popup.content, JList::class.java) as? JList<SuggestionItem> ?: return false
+        if (!isOverlayVisible) return false
 
         when (e.keyCode) {
             KeyEvent.VK_DOWN -> {
-                list.selectedIndex = (list.selectedIndex + 1).coerceAtMost(list.model.size - 1)
-                list.ensureIndexIsVisible(list.selectedIndex)
+                onNavigationRequest("DOWN")
                 e.consume()
                 return true
             }
             KeyEvent.VK_UP -> {
-                list.selectedIndex = (list.selectedIndex - 1).coerceAtLeast(0)
-                list.ensureIndexIsVisible(list.selectedIndex)
+                onNavigationRequest("UP")
                 e.consume()
                 return true
             }
             KeyEvent.VK_ENTER -> {
-                list.selectedValue?.let {
-                    insertItemAtCaret(if (it.isTask) "🆔 ${it.taskId}" else it.text, it.isTask)
-                    popup.cancel()
-                }
+                onNavigationRequest("ENTER")
                 e.consume()
                 return true
             }
@@ -282,7 +284,6 @@ class TodosoInputPanel(
     fun clearInputText() = setMode(InputMode.Normal)
 
     private fun showSuggestionsPopup(triggerChar: Char) {
-        activePopup?.cancel()
         val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) ?: ""
 
         val items = runReadAction {
@@ -291,46 +292,18 @@ class TodosoInputPanel(
             } else emptyList()
         }
 
-        if (items.isEmpty()) return
-
-        val renderer = object : GroupedItemsListRenderer<SuggestionItem>(object : ListItemDescriptorAdapter<SuggestionItem>() {
-            override fun getTextFor(value: SuggestionItem) = if (value.isTask) value.text else "#${value.text}"
-            override fun getIconFor(value: SuggestionItem) = value.icon
-            override fun getCaptionAboveOf(value: SuggestionItem): String? {
-                val index = items.indexOf(value)
-                return if (index == 0 || items[index - 1].category != value.category) value.category else null
-            }
-            override fun hasSeparatorAboveOf(value: SuggestionItem) = getCaptionAboveOf(value) != null
-        }) {
-            override fun customizeComponent(list: JList<out SuggestionItem>?, value: SuggestionItem?, isSelected: Boolean) {
-                super.customizeComponent(list, value, isSelected)
-                myTextLabel.border = JBUI.Borders.empty(4, 12)
-
-                val caption = myDescriptor.getCaptionAboveOf(value)
-                if (caption != null) {
-                    mySeparatorComponent.isVisible = true
-                    mySeparatorComponent.caption = caption
-                }
-            }
+        if (items.isEmpty()) {
+            hideOverlay()
+            return
         }
 
-        val popup = JBPopupFactory.getInstance()
-            .createPopupChooserBuilder(items)
-            .setRenderer(renderer)
-            .setMovable(false)
-            .setResizable(false)
-            .setRequestFocus(false)
-            .setItemChosenCallback { it?.let { item -> insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask) } }
-            .addListener(object : JBPopupListener {
-                override fun onClosed(event: LightweightWindowEvent) { activePopup = null }
-            })
-            .createPopup()
+        isOverlayVisible = true
+        onSuggestionRequest(items)
+    }
 
-        activePopup = popup
-        popup.size = Dimension(inputWrapper.width, popup.content.preferredSize.height.coerceAtMost(300))
-        
-        val loc = inputWrapper.locationOnScreen
-        popup.showInScreenCoordinates(inputWrapper, Point(loc.x, loc.y - popup.size.height))
+    private fun hideOverlay() {
+        isOverlayVisible = false
+        onSuggestionRequest(null)
     }
 
     internal fun insertItemAtCaret(content: String, isTask: Boolean = false) {
@@ -356,10 +329,7 @@ class TodosoInputPanel(
         return (if (caretPos > 0) text[caretPos - 1] else ' ').isWhitespace()
     }
 
-    /**
-     * Mengambil daftar saran gabungan (Tags + Related Tasks) berdasarkan prefix.
-     */
-    private fun getSuggestions(
+    internal fun getSuggestions(
         prefix: String,
         popularTags: List<String>,
         allTasks: List<TodoTask>
@@ -379,7 +349,6 @@ class TodosoInputPanel(
                 }
         )
 
-        // 2. Task Suggestions jika tag lengkap
         if (prefix.isNotEmpty()) {
             val relatedTasks = allTasks.filter { task ->
                 task.tags.any { it.equals(prefix, ignoreCase = true) }
@@ -403,7 +372,7 @@ class TodosoInputPanel(
     /**
      * Mencari prefix tag (#...) terakhir dari posisi kursor.
      */
-    private fun getActivePrefix(text: String, caretPos: Int): String? {
+    internal fun getActivePrefix(text: String, caretPos: Int): String? {
         if (caretPos <= 0) return null
 
         val lastHash = text.substring(0, caretPos).lastIndexOf('#')

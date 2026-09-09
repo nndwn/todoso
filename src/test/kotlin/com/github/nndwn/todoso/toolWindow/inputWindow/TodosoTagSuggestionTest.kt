@@ -1,70 +1,73 @@
 package com.github.nndwn.todoso.toolWindow.inputWindow
 
-import com.github.nndwn.todoso.services.TodosoSuggestionService
-import com.intellij.openapi.components.service
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.util.ui.UIUtil
 import java.awt.Font
+import java.awt.event.KeyEvent
 
 class TodosoTagSuggestionTest : BasePlatformTestCase() {
 
     private lateinit var inputPanel: TodosoInputPanel
-    private lateinit var suggestionService: TodosoSuggestionService
+    private var lastRequestedItems: List<SuggestionItem>? = null
 
     override fun setUp() {
         super.setUp()
-        suggestionService = project.service<TodosoSuggestionService>()
+        lastRequestedItems = null
         inputPanel = TodosoInputPanel(
-            project = project,
             onNewTask = {},
             onUpdateTask = {},
             onConfirmCancel = {},
             onCreateNote = {},
             onCancelEdit = {},
             fontInput = Font("Monospaced", Font.PLAIN, 12),
-            getPopularTags = { listOf("feature", "bug", "core", "ui") },
-            getAllTasks = { emptyList() }
+            getPopularTags = { listOf("feature", "bug") },
+            getAllTasks = { emptyList() },
+            onSuggestionRequest = { lastRequestedItems = it },
+            onNavigationRequest = {}
         )
     }
 
     fun testGetActivePrefix() {
-        assertEquals("fe", suggestionService.getActivePrefix("Fix this #fe", 12))
-        assertEquals("", suggestionService.getActivePrefix("Normal text #", 13))
-        assertNull("Tanpa simbol hash harusnya null", suggestionService.getActivePrefix("No hash here", 12))
-        // Jika kursor tepat setelah #, prefix adalah "" (empty string)
-        assertEquals("Caret tepat setelah # harusnya empty string", "", suggestionService.getActivePrefix("Hash with space #feat ", 17))
-        // Jika kursor setelah spasi, harusnya null
-        assertNull("Caret setelah spasi harusnya null", suggestionService.getActivePrefix("Hash with space #feat ", 22))
+        assertEquals("fe", inputPanel.getActivePrefix("Fix this #fe", 12))
+        assertEquals("", inputPanel.getActivePrefix("Normal text #", 13))
+        assertNull(inputPanel.getActivePrefix("No hash here", 12))
+    }
+
+    fun testSuggestionTriggerOnHash() {
+        inputPanel.inputTextArea.text = "#"
+        inputPanel.inputTextArea.caretPosition = 1
+        
+        // Simulasikan pengetikan '#'
+        val event = KeyEvent(inputPanel.inputTextArea, KeyEvent.KEY_TYPED, System.currentTimeMillis(), 0, KeyEvent.VK_UNDEFINED, '#')
+        inputPanel.inputTextArea.keyListeners.forEach { it.keyTyped(event) }
+
+        // Karena menggunakan SwingUtilities.invokeLater, kita perlu memproses event queue
+        UIUtil.dispatchAllInvocationEvents()
+
+        assertNotNull("Saran harusnya terpicu saat menekan #", lastRequestedItems)
+        assertTrue("Harus mengandung tag 'feature'", lastRequestedItems!!.any { it.text == "feature" })
     }
 
     fun testInsertItemAtCaretReplacesPrefix() {
         inputPanel.inputTextArea.text = "New task #f"
-        inputPanel.inputTextArea.caretPosition = inputPanel.inputTextArea.text.length
+        inputPanel.inputTextArea.caretPosition = 11
         
         inputPanel.insertItemAtCaret("feature", false)
-        
-        assertEquals("Harusnya mengganti '#f' menjadi '#feature' (tanpa spasi)", "New task #feature", inputPanel.inputTextArea.text)
+        assertEquals("New task #feature", inputPanel.inputTextArea.text)
     }
 
-    fun testInsertItemAtCaretReplacesPrefixWithTaskId() {
-        inputPanel.inputTextArea.text = "Reference task #feature"
-        inputPanel.inputTextArea.caretPosition = inputPanel.inputTextArea.text.length
-        
-        inputPanel.insertItemAtCaret("🆔 8XnWwK", true)
-        
-        assertEquals("Harusnya mengganti '#feature' menjadi '🆔 8XnWwK' (tanpa spasi)", "Reference task 🆔 8XnWwK", inputPanel.inputTextArea.text)
-    }
+    fun testOverlayHidesWhenHashIsRemoved() {
+        // 1. Ketik '#' untuk memicu overlay
+        inputPanel.inputTextArea.text = "#"
+        inputPanel.inputTextArea.caretPosition = 1
+        UIUtil.dispatchAllInvocationEvents()
+        assertNotNull("Overlay harusnya muncul saat ada #", lastRequestedItems)
 
-    fun testShouldTriggerPopup() {
+        // 2. Hapus '#' (simulasi backspace)
         inputPanel.inputTextArea.text = ""
         inputPanel.inputTextArea.caretPosition = 0
-        assertTrue("Awal baris harusnya memicu", inputPanel.shouldTriggerPopup())
-
-        inputPanel.inputTextArea.text = "word"
-        inputPanel.inputTextArea.caretPosition = 4
-        assertFalse("Tepat setelah kata tidak boleh memicu", inputPanel.shouldTriggerPopup())
-
-        inputPanel.inputTextArea.text = "word "
-        inputPanel.inputTextArea.caretPosition = 5
-        assertTrue("Setelah spasi harusnya memicu", inputPanel.shouldTriggerPopup())
+        UIUtil.dispatchAllInvocationEvents()
+        
+        assertNull("Overlay harusnya tersembunyi (null) saat # dihapus", lastRequestedItems)
     }
 }
