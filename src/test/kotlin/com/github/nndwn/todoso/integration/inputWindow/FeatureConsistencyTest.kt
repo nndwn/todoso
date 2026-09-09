@@ -50,7 +50,6 @@ class FeatureConsistencyTest : BasePlatformTestCase() {
 
     fun testEmptyInputProtection() {
         val panel = TodosoInputPanel(
-            project = project,
             onNewTask = {}, onUpdateTask = {}, onConfirmCancel = {}, 
             onCreateNote = {}, onCancelEdit = {}, 
             fontInput = Font("Monospaced", 0, 12),

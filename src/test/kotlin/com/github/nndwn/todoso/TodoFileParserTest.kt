@@ -5,6 +5,7 @@ import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.model.TaskStatus
+import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
@@ -143,5 +144,51 @@ class TodoFileParserTest : BasePlatformTestCase() {
             assertEquals("Visit https://github.com/nndwn/todoso#readme #ui", it.description)
             assertEquals(10, it.lineNumber)
         }
+    }
+
+    fun testNewlineHandling() {
+        // 1. Kasus Normal: Baris baru di deskripsi
+        val raw1 = "- [ ] Line 1\\nLine 2 🆔 abc"
+        val task1 = TodoTaskParser.parseLine(raw1, 1, mutableSetOf())
+        assertEquals("Line 1\nLine 2", task1?.description)
+
+        // 2. Kasus Ekstrem: Beberapa baris baru berurutan
+        val raw2 = "- [ ] Multiple\\n\\nNewlines 🆔 def"
+        val task2 = TodoTaskParser.parseLine(raw2, 1, mutableSetOf())
+        assertEquals("Multiple\n\nNewlines", task2?.description)
+
+        // 3. Verifikasi Pembangunan Kembali (Rebuild)
+        val rebuilt = TodoTaskBuilder.rebuildTaskLine(task2!!)
+        assertTrue("Harus mengandung literal \\n\\n", rebuilt.contains("Multiple\\n\\nNewlines"))
+        
+        // 4. Kasus Campuran: Baris baru + Tag + Notes
+        val raw3 = "- [ ] Task\\nWith Tag #work 🆔 ghi // Note\\nHere"
+        val task3 = TodoTaskParser.parseLine(raw3, 1, mutableSetOf())
+        assertEquals("Task\nWith Tag #work", task3?.description)
+        assertEquals("Note\nHere", task3?.metadata?.notes)
+
+        // 5. Verifikasi Pembangunan Kembali (Rebuild) untuk Note
+        val rebuilt3 = TodoTaskBuilder.rebuildTaskLine(task3!!)
+        assertTrue("Harus mengandung literal \\n di bagian Note", rebuilt3.contains("// Note\\nHere"))
+    }
+
+    fun testEditedDateParsingAndBuilding() {
+        // 1. Test Parsing: Pastikan 📝 (Edited Date) terbaca
+        val rawLine = "- [ ] Task Description 🆔 abc ➕ 2026-09-09 10:00 📝 2026-09-09 18:00"
+        val task = TodoTaskParser.parseLine(rawLine, 1, mutableSetOf())
+        
+        assertNotNull(task)
+        assertEquals("Task Description", task?.description)
+        assertEquals("2026-09-09 10:00", task?.metadata?.createdDate)
+        assertEquals("2026-09-09 18:00", task?.metadata?.editedDate)
+
+        // 2. Test Building: Pastikan 📝 ikut tertulis kembali
+        val rebuilt = TodoTaskBuilder.rebuildTaskLine(task!!)
+        assertTrue("Hasil rebuild harus mengandung emoji edited 📝", rebuilt.contains("📝 2026-09-09 18:00"))
+        
+        // 3. Test Dynamic Tail Removal: Posisi berbeda
+        val rawDifferentOrder = "- [ ] Clean Me 📝 2026-09-09 18:00 🆔 abc"
+        val taskDifferent = TodoTaskParser.parseLine(rawDifferentOrder, 1, mutableSetOf())
+        assertEquals("Clean Me", taskDifferent?.description)
     }
 }

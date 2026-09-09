@@ -119,4 +119,25 @@ class TodosoServiceTest : BasePlatformTestCase() {
         assertEquals(2, tasks[1].lineNumber)
     }
 
+    fun testEditTaskAddsEditedDate() {
+        // 1. Tambah task awal
+        service.addTask("Task Awal")
+        var task = service.loadTask().first()
+        val createdDate = task.metadata.createdDate
+        assertNotNull("Created date harus ada", createdDate)
+        assertNull("Edited date harusnya null di awal", task.metadata.editedDate)
+
+        // 2. Edit task
+        service.editTask(task, "Task Setelah Diubah")
+        
+        // 3. Verifikasi
+        val tasks = service.loadTask()
+        val editedTask = tasks.first()
+        
+        assertEquals("Task Setelah Diubah", editedTask.description)
+        assertEquals(createdDate, editedTask.metadata.createdDate)
+        assertNotNull("Edited date harus muncul setelah diedit", editedTask.metadata.editedDate)
+        assertTrue("Edited date harus mengandung format tanggal yang valid", 
+            editedTask.metadata.editedDate!!.contains(Regex("""\d{4}-\d{2}-\d{2}""")))
+    }
 }

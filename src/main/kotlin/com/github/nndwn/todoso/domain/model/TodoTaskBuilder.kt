@@ -12,7 +12,7 @@ object TodoTaskBuilder {
         if (task.priority != Priority.NONE && task.priority.emoji.isNotEmpty()) {
             append("${task.priority.emoji} ")
         }
-        val description = task.description.trim()
+        val description = sanitize(task.description).replace("\n", "\\n")
         append(description)
 
         if (task.tags.isNotEmpty()) {
@@ -41,7 +41,14 @@ object TodoTaskBuilder {
         }
 
         if (task.metadata.notes.isNotBlank()) {
-            append(" // ").append(task.metadata.notes.trim())
+            append(" // ").append(sanitize(task.metadata.notes).replace("\n", "\\n"))
         }
+    }
+
+    fun sanitize(input: String): String {
+        return input.replace("\r\n", "\n")
+            .replace("\r", "\n")
+            .replace(Regex("""[ \t]+"""), " ")
+            .trim()
     }
 }

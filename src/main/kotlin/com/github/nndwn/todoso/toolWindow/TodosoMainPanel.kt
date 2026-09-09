@@ -10,16 +10,17 @@ import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
-import com.intellij.openapi.editor.colors.EditorColorsManager
-import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.components.JBList
-import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.CardLayout
+import java.awt.Font
+import java.awt.event.HierarchyEvent
 import javax.swing.BorderFactory
 import javax.swing.JEditorPane
 import javax.swing.JPanel
@@ -37,7 +38,7 @@ class TodosoMainPanel(
         private const val HTML = "text/html"
     }
 
-    val editorFont = EditorColorsManager.getInstance().globalScheme.getFont(EditorFontType.PLAIN)
+    val uiFont: Font = JBUI.Fonts.label()
 
     private val handler = TodosoActionHandler(project, service, this)
 
@@ -63,7 +64,7 @@ class TodosoMainPanel(
     }
     private val listModel = CollectionListModel<TodoTask>()
     private val list = JBList(listModel).apply {
-        font = editorFont.deriveFont(12f)
+        font = uiFont.deriveFont(Font.TRUETYPE_FONT,13f, )
         selectionMode = ListSelectionModel.SINGLE_SELECTION
         emptyText.text = TodosoBundle.message("todo.list.empty")
         cellRenderer = TodosoCell(service, settings)
@@ -96,13 +97,12 @@ class TodosoMainPanel(
 
     private val inputPanel by lazy {
         TodosoInputPanel(
-            project = project,
             onNewTask = { text -> handler.handleAddTask(text) },
             onUpdateTask = { text -> handler.handleUpdateTask(text) },
             onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
             onCreateNote = { note -> handler.handleConfirmCancel(note) },
             onCancelEdit = { handler.handleCancelEdit() },
-            fontInput = editorFont,
+            fontInput = uiFont,
             getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
             getAllTasks = { service.loadTask() }
         )
@@ -115,15 +115,12 @@ class TodosoMainPanel(
         centerContainer.add(instructionScrollPane, CARD_INSTRUCTION)
         centerContainer.add(JBScrollPane(list), CARD_TASK_LIST)
         add(centerContainer, BorderLayout.CENTER)
-        val southContainer = JBPanel<JBPanel<*>>(BorderLayout()).apply {
-            isOpaque = false
-            add(tagsNavigationPanel, BorderLayout.NORTH)
-            add(inputPanel, BorderLayout.SOUTH)
-        }
-        add(southContainer, BorderLayout.SOUTH)
+
+        add(inputPanel, BorderLayout.SOUTH)
+
 
         addHierarchyListener { event ->
-            if ((event.changeFlags and java.awt.event.HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
+            if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
                 refreshTasks()
             }
         }
@@ -135,7 +132,7 @@ class TodosoMainPanel(
         project.messageBus.connect().subscribe(
             TodosoDataChangeListener.TOPIC,
             TodosoDataChangeListener {
-                com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
+                ApplicationManager.getApplication().invokeLater {
                     refreshUiState()
                 }
             }
@@ -160,9 +157,25 @@ class TodosoMainPanel(
                 allTasks.filter { task -> task.tags.contains(currentTagFilter) }
             }
 
+            val selected = list.selectedValue
+            val selectedId = selected?.id
+            val selectedLine = selected?.lineNumber
+            val selectedText = selected?.rawText
+
             val sortedTasks = applySorting(filteredTasks, currentSortOption)
             listModel.replaceAll(sortedTasks)
             cardLayout.show(centerContainer, CARD_TASK_LIST)
+
+            if (selectedId != null) {
+                val index = sortedTasks.indexOfFirst {
+                    it.id == selectedId || (it.lineNumber == selectedLine && it.rawText == selectedText)
+                }
+                if (index != -1) {
+                    list.selectedIndex = index
+                    list.ensureIndexIsVisible(index)
+                }
+            }
+
         }
     }
 

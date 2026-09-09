@@ -42,7 +42,7 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
         
         inputPanel.insertItemAtCaret("feature", false)
         
-        assertEquals("Harusnya mengganti '#f' menjadi '#feature '", "New task #feature ", inputPanel.inputTextArea.text)
+        assertEquals("Harusnya mengganti '#f' menjadi '#feature' (tanpa spasi)", "New task #feature", inputPanel.inputTextArea.text)
     }
 
     fun testInsertItemAtCaretReplacesPrefixWithTaskId() {
@@ -51,7 +51,7 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
         
         inputPanel.insertItemAtCaret("🆔 8XnWwK", true)
         
-        assertEquals("Harusnya mengganti '#feature' menjadi '🆔 8XnWwK '", "Reference task 🆔 8XnWwK ", inputPanel.inputTextArea.text)
+        assertEquals("Harusnya mengganti '#feature' menjadi '🆔 8XnWwK' (tanpa spasi)", "Reference task 🆔 8XnWwK", inputPanel.inputTextArea.text)
     }
 
     fun testShouldTriggerPopup() {

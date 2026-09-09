@@ -16,15 +16,17 @@
 - [-] apa kah bisa di input panel ketika menulis @ mendapatkan file project di butuhkan jadi tidak perlu menulis nama nya manual disini 🆔 4XSdbY ❌ 2026-09-08 22:16 // noted: tidak stabil
 - [x] prefix untuk # 🆔 G0bitz 🛫 2026-09-08 22:18 ✅ 2026-09-09 06:41
 - [x] untuk # dan @ untuk tampilan belum bagus tidak tampil di atas inputran dan ukurannya tidak mengikutin ukuran layar plugin yang sudah aktif 🆔 yec9ne 🛫 2026-09-08 21:24 ✅ 2026-09-08 22:17
-- [/] 🔼 seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil 🆔 8tybE7 🛫 2026-09-09 08:09
+- [x] 🔼 seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil dan hapus Navigation Tags 🛫 2026-09-09 08:09 🆔 8tybE7 ✅ 2026-09-09 16:50
 - [ ] 🔽 ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus 🆔 iEWvdY
 - [x] untut @TodosoInputPanel.kt ini uda cukup terlalu panjang mungkin perlu di refactoring 🆔 PHxgc4 🛫 2026-09-08 21:27 ✅ 2026-09-08 21:48
-- [ ] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu update 🆔 Kepi8h
+- [x] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu edited 🛫 2026-09-09 09:27 🆔 Kepi8h ✅ 2026-09-09 18:03
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
-- [ ] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya 🆔 Pjxkcd
-- [ ] 🔼 jadi sanitazi itu untuk apa ? 🆔 qfocgi
+- [x] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya 🆔 Pjxkcd 🛫 2026-09-09 17:38 ✅ 2026-09-09 18:04
+- [x] 🔼 jadi sanitazi itu untuk apa ? 🆔 qfocgi 🛫 2026-09-09 18:19 ✅ 2026-09-09 18:19
 - [ ] 🔺 sepertinya untuk penanganan delete jangan main langsung hapus lebih baik jadi comment di lane , tapi bagaimana nasib lane berdasarkan baris lainnya ? 🆔 K0CGIt
-- [/] 🔼 ada beberapa issue di tag ketika user memilih tag langsung enter tag langsung di spasi jadi tidak dapat menampilkan related tag , solusi mungkin jangan berikan spasi pada saat enter 🆔 U9AcPT 🛫 2026-09-09 08:04
-- [ ] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF
-- [ ] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0
-- [ ] 🔼 lakukan refactoring TodosoInputPanel sudah terlalu besar sekarang 🆔 8cvWay
+- [x] 🔼 ada beberapa issue di tag ketika user memilih tag langsung enter tag langsung di spasi jadi tidak dapat menampilkan related tag , solusi mungkin jangan berikan spasi pada saat enter 🆔 U9AcPT 🛫 2026-09-09 08:04 ✅ 2026-09-09 09:18
+- [x] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF 🛫 2026-09-09 16:51 ✅ 2026-09-09 17:03
+- [/] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13
+- [x] 🔼 lakukan refactoring TodosoInputPanel sudah terlalu besar sekarang 🆔 8cvWay 🛫 2026-09-09 18:20 ✅ 2026-09-09 18:20
+- [ ] ⏫ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? 🆔 w7tKwD
+- [/] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20

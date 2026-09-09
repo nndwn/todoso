@@ -47,7 +47,7 @@ A smart single-input field that intelligently processes plain text, Markdown syn
         * **Quick Syntax**: Use shortcodes like `[H] Fix bug #ui` to assign priority and tags instantly.
 *    **Submission & Navigation**:
         * **Instant Submit**: Press **Enter** to instantly create or update a task.
-        * **Line Breaks**: Use **Shift + Enter** if you need to add a manual line break within the input field.
+        * **Line Breaks**: Use **Shift + Enter** if you need to add a manual line break within the input field. (Stored as `\n` literal in the file to maintain one-line-per-task integrity).
 *    **Empty Checkbox Protection**: Prevents creation of blank tasks.
 *    **Automatic Note Prefixing**: Note Mode injects the `//` prefix automatically.
 

@@ -8,11 +8,12 @@ import java.time.format.DateTimeFormatter
 object DateParser {
     private const val DATE_TIME_PATTERN = """\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?"""
 
-    private val START_REGEX = Regex("""🛫\s*($DATE_TIME_PATTERN)""")
-    private val DUE_REGEX = Regex("""📅\s*($DATE_TIME_PATTERN)""")
-    private val END_REGEX = Regex("""✅\s*($DATE_TIME_PATTERN)""")
-    private val CANCEL_REGEX = Regex("""❌\s*($DATE_TIME_PATTERN)""")
-    private val CREATED_REGEX = Regex("""➕\s*($DATE_TIME_PATTERN)""")
+    private val START_REGEX = Regex("""${Metadata.ICON_START}\s*($DATE_TIME_PATTERN)""")
+    private val DUE_REGEX = Regex("""${Metadata.ICON_DUE}\s*($DATE_TIME_PATTERN)""")
+    private val END_REGEX = Regex("""${Metadata.ICON_DONE}\s*($DATE_TIME_PATTERN)""")
+    private val CANCEL_REGEX = Regex("""${Metadata.ICON_CANCEL}\s*($DATE_TIME_PATTERN)""")
+    private val CREATED_REGEX = Regex("""${Metadata.ICON_CREATED}\s*($DATE_TIME_PATTERN)""")
+    private val EDITED_REGEX = Regex("""${Metadata.ICON_EDITED}\s*($DATE_TIME_PATTERN)""")
 
     private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 
@@ -27,6 +28,7 @@ object DateParser {
             endDate = END_REGEX.find(contentBeforeComment)?.groupValues?.get(1),
             cancelDate = CANCEL_REGEX.find(contentBeforeComment)?.groupValues?.get(1),
             createdDate = CREATED_REGEX.find(contentBeforeComment)?.groupValues?.get(1),
+            editedDate = EDITED_REGEX.find(contentBeforeComment)?.groupValues?.get(1),
             notes = notes
         )
     }

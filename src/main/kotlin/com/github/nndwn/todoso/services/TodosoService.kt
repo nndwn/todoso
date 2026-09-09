@@ -42,13 +42,7 @@ class TodosoService(private val project: Project) {
     private var isCacheDirty = true
 
     private var lastLoadedPath: String? = null
-    private fun sanitizeInputText(input: String): String {
-        return input.replace("\r\n", " ")
-            .replace("\n", " ")
-            .replace("\r", " ")
-            .replace(Regex("""[ \t]+"""), " ")
-            .trim()
-    }
+    private fun sanitizeInputText(input: String): String = TodoTaskBuilder.sanitize(input)
     fun getTodoFile(): VirtualFile? {
         val path = settings.state.todoFilePath.trim().ifBlank { TodosoConstants.FILENAME }
         val projectDir = project.guessProjectDir()
@@ -251,16 +245,19 @@ class TodosoService(private val project: Project) {
                 lineNumber = currentTask.lineNumber
             )
 
+            val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
             val updatedTask = if (parsedTask != null) {
                 currentTask.copy(
                     description = parsedTask.description,
                     tags = parsedTask.tags,
-                    isPersistentId = true
+                    isPersistentId = true,
+                    metadata = currentTask.metadata.copy(editedDate = nowFormatted)
                 )
             } else {
                 currentTask.copy(
                     description = cleanInput,
-                    isPersistentId = true
+                    isPersistentId = true,
+                    metadata = currentTask.metadata.copy(editedDate = nowFormatted)
                 )
             }
             TodoTaskBuilder.rebuildTaskLine(updatedTask)

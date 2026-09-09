@@ -23,7 +23,6 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
         cancelEditCalled = false
 
         inputPanel = TodosoInputPanel(
-            project = project,
             onNewTask = { lastNewTask = it },
             onUpdateTask = { lastUpdatedTask = it },
             onConfirmCancel = { lastConfirmedCancel = it },
@@ -36,15 +35,24 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
     }
 
     fun testNormalModeValidationAndSubmit() {
-        assertFalse("Tombol harus disabled saat teks kosong", inputPanel.newTaskButton.isEnabled)
+        assertFalse("Tombol harus disabled saat teks kosong", inputPanel.actionButton.isEnabled)
         
         inputPanel.inputTextArea.text = "- [ ] "
-        assertFalse("Tombol harus disabled jika hanya berisi prefix status kosong", inputPanel.newTaskButton.isEnabled)
+        assertFalse("Tombol harus disabled jika hanya berisi prefix status kosong", inputPanel.actionButton.isEnabled)
+
+        inputPanel.inputTextArea.text = "#onlytag"
+        assertFalse("Tombol harus disabled jika hanya berisi tag", inputPanel.actionButton.isEnabled)
+
+        inputPanel.inputTextArea.text = "[H] 🔺"
+        assertFalse("Tombol harus disabled jika hanya berisi prioritas", inputPanel.actionButton.isEnabled)
+
+        inputPanel.inputTextArea.text = "🛫 2026-09-09"
+        assertFalse("Tombol harus disabled jika hanya berisi tanggal", inputPanel.actionButton.isEnabled)
 
         inputPanel.inputTextArea.text = "Fix UI Navigation Bug #ui"
-        assertTrue("Tombol harus enabled saat input memiliki deskripsi valid", inputPanel.newTaskButton.isEnabled)
+        assertTrue("Tombol harus enabled saat input memiliki deskripsi valid", inputPanel.actionButton.isEnabled)
 
-        inputPanel.newTaskButton.doClick()
+        inputPanel.actionButton.doClick()
         assertEquals("Fix UI Navigation Bug #ui", lastNewTask)
     }
 
@@ -54,12 +62,12 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
 
         assertTrue("Mode aktif harus Edit", inputPanel.currentMode is InputMode.Edit)
         assertEquals("Beli kopi di minimarket", inputPanel.inputTextArea.text)
-        assertFalse("Tombol update harus disabled jika teks tidak diubah", inputPanel.newTaskButton.isEnabled)
+        assertFalse("Tombol update harus disabled jika teks tidak diubah", inputPanel.actionButton.isEnabled)
 
         inputPanel.inputTextArea.text = "Beli kopi di minimarket #urgent"
-        assertTrue("Tombol update harus enabled setelah teks diubah", inputPanel.newTaskButton.isEnabled)
+        assertTrue("Tombol update harus enabled setelah teks diubah", inputPanel.actionButton.isEnabled)
 
-        inputPanel.newTaskButton.doClick()
+        inputPanel.actionButton.doClick()
         assertEquals("Beli kopi di minimarket #urgent", lastUpdatedTask)
     }
 
@@ -69,7 +77,7 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
         assertEquals("// ", inputPanel.inputTextArea.text)
 
         inputPanel.inputTextArea.text = "// ini catatan penting"
-        inputPanel.newTaskButton.doClick()
+        inputPanel.actionButton.doClick()
         assertEquals("// ini catatan penting", lastCreatedNote)
     }
 
@@ -77,7 +85,7 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
         inputPanel.setCancelMode(true, "Alasan: Diabaikan oleh Product Owner")
         assertTrue("Mode aktif harus Cancel", inputPanel.currentMode is InputMode.Cancel)
 
-        inputPanel.newTaskButton.doClick()
+        inputPanel.actionButton.doClick()
         assertEquals("Alasan: Diabaikan oleh Product Owner", lastConfirmedCancel)
     }
 
