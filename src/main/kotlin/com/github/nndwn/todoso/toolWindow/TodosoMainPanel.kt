@@ -95,14 +95,14 @@ class TodosoMainPanel(
 
     private val inputPanel by lazy {
         TodosoInputPanel(
-            project = project,
             onNewTask = { text -> handler.handleAddTask(text) },
             onUpdateTask = { text -> handler.handleUpdateTask(text) },
             onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
             onCreateNote = { note -> handler.handleConfirmCancel(note) },
             onCancelEdit = { handler.handleCancelEdit() },
             fontInput = editorFont,
-            getPopularTags = { TagParser.getPopularTags(service.loadTask()) }
+            getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
+            getAllTasks = { service.loadTask() }
         )
     }
 

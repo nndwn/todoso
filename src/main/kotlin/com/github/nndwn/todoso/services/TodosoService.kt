@@ -240,11 +240,11 @@ class TodosoService(private val project: Project) {
         }
     }
     fun editTask(task: TodoTask, rawInputText: String) {
-        val trimmedInput = rawInputText.trim()
-        if (trimmedInput.isBlank()) return
+        val cleanInput = sanitizeInputText(rawInputText)
+        if (cleanInput.isBlank()) return
 
         modifyTaskLine(task) { currentTask ->
-            val dummyLine = "- [${currentTask.status.code}] $trimmedInput"
+            val dummyLine = "- [${currentTask.status.code}] $cleanInput"
 
             val parsedTask = TodoTaskParser.parseLine(
                 rawLine = dummyLine,
@@ -259,7 +259,7 @@ class TodosoService(private val project: Project) {
                 )
             } else {
                 currentTask.copy(
-                    description = trimmedInput,
+                    description = cleanInput,
                     isPersistentId = true
                 )
             }

@@ -36,17 +36,20 @@ To ensure a seamless experience when working with external Markdown editors (lik
 * **Why a Refresh Button?** While we auto-sync via IntelliJ's VFS, external file changes can sometimes lag. The Refresh button acts as a "hard reset" that bypasses the cache to read directly from the disk.
 
 #### Flexible Input Field Behavior
-flexible single-input field that intelligently processes both plain text descriptions and full Markdown task syntax.
-Supported Input Styles
-*    **Plain Text (Simple Task)**
-        * Simply type your task description (e.g., `Update layout navbar`). 
-        * Priority and existing tags are preserved or assigned default values.
-*    **Explicit Format & Shortcodes (Quick Input)**
-        * Type priority bracket shortcodes or emojis along with tags directly in the input bar (e.g., `[H] Fix navbar bug #ui #v1.0.1`). 
-        * The parser automatically extracts and assigns the priority (HIGH / ⏫) and tags (#ui, #v1.0.1), removing syntax tokens to keep the description clean.
-*    **Empty Checkbox Protection**: Submitting inputs containing only empty status checkboxes (e.g., `- [ ]` or `- [/]`) is automatically rejected to prevent blank task creation.
-*    **Multi-State UI Modes**: Supports seamless UI transitions between **New Task**, **Edit Mode**, **Cancel Task Mode**, and **Note Mode** with contextual background highlights.
-*    **Automatic Note Prefixing**: Entering Note Mode automatically injects the `//`  prefix and guarantees proper formatting.
+A smart single-input field that intelligently processes plain text, Markdown syntax, and dynamic suggestions:
+*    **Contextual Suggestions (Popup)**:
+        * **# Symbol (Tags & Task Search)**: 
+            * Typing `#` triggers a categorized popup showing your most popular tags.
+            * Typing a full tag name (e.g., `#feature`) automatically displays **Related Tasks** associated with that tag.
+            * Selecting a task from the suggestions instantly inserts its unique `🆔 ID` for easy cross-referencing.
+*    **Input Styles**:
+        * **Plain Text**: Type a description like `Update layout navbar`.
+        * **Quick Syntax**: Use shortcodes like `[H] Fix bug #ui` to assign priority and tags instantly.
+*    **Submission & Navigation**:
+        * **Instant Submit**: Press **Enter** to instantly create or update a task.
+        * **Line Breaks**: Use **Shift + Enter** if you need to add a manual line break within the input field.
+*    **Empty Checkbox Protection**: Prevents creation of blank tasks.
+*    **Automatic Note Prefixing**: Note Mode injects the `//` prefix automatically.
 
 
 ####  Multi-Criteria Toolbar & Sorting Features
