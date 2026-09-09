@@ -109,6 +109,7 @@ class TodosoMainPanel(
 
     private val inputPanel by lazy {
         TodosoInputPanel(
+            project = project,
             onNewTask = { text -> handler.handleAddTask(text) },
             onUpdateTask = { text -> handler.handleUpdateTask(text) },
             onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
@@ -237,14 +238,13 @@ class TodosoMainPanel(
 
         val comparators = mutableListOf<Comparator<TodoTask>>()
 
-        if (options.contains(TodosoToolbar.SortOption.STATUS)) {
-            comparators.add(compareBy { it.status })
-        }
-        if (options.contains(TodosoToolbar.SortOption.DATE)) {
-            comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: "9999-99-99" })
-        }
-        if (options.contains(TodosoToolbar.SortOption.PRIORITY)) {
-            comparators.add(compareBy { it.priority })
+        // Ikuti urutan pemilihan yang ada di set options
+        for (option in options) {
+            when (option) {
+                TodosoToolbar.SortOption.STATUS -> comparators.add(compareBy { it.status })
+                TodosoToolbar.SortOption.DATE -> comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: "9999-99-99" })
+                TodosoToolbar.SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
+            }
         }
 
         if (comparators.isEmpty()) return tasks
@@ -296,11 +296,13 @@ class TodosoMainPanel(
         // Konversi koordinat inputPanel relatif terhadap layeredPane
         val relativeBounds = SwingUtilities.convertRectangle(inputPanel.parent, inputPanel.bounds, layeredPane)
         
-        val overlayWidth = relativeBounds.width - JBUI.scale(16)
+        // Gunakan angka 11 dan 22 (11 * 2) agar sinkron dengan padding di TodosoInputPanel
+        val overlayWidth = relativeBounds.width - JBUI.scale(30)
         val overlayHeight = suggestionOverlay.preferredSize.height.coerceAtMost(JBUI.scale(400))
         
-        val x = relativeBounds.x + JBUI.scale(8)
-        val y = relativeBounds.y - overlayHeight - JBUI.scale(4)
+        val x = relativeBounds.x + JBUI.scale(15)
+        // Tambahkan jarak 8px agar benar-benar terlihat melayang di atas input
+        val y = relativeBounds.y - overlayHeight - JBUI.scale(8)
         
         suggestionOverlay.bounds = Rectangle(x, y, overlayWidth, overlayHeight)
         layeredPane.moveToFront(suggestionOverlay) // Jaminan overlay ada di depan

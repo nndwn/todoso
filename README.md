@@ -50,19 +50,29 @@ A smart single-input field that intelligently processes plain text, Markdown syn
         * **Line Breaks**: Use **Shift + Enter** if you need to add a manual line break within the input field. (Stored as `\n` literal in the file to maintain one-line-per-task integrity).
 *    **Empty Checkbox Protection**: Prevents creation of blank tasks.
 *    **Automatic Note Prefixing**: Note Mode injects the `//` prefix automatically.
+*    **Insert File & Image (Attachment)**:
+        * **Icon-Only Button**: A clean paperclip icon button at the bottom-right corner for quick access.
+        * **Relative Path Mapping**: Automatically calculates the path relative to your **Project Root**. If `todo.md` is outside the project, it still prioritizes relative paths for files within the current project.
+        * **Markdown Formatting**: 
+            * **Images**: `![filename](path)` (Supports `jpg, png, gif, svg, webp`).
+            * **Other Files**: `[filename](path)`.
+        * **Smart Injection**: Appends the attachment to the **Note** section (`//`). It automatically adds the `//` separator if it's missing.
+        * **In-List Preview (Tooltip)**: Displays the file location clearly as text in the task tooltip. Visual image rendering is disabled by design to prevent tooltip bloat.
+        * **Integrity Check**: Adding an attachment alone does not enable the submit button; a task description is always required to prevent empty tasks.
 
 
 ####  Multi-Criteria Toolbar & Sorting Features
 Todoso provides an interactive toolbar with dynamic view options and multi-criteria sorting to help you organize your tasks effortlessly:
 
 * **File Selection**: Click the file search icon on the toolbar to choose any Markdown file directly from your project directory or your computer
-*   **Multi-Criteria Sorting Options**:
-      * **Default (File Order)**: Keeps the natural line order as written in `todo.md`.
-      * **By Priority**: Orders tasks by urgency (`Highest` 🔺 → `Lowest` ⏬).
-      * **By Status**: Groups tasks by progress state (`Doing` →  `Todo` →  `Done` / `Canceled`).
-      * **By Date**: Sorts tasks chronologically using the earliest available date token (`Due Date` 📅 → `Start Date` 🛫 → `Created Date` ➕).
-      * **Date then Priority (Combined Sort)**: Evaluates tasks by date first; if dates are equal or missing, it automatically falls back to sorting by priority.
-*   **Persistent Sort State**: Selected sorting preferences are automatically saved in .idea/TodosoSettings.xml and restored across IDE restarts.
+*   **Dynamic Chain Sorting (Power Feature)**:
+      * Unlike other apps with fixed sorting, Todoso uses a **selection-based hierarchy**. The order in which you enable sorting options determines the priority of the rules.
+      * **How it works**:
+          1. Enable **Status** → All tasks are grouped by their progress (Doing, Todo, etc.).
+          2. Enable **Priority** (while Status is active) → Inside each status group, tasks are now sorted by urgency.
+          3. Enable **Date** (third) → Tasks with the *same status* AND *same priority* will then be ordered by date.
+      * **Pro Tip**: To change the hierarchy, simply click "Default" to clear the chain and re-enable them in your preferred order!
+*   **Persistent Sort State**: Your custom sorting chain is automatically saved and restored across IDE restarts.
 *   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
 *   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
      

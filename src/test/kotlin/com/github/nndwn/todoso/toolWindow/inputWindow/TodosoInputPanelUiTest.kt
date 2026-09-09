@@ -1,6 +1,7 @@
 package com.github.nndwn.todoso.toolWindow.inputWindow
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import com.intellij.util.ui.UIUtil
 import java.awt.Font
 
 class TodosoInputPanelUiTest : BasePlatformTestCase() {
@@ -23,6 +24,7 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
         cancelEditCalled = false
 
         inputPanel = TodosoInputPanel(
+            project = project,
             onNewTask = { lastNewTask = it },
             onUpdateTask = { lastUpdatedTask = it },
             onConfirmCancel = { lastConfirmedCancel = it },
@@ -96,5 +98,36 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
         inputPanel.clearInputText()
         assertTrue("Mode harus kembali ke Normal", inputPanel.currentMode is InputMode.Normal)
         assertEquals("", inputPanel.inputTextArea.text)
+    }
+
+    fun testInsertMarkdownAttachment() {
+        val mockFile = myFixture.addFileToProject("images/test.png", "").virtualFile
+        
+        // 1. Test insertion when text area is empty
+        inputPanel.inputTextArea.text = "My Task"
+        inputPanel.insertMarkdownAttachment(mockFile)
+        
+        // Flush EDT events
+        UIUtil.dispatchAllInvocationEvents()
+        
+        val expectedSnippet = "![test.png](images/test.png)"
+        assertEquals("My Task // $expectedSnippet", inputPanel.inputTextArea.text)
+        
+        // 2. Test insertion when notes already exist
+        inputPanel.inputTextArea.text = "Task // existing note"
+        inputPanel.insertMarkdownAttachment(mockFile)
+        
+        UIUtil.dispatchAllInvocationEvents()
+        
+        assertEquals("Task // existing note $expectedSnippet", inputPanel.inputTextArea.text)
+        
+        // 3. Test non-image file
+        val mockDoc = myFixture.addFileToProject("docs/readme.txt", "").virtualFile
+        inputPanel.inputTextArea.text = "Task"
+        inputPanel.insertMarkdownAttachment(mockDoc)
+        
+        UIUtil.dispatchAllInvocationEvents()
+        
+        assertEquals("Task // [readme.txt](docs/readme.txt)", inputPanel.inputTextArea.text)
     }
 }

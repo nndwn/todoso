@@ -29,5 +29,7 @@
 - [x] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13 ✅ 2026-09-09 21:39
 - [x] 🔼 lakukan refactoring TodosoInputPanel sudah terlalu besar sekarang 🆔 8cvWay 🛫 2026-09-09 18:20 ✅ 2026-09-09 18:20
 - [ ] ⏫ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? 🆔 w7tKwD
-- [/] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20
+- [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [/] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong 🆔 cyWdbq 🛫 2026-09-09 21:00
+- [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
+- [ ] 🔼 penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti 🆔 E4TFhe

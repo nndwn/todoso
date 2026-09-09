@@ -7,20 +7,19 @@ import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.util.IconLoader
-import com.intellij.openapi.components.service
+import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.JBPopup
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.ui.popup.JBPopupListener
-import com.intellij.openapi.ui.popup.ListItemDescriptorAdapter
-import com.intellij.openapi.ui.popup.LightweightWindowEvent
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBTextArea
-import com.intellij.ui.popup.list.GroupedItemsListRenderer
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.*
@@ -29,12 +28,11 @@ import java.awt.event.FocusEvent
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import javax.swing.JButton
-import javax.swing.JList
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
 class TodosoInputPanel(
-  
+    private val project: Project,
     private val onNewTask: (String) -> Unit,
     private val onUpdateTask: (String) -> Unit,
     private val onConfirmCancel: (String) -> Unit,
@@ -85,6 +83,15 @@ class TodosoInputPanel(
         }
     }
 
+    val attachButton = JButton(AllIcons.Nodes.PpLib).apply {
+        toolTipText = "Insert file or image"
+        isContentAreaFilled = false
+        isBorderPainted = false
+        isFocusPainted = false
+        cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+        addActionListener { handleAttachFile() }
+    }
+
     private val inputWrapper = RoundedInputPanel(inputTextArea).apply {
         preferredSize = Dimension(preferredSize.width, JBUI.scale(130))
     }
@@ -100,16 +107,28 @@ class TodosoInputPanel(
         background = JBUI.CurrentTheme.ToolWindow.background()
 
         val marginWrapper = JBPanel<JBPanel<*>>(BorderLayout()).apply {
-            border = JBUI.Borders.empty(8, 8, 4, 8)
+            border = JBUI.Borders.empty(8, 15, 4, 15)
             isOpaque = false
             add(inputWrapper, BorderLayout.CENTER)
         }
 
-        val buttonsPanel = JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.LEFT, 5, 5)).apply {
+        val buttonsPanel = JBPanel<JBPanel<*>>(BorderLayout()).apply {
             isOpaque = false
             border = JBUI.Borders.empty(0, 3, 5, 3)
-            add(actionButton)
-            add(cancelButton)
+
+            val leftButtons = JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.LEFT, 5, 0)).apply {
+                isOpaque = false
+                add(actionButton)
+                add(cancelButton)
+            }
+
+            val rightButtons = JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.RIGHT, 5, 0)).apply {
+                isOpaque = false
+                add(attachButton)
+            }
+
+            add(leftButtons, BorderLayout.WEST)
+            add(rightButtons, BorderLayout.EAST)
         }
 
         add(marginWrapper, BorderLayout.CENTER)
@@ -283,6 +302,44 @@ class TodosoInputPanel(
 
     fun clearInputText() = setMode(InputMode.Normal)
 
+    private fun handleAttachFile() {
+        val descriptor = FileChooserDescriptorFactory.createAllButJarContentsDescriptor()
+            .withTitle("Select File to Attach")
+            .withDescription("The file will be added as a relative path to the task notes.")
+
+        val selectedFile = FileChooser.chooseFile(descriptor, project, null) ?: return
+        insertMarkdownAttachment(selectedFile)
+    }
+
+    internal fun insertMarkdownAttachment(file: VirtualFile) {
+        val projectDir = project.guessProjectDir()
+        val relativePath = if (projectDir != null) {
+            VfsUtilCore.getRelativePath(file, projectDir) ?: file.path
+        } else {
+            file.path
+        }
+
+        val isImage = listOf("jpg", "jpeg", "png", "gif", "svg", "webp").any {
+            file.name.lowercase().endsWith(".$it")
+        }
+
+        val markdownSnippet = if (isImage) {
+            "![${file.name}]($relativePath)"
+        } else {
+            "[${file.name}]($relativePath)"
+        }
+
+        SwingUtilities.invokeLater {
+            val currentText = inputTextArea.text
+            if (currentText.contains("//")) {
+                inputTextArea.text = "$currentText $markdownSnippet"
+            } else {
+                inputTextArea.text = "$currentText // $markdownSnippet"
+            }
+            inputTextArea.requestFocusInWindow()
+        }
+    }
+
     private fun showSuggestionsPopup(triggerChar: Char) {
         val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) ?: ""
 
@@ -369,9 +426,6 @@ class TodosoInputPanel(
         return suggestions
     }
 
-    /**
-     * Mencari prefix tag (#...) terakhir dari posisi kursor.
-     */
     internal fun getActivePrefix(text: String, caretPos: Int): String? {
         if (caretPos <= 0) return null
 

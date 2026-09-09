@@ -142,10 +142,31 @@ class TodosoCell(
             }
 
             if (meta.notes.isNotBlank()) {
-                append("<br/><b>Note</b>: ${meta.notes}")
+                val processedNotes = processMarkdownLinks(meta.notes)
+                append("<br/><b>Note</b>: $processedNotes")
             }
 
             append("</body></html>")
         }
+    }
+
+    private fun processMarkdownLinks(notes: String): String {
+        var result = notes
+        
+        // 1. Convert Image: ![alt](path) -> 🖼️ Image: path
+        val imageRegex = Regex("""!\[.*?]\((.*?)\)""")
+        result = imageRegex.replace(result) { match ->
+            val path = match.groupValues[1]
+            "<br/>🖼️ <b>Image</b>: $path"
+        }
+
+        // 2. Convert Link: [name](path) -> 📎 File: path
+        val linkRegex = Regex("""\[(.*?)]\((.*?)\)""")
+        result = linkRegex.replace(result) { match ->
+            val path = match.groupValues[2]
+            "<br/>📎 <b>File</b>: $path"
+        }
+
+        return result
     }
 }

@@ -80,7 +80,8 @@ class SuggestionOverlayPanel(
     init {
         isOpaque = false
         isVisible = false
-        border = JBUI.Borders.emptyTop(4)
+        // Berikan sedikit padding internal agar isi tidak mepet ke border bulat
+        border = JBUI.Borders.empty(4)
         
         val scrollPane = JBScrollPane(list).apply {
             border = BorderFactory.createEmptyBorder()
@@ -95,11 +96,15 @@ class SuggestionOverlayPanel(
         val g2 = g.create() as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         
+        val arc = 12
+        // Background dengan 4 sudut bulat
         g2.color = list.background
-        g2.fillRoundRect(0, 0, width, height, 12, 12)
+        g2.fillRoundRect(0, 0, width, height, arc, arc)
         
+        // Border keliling dengan 4 sudut bulat
         g2.color = JBUI.CurrentTheme.Popup.borderColor(true)
-        g2.drawRoundRect(0, 0, width - 1, height - 1, 12, 12)
+        g2.stroke = BasicStroke(1.0f)
+        g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
         g2.dispose()
     }
 

@@ -14,6 +14,7 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
         super.setUp()
         lastRequestedItems = null
         inputPanel = TodosoInputPanel(
+            project = project,
             onNewTask = {},
             onUpdateTask = {},
             onConfirmCancel = {},
@@ -41,7 +42,6 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
         val event = KeyEvent(inputPanel.inputTextArea, KeyEvent.KEY_TYPED, System.currentTimeMillis(), 0, KeyEvent.VK_UNDEFINED, '#')
         inputPanel.inputTextArea.keyListeners.forEach { it.keyTyped(event) }
 
-        // Karena menggunakan SwingUtilities.invokeLater, kita perlu memproses event queue
         UIUtil.dispatchAllInvocationEvents()
 
         assertNotNull("Saran harusnya terpicu saat menekan #", lastRequestedItems)
