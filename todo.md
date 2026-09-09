@@ -16,7 +16,7 @@
 - [-] apa kah bisa di input panel ketika menulis @ mendapatkan file project di butuhkan jadi tidak perlu menulis nama nya manual disini 🆔 4XSdbY ❌ 2026-09-08 22:16 // noted: tidak stabil
 - [x] prefix untuk # 🆔 G0bitz 🛫 2026-09-08 22:18 ✅ 2026-09-09 06:41
 - [x] untuk # dan @ untuk tampilan belum bagus tidak tampil di atas inputran dan ukurannya tidak mengikutin ukuran layar plugin yang sudah aktif 🆔 yec9ne 🛫 2026-09-08 21:24 ✅ 2026-09-08 22:17
-- [/] seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil 🆔 8tybE7 🛫 2026-09-09 07:53
+- [/] 🔼 seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil 🆔 8tybE7 🛫 2026-09-09 08:09
 - [ ] 🔽 ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus 🆔 iEWvdY
 - [x] untut @TodosoInputPanel.kt ini uda cukup terlalu panjang mungkin perlu di refactoring 🆔 PHxgc4 🛫 2026-09-08 21:27 ✅ 2026-09-08 21:48
 - [ ] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu update 🆔 Kepi8h
@@ -24,3 +24,7 @@
 - [ ] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya 🆔 Pjxkcd
 - [ ] 🔼 jadi sanitazi itu untuk apa ? 🆔 qfocgi
 - [ ] 🔺 sepertinya untuk penanganan delete jangan main langsung hapus lebih baik jadi comment di lane , tapi bagaimana nasib lane berdasarkan baris lainnya ? 🆔 K0CGIt
+- [/] 🔼 ada beberapa issue di tag ketika user memilih tag langsung enter tag langsung di spasi jadi tidak dapat menampilkan related tag , solusi mungkin jangan berikan spasi pada saat enter 🆔 U9AcPT 🛫 2026-09-09 08:04
+- [ ] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF
+- [ ] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0
+- [ ] 🔼 lakukan refactoring TodosoInputPanel sudah terlalu besar sekarang 🆔 8cvWay

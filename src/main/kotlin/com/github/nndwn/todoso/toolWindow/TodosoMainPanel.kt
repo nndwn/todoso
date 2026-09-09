@@ -9,6 +9,7 @@ import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
+import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.EditorFontType
@@ -95,6 +96,7 @@ class TodosoMainPanel(
 
     private val inputPanel by lazy {
         TodosoInputPanel(
+            project = project,
             onNewTask = { text -> handler.handleAddTask(text) },
             onUpdateTask = { text -> handler.handleUpdateTask(text) },
             onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
