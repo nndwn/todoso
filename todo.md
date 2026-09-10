@@ -8,7 +8,7 @@
 <!-- For instructions, read more here: https://github.com/nndwn/todoso -->
 - [x] ⏫ pertama bagaimana menampilkan list ? pada panel plugin Intellij?  🆔 8XnWwK 🛫 2026-09-08 05:21 ✅ 2026-09-08 17:47
 - [x] ⏫ pertama siapkan data list todo.md #feature 🆔 oLYbLu 🛫 2026-09-08 05:21 ✅ 2026-09-08 05:21
-- [ ] 🔺 rewrite context menu #development #issue 🆔 7aGPQD
+- [/] 🔺 rewrite context menu #development #issue 🆔 7aGPQD 🛫 2026-09-10 13:30
 - [x] pada input apa bisa ketika # langsung muncul sebagian tag berdasarkan waktu baru di bikin dan paling banyak atau bisa di bilang tag yang populer di batasin kemuncunlannya agar tidak memenuhi layar di TodosoInputPanel 🆔 UBpLSS 🛫 2026-09-08 21:05 ✅ 2026-09-08 21:16
 - [x] Di TodosoCell atasi teks panjang 🆔 i26x4X 🛫 2026-09-09 06:55 ✅ 2026-09-09 06:58
 - [ ] ⏬ di Navigation tags atasi masalah tags panjang 🆔 QpRyJN
@@ -28,10 +28,12 @@
 - [x] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF 🛫 2026-09-09 16:51 ✅ 2026-09-09 17:03
 - [x] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13 ✅ 2026-09-09 21:39
 - [x] 🔼 lakukan refactoring TodosoInputPanel sudah terlalu besar sekarang 🆔 8cvWay 🛫 2026-09-09 18:20 ✅ 2026-09-09 18:20
-- [ ] ⏫ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? 🆔 w7tKwD
+- [ ] ⏬ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? 🆔 w7tKwD
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
 - [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti 🆔 E4TFhe
-- [ ] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI
-- [ ] icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61
+- [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
+- [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
+- [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
+- [ ] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P

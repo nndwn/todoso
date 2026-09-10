@@ -1,19 +1,19 @@
 package com.github.nndwn.todoso.toolWindow.inputWindow
 
 import com.github.nndwn.todoso.TodosoBundle
+import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Metadata
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TodoTask
-import com.github.nndwn.todoso.domain.parser.TagParser
-import com.github.nndwn.todoso.domain.parser.TaskIdParser
+import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.application.runReadActionBlocking
+import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.DocumentAdapter
@@ -21,6 +21,7 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
@@ -72,9 +73,7 @@ class TodosoInputPanel(
     }
 
   val actionButton =
-    JButton(TodosoBundle.message(NEW_TASK_BUTTON)).apply {
-      addActionListener { handleMainAction() }
-    }
+    JButton(TodosoBundle.message(NEW_TASK_BUTTON)).apply { addActionListener { handleMainAction() } }
 
   val cancelButton =
     JButton(TodosoBundle.message(EDIT_BUTTON)).apply {
@@ -86,11 +85,15 @@ class TodosoInputPanel(
     }
 
   val attachButton =
-    JButton(AllIcons.Nodes.PpLib).apply {
+    JButton(AllIcons.Actions.AddFile).apply {
       toolTipText = "Insert file or image"
       isContentAreaFilled = false
       isBorderPainted = false
       isFocusPainted = false
+      isFocusable = false
+      margin = JBUI.emptyInsets()
+      border = null
+      preferredSize = Dimension(JBUI.scale(22), JBUI.scale(22))
       cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
       addActionListener { handleAttachFile() }
     }
@@ -120,7 +123,8 @@ class TodosoInputPanel(
     val buttonsPanel =
       JBPanel<JBPanel<*>>(BorderLayout()).apply {
         isOpaque = false
-        border = JBUI.Borders.empty(0, 3, 5, 3)
+        // Selaraskan 15px dengan kotak input
+        border = JBUI.Borders.empty(0, 15, 5, 15)
 
         val leftButtons =
           JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.LEFT, 5, 0)).apply {
@@ -129,14 +133,13 @@ class TodosoInputPanel(
             add(cancelButton)
           }
 
-        val rightButtons =
-          JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.RIGHT, 5, 0)).apply {
+        val rightWrapper = JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.RIGHT, 0, 0)).apply {
             isOpaque = false
             add(attachButton)
-          }
+        }
 
         add(leftButtons, BorderLayout.WEST)
-        add(rightButtons, BorderLayout.EAST)
+        add(rightWrapper, BorderLayout.EAST)
       }
 
     add(marginWrapper, BorderLayout.CENTER)
@@ -245,25 +248,29 @@ class TodosoInputPanel(
     when (mode) {
       is InputMode.Normal -> {
         inputTextArea.text = ""
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_NORMAL, JBColor(0xF2F2F2, 0x1E1F22))
+        inputTextArea.background =
+          JBColor.namedColor(BACKGROUND_COLOR_NORMAL, JBColor(0xF2F2F2, 0x1E1F22))
         actionButton.text = TodosoBundle.message(NEW_TASK_BUTTON)
         cancelButton.isVisible = false
       }
       is InputMode.Edit -> {
         inputTextArea.text = initialText
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
+        inputTextArea.background =
+          JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
         actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
         cancelButton.isVisible = true
       }
       is InputMode.Cancel -> {
         inputTextArea.text = initialText
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_CANCEL, JBColor(0xFFE6E6, 0x482D2D))
+        inputTextArea.background =
+          JBColor.namedColor(BACKGROUND_COLOR_CANCEL, JBColor(0xFFE6E6, 0x482D2D))
         actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
         cancelButton.isVisible = true
       }
       is InputMode.Note -> {
         inputTextArea.text = if (initialText.isBlank()) "// " else ensureNotePrefix(initialText)
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
+        inputTextArea.background =
+          JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
         actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
         cancelButton.isVisible = true
       }
@@ -298,26 +305,7 @@ class TodosoInputPanel(
   }
 
   internal fun isInputValid(text: String): Boolean {
-    if (text.isBlank()) return false
-
-    var clean = text.replaceFirst(Regex("""^\s*-\s*\[[\s/xX-]?]"""), "")
-    clean = clean.replace(TagParser.TAG_REGEX, "")
-
-    val priorityEmojis = Priority.entries.mapNotNull { it.emoji.takeIf { e -> e.isNotEmpty() } }.joinToString("")
-    val priorityCodes = Priority.entries.mapNotNull { it.code.takeIf { c -> c.isNotEmpty() } }
-    val priorityLabels = Priority.entries.mapNotNull { it.label.takeIf { l -> l.isNotEmpty() } }
-    val combinedPriorityText = (priorityCodes + priorityLabels).joinToString("|")
-
-    clean = clean.replace(Regex("""\[\s*($combinedPriorityText)\s*]""", RegexOption.IGNORE_CASE), "")
-    if (priorityEmojis.isNotEmpty()) {
-      clean = clean.replace(Regex("[$priorityEmojis]"), "")
-    }
-
-    val dateEmojis = Metadata.DATE_EMOJIS.joinToString("")
-    clean = clean.replace(Regex("""[$dateEmojis](\s*\d{4}-\d{2}-\d{2}(\s\d{2}:\d{2})?)?"""), "")
-    clean = clean.replace(TaskIdParser.TASK_ID_REGEX, "")
-
-    return clean.trim().isNotEmpty()
+    return TodoValidator.isContentValid(text)
   }
 
   fun clearInputText() = setMode(InputMode.Normal)
@@ -367,7 +355,7 @@ class TodosoInputPanel(
   private fun showSuggestionsPopup(triggerChar: Char) {
     val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) ?: ""
 
-    val items = runReadAction {
+    val items = runReadActionBlocking {
       if (triggerChar == '#') {
         getSuggestions(prefix, getPopularTags(), getAllTasks())
       } else emptyList()
@@ -418,24 +406,36 @@ class TodosoInputPanel(
     val suggestions = mutableListOf<SuggestionItem>()
 
     // 1. Tag Suggestions
-    suggestions.addAll(
-      popularTags
+    val tagItems = if (prefix.isEmpty()) {
+      if (popularTags.isEmpty()) {
+        TodosoConstants.DEFAULT_QUICK_TAGS.map {
+          SuggestionItem(it, "Quick Tags", IconLoader.getIcon("/general/add.png", javaClass))
+        }
+      } else {
+        popularTags.map {
+          SuggestionItem(it, "Popular Tags", IconLoader.getIcon("/actions/checked.png", javaClass))
+        }
+      }
+    } else {
+      // Cari di SELURUH tag project jika user mulai mengetik prefix
+      allTasks.flatMap { it.tags }
+        .distinct()
         .filter { it.startsWith(prefix, ignoreCase = true) }
-        .map {
+        .map { tag ->
+          val isPopular = popularTags.contains(tag)
           SuggestionItem(
-            it,
-            "Popular Tags",
-            IconLoader.getIcon("/actions/checked.png", javaClass),
+            tag,
+            if (isPopular) "Popular Tags" else "All Tags",
+            IconLoader.getIcon(if (isPopular) "/actions/checked.png" else "/nodes/tag.png", javaClass)
           )
         }
-    )
+    }
+    suggestions.addAll(tagItems)
 
     if (prefix.isNotEmpty()) {
       val relatedTasks =
         allTasks
-          .filter { task ->
-            task.tags.any { it.equals(prefix, ignoreCase = true) }
-          }
+          .filter { task -> task.tags.any { it.equals(prefix, ignoreCase = true) } }
           .sortedByDescending { it.metadata.createdDate ?: "" }
 
       suggestions.addAll(

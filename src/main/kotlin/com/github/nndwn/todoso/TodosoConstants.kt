@@ -6,6 +6,18 @@ object TodosoConstants {
   const val PLUGIN_NAME = "Todoso"
   const val FILENAME = "TODO.md"
 
+  private val EXCLUSIVE_RELATIONS = listOf(
+    listOf("feature", "issue"),
+    listOf("development", "production")
+  )
+
+  private val STANDALONE_TAGS = listOf("urgent")
+
+  val DEFAULT_QUICK_TAGS = EXCLUSIVE_RELATIONS.flatten() + STANDALONE_TAGS
+
+  val EXCLUSIVE_TAG_GROUPS: Map<String, List<String>> = EXCLUSIVE_RELATIONS.flatMap { group ->
+    group.map { tag -> tag to group.filter { it != tag } }
+  }.toMap()
   fun getInstructionHtml(): String =
     """
         <html>

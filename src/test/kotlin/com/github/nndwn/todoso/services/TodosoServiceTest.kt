@@ -144,4 +144,32 @@ class TodosoServiceTest : BasePlatformTestCase() {
       editedTask.metadata.editedDate!!.contains(Regex("""\d{4}-\d{2}-\d{2}""")),
     )
   }
+
+  fun testBlankTaskProtectionInService() {
+    // Bersihkan file dulu agar mulai dari nol khusus untuk test ini
+    WriteCommandAction.runWriteCommandAction(project) {
+      service.getTodoFile()?.setBinaryContent(ByteArray(0))
+    }
+    service.markCacheDirty()
+
+    // 1. Cek jika hanya berisi Tag
+    service.addTask("#onlytag")
+    assertTrue("Tugas yang hanya berisi tag tidak boleh disimpan", service.loadTask().isEmpty())
+
+    // 2. Cek jika hanya berisi Prioritas Emoji
+    service.addTask("🔺")
+    assertTrue("Tugas yang hanya berisi prioritas tidak boleh disimpan", service.loadTask().isEmpty())
+
+    // 3. Cek jika hanya berisi Tanggal (Dinamis)
+    service.addTask("📅 2026-09-10")
+    assertTrue("Tugas yang hanya berisi tanggal tidak boleh disimpan", service.loadTask().isEmpty())
+
+    // 4. Campuran metadata tanpa deskripsi
+    service.addTask("#urgent ⏫ 🛫 2026-09-10 🆔 a1b2c3")
+    assertTrue("Tugas campuran tanpa deskripsi tidak boleh disimpan", service.loadTask().isEmpty())
+
+    // 5. Pastikan jika ada deskripsi baru boleh
+    service.addTask("Tugas Valid #urgent")
+    assertEquals("Tugas valid harusnya tersimpan", 1, service.loadTask().size)
+  }
 }

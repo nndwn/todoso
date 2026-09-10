@@ -37,10 +37,12 @@ To ensure a seamless experience when working with external Markdown editors (lik
 
 #### Flexible Input Field Behavior
 A smart single-input field that intelligently processes plain text, Markdown syntax, and dynamic suggestions:
-*    **Contextual Suggestions (Popup)**:
+*    **Modern Overlay UI**: Instead of standard IntelliJ popups, Todoso features a sleek, agent-like overlay that floats above the input field for a responsive and modern typing experience.
+*    **Contextual Suggestions**:
         * **# Symbol (Tags & Task Search)**: 
-            * Typing `#` triggers a categorized popup showing your most popular tags.
-            * Typing a full tag name (e.g., `#feature`) automatically displays **Related Tasks** associated with that tag.
+            * Typing `#` triggers a categorized overlay showing your most popular tags.
+            * **New User Experience**: If a project has no tags yet, Todoso suggests **Quick Tags** (`#feature`, `#issue`, `#production`, `#development`, `#urgent`) to help you get started.
+            * **Deep Search**: Typing after `#` searches through *all* tags ever used in the project, not just the top 10.
             * Selecting a task from the suggestions instantly inserts its unique `🆔 ID` for easy cross-referencing.
 *    **Input Styles**:
         * **Plain Text**: Type a description like `Update layout navbar`.
@@ -51,7 +53,6 @@ A smart single-input field that intelligently processes plain text, Markdown syn
 *    **Empty Checkbox Protection**: Prevents creation of blank tasks.
 *    **Automatic Note Prefixing**: Note Mode injects the `//` prefix automatically.
 *    **Insert File & Image (Attachment)**:
-        * **Icon-Only Button**: A clean paperclip icon button at the bottom-right corner for quick access.
         * **Relative Path Mapping**: Automatically calculates the path relative to your **Project Root**. If `todo.md` is outside the project, it still prioritizes relative paths for files within the current project.
         * **Markdown Formatting**: 
             * **Images**: `![filename](path)` (Supports `jpg, png, gif, svg, webp`).
@@ -133,6 +134,12 @@ Todoso adheres strictly to the Obsidian tag standard with enhanced sanitization 
 5. **Metadata Comment Isolation**:
    * Any tags located after the metadata comment separator `//` (e.g., `- [ ] Task #ui // review #note`) are ignored by the task tag parser and reserved for metadata notes.
 
+6. **Mutual Exclusive Tag Groups (Automation)**:
+   * To keep task categorization logical, certain tags are programmed to be mutually exclusive when applied via automated tools (like the context menu):
+      * `#feature` ↔ `#issue`
+      * `#development` ↔ `#production`
+   * Applying one tag from these groups will automatically remove its "opposite" tag, preventing contradictory labels.
+
 #### Unique Task ID & Persistence Rules
 
 Todoso follows the Obsidian Tasks convention for unique task identification:
@@ -164,8 +171,21 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
    * Supports full timestamps (`YYYY-MM-DD HH:mm`) and date-only formats (`YYYY-MM-DD`).
    * Date-only strings automatically fall back to `00:00` for time calculation safety.
 
-3. **Execution Duration Calculation**:
+3. **Smart Lifecycle Tracking (Emojis)**:
+   Todoso automatically tracks every stage of a task's life using dynamic emojis:
+   *   ➕ **Created**: Injected automatically when a task is first added.
+   *   📝 **Edited**: Updated every time you modify the task description or its tags.
+   *   🛫 **Started**: Recorded when a task transitions to the `DOING` state.
+   *   ✅ **Completed**: Captured when marked as `DONE`, triggering duration calculation.
+   *   ❌ **Cancelled**: Logged when a task is moved to the `CANCELLED` state.
+
+4. **Execution Duration Calculation**:
    * Automatically calculates execution duration between Start Date (🛫) and Completion Date (✅) upon completion (e.g., `1h 45m` or `30m`).
+
+#### Strict Content Integrity & Validation
+To keep your `todo.md` clean and professional, Todoso enforces a **Strict Validator** across both the UI and Service layers:
+*   **No Ghost Tasks**: You cannot create or save a task that only contains metadata (e.g., just tags, dates, or priority). A real description is always required.
+*   **Intelligent Stripping**: During validation, the system "peels off" all status brackets, priority markers, tags, and date emojis to ensure that actual human-readable content is present before enabling the submit button.
 
 
 #### Metadata Comment Isolation (//)

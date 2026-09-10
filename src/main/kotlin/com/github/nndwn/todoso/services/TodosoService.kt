@@ -9,6 +9,7 @@ import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
+import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -235,14 +236,7 @@ class TodosoService(private val project: Project) {
 
     if (parsedTask == null) return null
 
-    val cleanForCheck =
-      parsedTask.description
-        .replace(TagParser.TAG_REGEX, "")
-        .replace(TaskIdParser.TASK_ID_REGEX, "")
-        .replace(Regex("""[🛫📅✅❌➕]"""), "")
-        .trim()
-
-    return if (cleanForCheck.isNotBlank()) {
+    return if (TodoValidator.isContentValid(parsedTask.description)) {
       val generatedId = TaskIdParser.parseId(null).id
       val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
       val updatedMetadata = parsedTask.metadata.copy(createdDate = nowFormatted)
@@ -370,7 +364,14 @@ class TodosoService(private val project: Project) {
   fun applyTaskTag(task: TodoTask, tag: String, exclusiveWith: List<String> = emptyList()) {
     modifyTaskLine(task) { currentTask ->
       val cleanTargetTag = tag.trim().removePrefix("#")
-      val cleanExclusiveTags = exclusiveWith.map { it.trim().removePrefix("#") }
+
+      val effectiveExclusives = exclusiveWith.ifEmpty {
+        TodosoConstants.EXCLUSIVE_TAG_GROUPS[cleanTargetTag.lowercase()] ?: emptyList()
+      }
+
+      val cleanExclusiveTags = effectiveExclusives.map { it.trim().removePrefix("#") }
+
+
       val hasTag = currentTask.tags.any { it.equals(cleanTargetTag, ignoreCase = true) }
       val updatedTags =
         if (hasTag) {
