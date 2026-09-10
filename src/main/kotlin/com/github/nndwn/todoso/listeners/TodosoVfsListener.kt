@@ -10,18 +10,18 @@ import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 
 class TodosoVfsListener(private val project: Project) : BulkFileListener {
 
-    override fun after(events: List<VFileEvent>) {
-        val service = project.service<TodosoService>()
-        val targetFile = service.getTodoFile() ?: return
+  override fun after(events: List<VFileEvent>) {
+    val service = project.service<TodosoService>()
+    val targetFile = service.getTodoFile() ?: return
 
-        val isTargetFileContentChanged = events.any { event ->
-            event is VFileContentChangeEvent && event.file.path == targetFile.path
-        }
-
-        if (isTargetFileContentChanged) {
-            service.markCacheDirty()
-            service.loadTask()
-            project.messageBus.syncPublisher(TodosoDataChangeListener.TOPIC).onDataChanged()
-        }
+    val isTargetFileContentChanged = events.any { event ->
+      event is VFileContentChangeEvent && event.file.path == targetFile.path
     }
+
+    if (isTargetFileContentChanged) {
+      service.markCacheDirty()
+      service.loadTask()
+      project.messageBus.syncPublisher(TodosoDataChangeListener.TOPIC).onDataChanged()
+    }
+  }
 }

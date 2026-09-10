@@ -15,88 +15,89 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.ScrollPaneConstants
 
-class TodosoTagsNavigation(private val onTagSelected: (String?) -> Unit) : JBPanel<TodosoTagsNavigation>(BorderLayout()) {
+class TodosoTagsNavigation(private val onTagSelected: (String?) -> Unit) :
+  JBPanel<TodosoTagsNavigation>(BorderLayout()) {
 
-    private val chipsPanel =
-        JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.LEFT, 8, 5)).apply {
-            isOpaque = false
-        }
+  private val chipsPanel =
+    JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.LEFT, 8, 5)).apply {
+      isOpaque = false
+    }
 
-    init {
+  init {
+    isOpaque = false
+
+    val scrollPane =
+      JBScrollPane(chipsPanel).apply {
+        border = JBUI.Borders.empty()
         isOpaque = false
+        viewport.isOpaque = false
+        horizontalScrollBarPolicy = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        verticalScrollBarPolicy = ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
+        preferredSize = JBUI.size(-1, 42)
+        addMouseWheelListener { e ->
+          val hBar = horizontalScrollBar
+          if (hBar != null && hBar.isVisible) {
+            val increment = if (hBar.unitIncrement > 0) hBar.unitIncrement else 16
+            hBar.value += e.unitsToScroll * increment
+            e.consume()
+          }
+        }
+      }
+    add(scrollPane, BorderLayout.CENTER)
+  }
 
-        val scrollPane =
-            JBScrollPane(chipsPanel).apply {
-                border = JBUI.Borders.empty()
-                isOpaque = false
-                viewport.isOpaque = false
-                horizontalScrollBarPolicy = ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
-                verticalScrollBarPolicy = ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
-                preferredSize = JBUI.size(-1, 42)
-                addMouseWheelListener { e ->
-                    val hBar = horizontalScrollBar
-                    if (hBar != null && hBar.isVisible) {
-                        val increment = if (hBar.unitIncrement > 0) hBar.unitIncrement else 16
-                        hBar.value += e.unitsToScroll * increment
-                        e.consume()
-                    }
-                }
-            }
-        add(scrollPane, BorderLayout.CENTER)
+  fun setTags(tags: Map<String, Int>, selectedTag: String?) {
+    chipsPanel.removeAll()
+
+    chipsPanel.add(TagChip("all", null, selectedTag == null) { onTagSelected(null) })
+
+    tags.forEach { (tag, count) ->
+      chipsPanel.add(TagChip(tag, count, selectedTag == tag) { onTagSelected(tag) })
     }
 
-    fun setTags(tags: Map<String, Int>, selectedTag: String?) {
-        chipsPanel.removeAll()
+    revalidate()
+    repaint()
+  }
 
-        chipsPanel.add(TagChip("all", null, selectedTag == null) { onTagSelected(null) })
+  private class TagChip(
+    val tagName: String,
+    val count: Int?,
+    val isSelected: Boolean,
+    val onClick: () -> Unit,
+  ) : JBLabel() {
+    init {
+      text = if (count != null) "#$tagName ($count)" else "#$tagName"
+      cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+      border = JBUI.Borders.empty(4, 10)
 
-        tags.forEach { (tag, count) ->
-            chipsPanel.add(TagChip(tag, count, selectedTag == tag) { onTagSelected(tag) })
+      val baseFg = if (isSelected) JBColor.WHITE else JBColor.namedColor("Label.foreground", JBColor.BLACK)
+      foreground = baseFg
+
+      addMouseListener(
+        object : MouseAdapter() {
+          override fun mouseClicked(e: MouseEvent) {
+            if (e.button == MouseEvent.BUTTON1) onClick()
+          }
         }
-
-        revalidate()
-        repaint()
+      )
     }
 
-    private class TagChip(
-        val tagName: String,
-        val count: Int?,
-        val isSelected: Boolean,
-        val onClick: () -> Unit,
-    ) : JBLabel() {
-        init {
-            text = if (count != null) "#$tagName ($count)" else "#$tagName"
-            cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-            border = JBUI.Borders.empty(4, 10)
+    override fun paintComponent(g: Graphics) {
+      val g2 = g.create() as Graphics2D
+      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-            val baseFg = if (isSelected) JBColor.WHITE else JBColor.namedColor("Label.foreground", JBColor.BLACK)
-            foreground = baseFg
-
-            addMouseListener(
-                object : MouseAdapter() {
-                    override fun mouseClicked(e: MouseEvent) {
-                        if (e.button == MouseEvent.BUTTON1) onClick()
-                    }
-                }
-            )
+      val bg =
+        if (isSelected) {
+          JBColor.namedColor("Label.infoForeground", JBColor(0x2675BF, 0x2675BF))
+        } else {
+          JBColor.namedColor("Todo.Tag.Background", JBColor(0xE8E8E8, 0x393939))
         }
 
-        override fun paintComponent(g: Graphics) {
-            val g2 = g.create() as Graphics2D
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+      g2.color = bg
+      g2.fillRoundRect(0, 0, width, height, height, height)
+      g2.dispose()
 
-            val bg =
-                if (isSelected) {
-                    JBColor.namedColor("Label.infoForeground", JBColor(0x2675BF, 0x2675BF))
-                } else {
-                    JBColor.namedColor("Todo.Tag.Background", JBColor(0xE8E8E8, 0x393939))
-                }
-
-            g2.color = bg
-            g2.fillRoundRect(0, 0, width, height, height, height)
-            g2.dispose()
-
-            super.paintComponent(g)
-        }
+      super.paintComponent(g)
     }
+  }
 }
