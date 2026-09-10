@@ -9,27 +9,25 @@ import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
+import com.github.nndwn.todoso.toolWindow.ItemTodo.TodosoItemComponent
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
-import com.intellij.ui.CollectionListModel
-import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
-import java.awt.BorderLayout
-import java.awt.CardLayout
-import java.awt.Font
-import java.awt.Rectangle
+import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.HierarchyEvent
 import javax.swing.BorderFactory
+import javax.swing.BoxLayout
 import javax.swing.JEditorPane
 import javax.swing.JLayeredPane
 import javax.swing.JPanel
-import javax.swing.ListSelectionModel
+import javax.swing.Scrollable
 import javax.swing.SwingUtilities
 
 class TodosoMainPanel(
@@ -68,17 +66,21 @@ class TodosoMainPanel(
       border = BorderFactory.createEmptyBorder()
       isFocusable = false
     }
-  private val listModel = CollectionListModel<TodoTask>()
-  private val list =
-    JBList(listModel).apply {
-      font = uiFont.deriveFont(Font.TRUETYPE_FONT, 13f)
-      selectionMode = ListSelectionModel.SINGLE_SELECTION
-      emptyText.text = TodosoBundle.message("todo.list.empty")
-      cellRenderer = TodosoCell(service, settings)
 
-      accessibleContext.accessibleName = TodosoBundle.message("todo.list.accessible.name")
-      accessibleContext.accessibleDescription = TodosoBundle.message("todo.list.accessible.desc")
+  private val tasksContainer = object : JBPanel<JBPanel<*>>(null), Scrollable {
+    init {
+      layout = BoxLayout(this, BoxLayout.Y_AXIS)
+      isOpaque = false
     }
+    override fun getPreferredScrollableViewportSize(): Dimension = preferredSize
+    override fun getScrollableUnitIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 20
+    override fun getScrollableBlockIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 100
+    override fun getScrollableTracksViewportWidth(): Boolean = true
+    override fun getScrollableTracksViewportHeight(): Boolean = false
+  }
+
+  private var selectedTask: TodoTask? = null
+  private val taskComponents = mutableListOf<TodosoItemComponent>()
 
   private val toolbarPanel by lazy {
     TodosoToolbar(
@@ -86,7 +88,7 @@ class TodosoMainPanel(
       targetComponent = this,
       onRefreshUI = { refreshUiState() },
       onRandomTask = { handler.handleRandomTask() },
-      onToggleVisualMode = { list.repaint() },
+      onToggleVisualMode = { refreshUiState() },
       onErrorHandler = { errorMessage ->
         handler.handleErrorNotification(errorMessage)
       },
@@ -115,8 +117,8 @@ class TodosoMainPanel(
       onCreateNote = { note -> handler.handleConfirmCancel(note) },
       onCancelEdit = { handler.handleCancelEdit() },
       fontInput = uiFont,
-      getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
-      getAllTasks = { service.loadTask() },
+      getPopularTags = { TagParser.getPopularTags(service.getCachedTasks()) },
+      getAllTasks = { service.getCachedTasks() },
       onSuggestionRequest = { items ->
         if (items != null) {
           suggestionOverlay.updateItems(items)
@@ -144,7 +146,11 @@ class TodosoMainPanel(
     mainContent.add(toolbarComponent, BorderLayout.NORTH)
 
     centerContainer.add(instructionScrollPane, CARD_INSTRUCTION)
-    centerContainer.add(JBScrollPane(list), CARD_TASK_LIST)
+    centerContainer.add(JBScrollPane(tasksContainer, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER).apply {
+        border = BorderFactory.createEmptyBorder()
+        viewport.isOpaque = false
+        isOpaque = false
+    }, CARD_TASK_LIST)
     mainContent.add(centerContainer, BorderLayout.CENTER)
 
     mainContent.add(inputPanel, BorderLayout.SOUTH)
@@ -191,7 +197,8 @@ class TodosoMainPanel(
     val allTasks = service.loadTask()
 
     if (allTasks.isEmpty()) {
-      listModel.removeAll()
+      tasksContainer.removeAll()
+      taskComponents.clear()
       tagsNavigationPanel.isVisible = false
       cardLayout.show(centerContainer, CARD_INSTRUCTION)
     } else {
@@ -206,25 +213,42 @@ class TodosoMainPanel(
           allTasks.filter { task -> task.tags.contains(currentTagFilter) }
         }
 
-      val selected = list.selectedValue
-      val selectedId = selected?.id
-      val selectedLine = selected?.lineNumber
-      val selectedText = selected?.rawText
-
       val sortedTasks = applySorting(filteredTasks, currentSortOption)
-      listModel.replaceAll(sortedTasks)
-      cardLayout.show(centerContainer, CARD_TASK_LIST)
-
-      if (selectedId != null) {
-        val index = sortedTasks.indexOfFirst {
-          it.id == selectedId || (it.lineNumber == selectedLine && it.rawText == selectedText)
-        }
-        if (index != -1) {
-          list.selectedIndex = index
-          list.ensureIndexIsVisible(index)
-        }
+      
+      // Update Container
+      tasksContainer.removeAll()
+      taskComponents.clear()
+      
+      sortedTasks.forEach { task ->
+          val component = TodosoItemComponent(
+              task, 
+              settings.state.visualEnabled,
+              onSelect = { t -> handleTaskSelection(t) },
+              onEdit = { /* Biarkan kosong untuk penanganan nanti */ }
+          )
+          if (task.id == selectedTask?.id) {
+              component.setSelected(true)
+          }
+          tasksContainer.add(component)
+          taskComponents.add(component)
       }
+      
+      tasksContainer.revalidate()
+      tasksContainer.repaint()
+      cardLayout.show(centerContainer, CARD_TASK_LIST)
     }
+  }
+
+  private fun handleTaskSelection(task: TodoTask) {
+      if (selectedTask?.id == task.id) {
+          selectedTask = null
+          taskComponents.forEach { it.setSelected(false) }
+      } else {
+          selectedTask = task
+          taskComponents.forEach { it.setSelected(it.task.id == task.id) }
+      }
+      requestUnfocus()
+      updateButtonStates()
   }
 
   private fun extractTagCounts(tasks: List<TodoTask>): Map<String, Int> {
@@ -275,12 +299,16 @@ class TodosoMainPanel(
     inputPanel.setCancelMode(enabled)
   }
 
-  override fun getSelectedTask(): TodoTask? = list.selectedValue
+  override fun getSelectedTask(): TodoTask? = selectedTask
 
   override fun getInputText(): String = inputPanel.inputTextArea.text
 
   override fun clearInputText() {
     inputPanel.clearInputText()
+  }
+
+  override fun requestUnfocus() {
+    inputPanel.requestUnfocus()
   }
 
   override fun setTagFilter(tag: String?) {

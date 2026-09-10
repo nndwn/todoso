@@ -124,6 +124,8 @@ class TodosoService(private val project: Project) {
     isCacheDirty = true
   }
 
+  fun getCachedTasks(): List<TodoTask> = cachedTasks
+
   fun loadTask(): List<TodoTask> {
     val currentPath = settings.state.todoFilePath
 

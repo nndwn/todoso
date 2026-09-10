@@ -39,6 +39,8 @@ class TodosoActionHandler(
     fun getInputText(): String
 
     fun clearInputText()
+
+    fun requestUnfocus()
   }
 
   private var pendingCancelTask: TodoTask? = null

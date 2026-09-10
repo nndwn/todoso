@@ -8,7 +8,6 @@ import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.application.runReadActionBlocking
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -104,6 +103,7 @@ class TodosoInputPanel(
     }
 
   init {
+    isFocusable = true
     setupUI()
     setupListeners()
     updateActionButtons()
@@ -310,6 +310,10 @@ class TodosoInputPanel(
 
   fun clearInputText() = setMode(InputMode.Normal)
 
+  fun requestUnfocus() {
+    this.requestFocusInWindow()
+  }
+
   private fun handleAttachFile() {
     val descriptor =
       FileChooserDescriptorFactory.createAllButJarContentsDescriptor()
@@ -355,11 +359,9 @@ class TodosoInputPanel(
   private fun showSuggestionsPopup(triggerChar: Char) {
     val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) ?: ""
 
-    val items = runReadActionBlocking {
-      if (triggerChar == '#') {
-        getSuggestions(prefix, getPopularTags(), getAllTasks())
-      } else emptyList()
-    }
+    val items = if (triggerChar == '#') {
+      getSuggestions(prefix, getPopularTags(), getAllTasks())
+    } else emptyList()
 
     if (items.isEmpty()) {
       hideOverlay()

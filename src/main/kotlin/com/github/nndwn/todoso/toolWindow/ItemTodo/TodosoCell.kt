@@ -1,4 +1,4 @@
-package com.github.nndwn.todoso.toolWindow
+package com.github.nndwn.todoso.toolWindow.ItemTodo
 
 import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.Priority
@@ -11,18 +11,19 @@ import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.intellij.ui.ColoredListCellRenderer
 import com.intellij.ui.JBColor
 import com.intellij.ui.SimpleTextAttributes
+import com.intellij.util.IconUtil
 import javax.swing.JList
 
 class TodosoCell(
-  private val service: TodosoService,
-  private val settings: TodosoSettingsService,
+    private val service: TodosoService,
+    private val settings: TodosoSettingsService,
 ) : ColoredListCellRenderer<TodoTask>() {
   override fun customizeCellRenderer(
-    list: JList<out TodoTask>,
-    value: TodoTask?,
-    index: Int,
-    selected: Boolean,
-    hasFocus: Boolean,
+      list: JList<out TodoTask>,
+      value: TodoTask?,
+      index: Int,
+      selected: Boolean,
+      hasFocus: Boolean,
   ) {
     value ?: return
     val isDone = value.status == TaskStatus.DONE
@@ -30,13 +31,18 @@ class TodosoCell(
     val isCancelled = value.status == TaskStatus.CANCELLED
     val visualEnabled = settings.state.visualEnabled
 
-    icon =
-      when (value.status) {
-        TaskStatus.DOING -> TodosoIcons.TaskDoing
-        TaskStatus.DONE -> TodosoIcons.TaskDone
-        TaskStatus.CANCELLED -> TodosoIcons.TaskCancelled
-        TaskStatus.TODO -> TodosoIcons.TaskTodo
-      }
+    val baseIcon = when (value.status) {
+      TaskStatus.DOING -> TodosoIcons.TaskDoing
+      TaskStatus.DONE -> TodosoIcons.TaskDone
+      TaskStatus.CANCELLED -> TodosoIcons.TaskCancelled
+      TaskStatus.TODO -> TodosoIcons.TaskTodo
+    }
+
+    icon = if (settings.state.visualEnabled ) {
+      IconUtil.colorize(baseIcon, value.priority.color)
+    } else {
+      baseIcon
+    }
     val baseAttributes = getBaseAttributes(value, isDone, isDoing, isCancelled, visualEnabled)
     val displayDescription =
       if (value.description.length > 100) {
@@ -49,11 +55,11 @@ class TodosoCell(
   }
 
   private fun getBaseAttributes(
-    task: TodoTask,
-    isDone: Boolean,
-    isDoing: Boolean,
-    isCancelled: Boolean,
-    visualEnabled: Boolean,
+      task: TodoTask,
+      isDone: Boolean,
+      isDoing: Boolean,
+      isCancelled: Boolean,
+      visualEnabled: Boolean,
   ): SimpleTextAttributes {
     val style =
       when {
@@ -73,11 +79,11 @@ class TodosoCell(
   }
 
   private fun renderDescriptionWithTags(
-    description: String,
-    baseAttributes: SimpleTextAttributes,
-    isDone: Boolean,
-    isDoing: Boolean,
-    isCancelled: Boolean,
+      description: String,
+      baseAttributes: SimpleTextAttributes,
+      isDone: Boolean,
+      isDoing: Boolean,
+      isCancelled: Boolean,
   ) {
 
     var lastIndex = 0

@@ -36,4 +36,4 @@
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
-- [ ] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P
+- [/] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P 🛫 2026-09-10 18:12
