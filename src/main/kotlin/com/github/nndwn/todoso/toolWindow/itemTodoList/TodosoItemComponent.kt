@@ -1,4 +1,4 @@
-package com.github.nndwn.todoso.toolWindow.itemTodo
+package com.github.nndwn.todoso.toolWindow.itemTodoList
 
 import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TaskStatus
@@ -7,6 +7,7 @@ import com.github.nndwn.todoso.domain.parser.DateParser
 import com.intellij.ide.HelpTooltip
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
+import com.intellij.util.IconUtil
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
@@ -26,7 +27,7 @@ import javax.swing.text.html.HTMLEditorKit
 
 class TodosoItemComponent(
     var task: TodoTask,
-    private val isVisualEnabled: Boolean,
+    private var isVisualEnabled: Boolean,
     private val onSelect: (TodoTask) -> Unit,
     private val onEdit: (TodoTask) -> Unit
 ) : JPanel(BorderLayout()), Scrollable {
@@ -36,12 +37,7 @@ class TodosoItemComponent(
     private val iconLabel = JBLabel().apply {
         verticalAlignment = SwingConstants.TOP
         border = JBUI.Borders.empty(10, 10, 0, 0)
-        icon = when (task.status) {
-            TaskStatus.DOING -> TodosoIcons.TaskDoing
-            TaskStatus.DONE -> TodosoIcons.TaskDone
-            TaskStatus.CANCELLED -> TodosoIcons.TaskCancelled
-            else -> TodosoIcons.TaskTodo
-        }
+        updateIcon(this, task, isVisualEnabled)
     }
 
     private val textPane = object : JTextPane() {
@@ -52,16 +48,14 @@ class TodosoItemComponent(
         isEditable = false
         isOpaque = false
         isFocusable = false
-        
-        // Matikan caret dan highlighter agar tidak lompat saat di-klik
+
         highlighter = null
         (caret as? DefaultCaret)?.apply {
             updatePolicy = DefaultCaret.NEVER_UPDATE
         }
         
         border = JBUI.Borders.empty(8, 10)
-        
-        // Agar link atau teks tidak menghalangi klik ke panel
+
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) = dispatchToParent(e)
             override fun mouseReleased(e: MouseEvent) = dispatchToParent(e)
@@ -105,7 +99,6 @@ class TodosoItemComponent(
 
             override fun mouseExited(e: MouseEvent) {
                 if (!isSelected) {
-                    // Cek apakah mouse benar-benar keluar dari area panel ini (termasuk anak-anaknya)
                     val point = e.point
                     SwingUtilities.convertPointToScreen(point, e.component)
                     val bounds = Rectangle(locationOnScreen, size)
@@ -126,7 +119,6 @@ class TodosoItemComponent(
         }
         
         addMouseListener(hoverListener)
-        // Tambahkan ke iconLabel juga agar tidak ada celah
         iconLabel.addMouseListener(hoverListener)
     }
 
@@ -136,18 +128,31 @@ class TodosoItemComponent(
         updateContent()
     }
 
-    fun updateData(newTask: TodoTask) {
-        // Cek apakah ada perubahan konten atau status
-        if (this.task.rawText != newTask.rawText || this.task.status != newTask.status || this.task.priority != newTask.priority) {
+
+    fun updateData(newTask: TodoTask, newVisualEnabled: Boolean) {
+        val visualChanged = isVisualEnabled != newVisualEnabled
+        val dataChanged = this.task.rawText != newTask.rawText || this.task.status != newTask.status || this.task.priority != newTask.priority
+
+        if (dataChanged || visualChanged) {
             this.task = newTask
-            // Update icon
-            iconLabel.icon = when (newTask.status) {
-                TaskStatus.DOING -> TodosoIcons.TaskDoing
-                TaskStatus.DONE -> TodosoIcons.TaskDone
-                TaskStatus.CANCELLED -> TodosoIcons.TaskCancelled
-                else -> TodosoIcons.TaskTodo
-            }
+            this.isVisualEnabled = newVisualEnabled
+            updateIcon(iconLabel, task, isVisualEnabled)
             updateContent()
+        }
+    }
+
+    private fun updateIcon(label: JBLabel, task: TodoTask, visualEnabled: Boolean) {
+        val baseIcon = when (task.status) {
+            TaskStatus.DOING -> TodosoIcons.TaskDoing
+            TaskStatus.DONE -> TodosoIcons.TaskDone
+            TaskStatus.CANCELLED -> TodosoIcons.TaskCancelled
+            else -> TodosoIcons.TaskTodo
+        }
+
+        label.icon = if (visualEnabled) {
+            IconUtil.colorize(baseIcon, task.priority.color)
+        } else {
+            baseIcon
         }
     }
 
@@ -199,7 +204,7 @@ class TodosoItemComponent(
         }
         
         if (fullDescription.isNotBlank()) {
-            ht.setDescription(fullDescription)
+            ht.description = fullDescription
         }
 
         ht.installOn(this)

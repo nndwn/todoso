@@ -2,8 +2,6 @@ package com.github.nndwn.todoso.toolWindow.inputWindow
 
 import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
-import com.github.nndwn.todoso.domain.model.Metadata
-import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
@@ -20,7 +18,6 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBTextArea
 import com.intellij.util.ui.JBUI
-import com.intellij.util.ui.UIUtil
 import java.awt.*
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
@@ -52,6 +49,8 @@ class TodosoInputPanel(
     private const val BACKGROUND_COLOR_EDIT = "Todo.Input.EditBackground"
     private const val BACKGROUND_COLOR_CANCEL = "Todo.Input.CancelBackground"
     private const val BACKGROUND_COLOR_NORMAL = "Todo.Input.Background"
+
+    private val LIST_EXTENSION_INSERT =   listOf("jpg", "jpeg", "png", "gif", "svg", "webp")
   }
 
   private var isOverlayVisible = false
@@ -85,7 +84,7 @@ class TodosoInputPanel(
 
   val attachButton =
     JButton(AllIcons.Actions.AddFile).apply {
-      toolTipText = "Insert file or image"
+      toolTipText = TodosoBundle.message("todo.insert.file")
       isContentAreaFilled = false
       isBorderPainted = false
       isFocusPainted = false
@@ -115,7 +114,7 @@ class TodosoInputPanel(
 
     val marginWrapper =
       JBPanel<JBPanel<*>>(BorderLayout()).apply {
-        border = JBUI.Borders.empty(8, 15, 4, 15)
+        border = JBUI.Borders.empty(16, 15, 4, 15)
         isOpaque = false
         add(inputWrapper, BorderLayout.CENTER)
       }
@@ -123,7 +122,6 @@ class TodosoInputPanel(
     val buttonsPanel =
       JBPanel<JBPanel<*>>(BorderLayout()).apply {
         isOpaque = false
-        // Selaraskan 15px dengan kotak input
         border = JBUI.Borders.empty(0, 15, 5, 15)
 
         val leftButtons =
@@ -160,7 +158,6 @@ class TodosoInputPanel(
         override fun textChanged(e: DocumentEvent) {
           updateActionButtons()
 
-          // Trigger otomatis saat teks berubah (termasuk backspace)
           SwingUtilities.invokeLater {
             val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition)
             if (prefix != null) {
@@ -317,8 +314,8 @@ class TodosoInputPanel(
   private fun handleAttachFile() {
     val descriptor =
       FileChooserDescriptorFactory.createAllButJarContentsDescriptor()
-        .withTitle("Select File to Attach")
-        .withDescription("The file will be added as a relative path to the task notes.")
+        .withTitle(TodosoBundle.message("todo.insert.file"))
+        .withDescription(TodosoBundle.message("todo.insert.file.desc"))
 
     val selectedFile = FileChooser.chooseFile(descriptor, project, null) ?: return
     insertMarkdownAttachment(selectedFile)
@@ -334,7 +331,7 @@ class TodosoInputPanel(
       }
 
     val isImage =
-      listOf("jpg", "jpeg", "png", "gif", "svg", "webp").any {
+      LIST_EXTENSION_INSERT.any {
         file.name.lowercase().endsWith(".$it")
       }
 
@@ -411,15 +408,14 @@ class TodosoInputPanel(
     val tagItems = if (prefix.isEmpty()) {
       if (popularTags.isEmpty()) {
         TodosoConstants.DEFAULT_QUICK_TAGS.map {
-          SuggestionItem(it, "Quick Tags", IconLoader.getIcon("/general/add.png", javaClass))
+          SuggestionItem(it, TodosoBundle.message("todo.suggestion.quick.tags"), IconLoader.getIcon("/general/add.png", javaClass))
         }
       } else {
         popularTags.map {
-          SuggestionItem(it, "Popular Tags", IconLoader.getIcon("/actions/checked.png", javaClass))
+          SuggestionItem(it, TodosoBundle.message("todo.suggestion.popular.tags"), IconLoader.getIcon("/actions/checked.png", javaClass))
         }
       }
     } else {
-      // Cari di SELURUH tag project jika user mulai mengetik prefix
       allTasks.flatMap { it.tags }
         .distinct()
         .filter { it.startsWith(prefix, ignoreCase = true) }
@@ -427,7 +423,7 @@ class TodosoInputPanel(
           val isPopular = popularTags.contains(tag)
           SuggestionItem(
             tag,
-            if (isPopular) "Popular Tags" else "All Tags",
+            if (isPopular) TodosoBundle.message("todo.suggestion.popular.tags") else TodosoBundle.message("todo.suggestion.all.tags"),
             IconLoader.getIcon(if (isPopular) "/actions/checked.png" else "/nodes/tag.png", javaClass)
           )
         }
@@ -444,7 +440,7 @@ class TodosoInputPanel(
         relatedTasks.map { task ->
           SuggestionItem(
             text = task.description.take(40) + (if (task.description.length > 40) "..." else ""),
-            category = "Related Tasks",
+            category = TodosoBundle.message("todo.suggestion.related.tags"),
             icon = IconLoader.getIcon("/nodes/variable.png", javaClass),
             isTask = true,
             taskId = task.id,

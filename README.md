@@ -32,8 +32,20 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
 #### Data Synchronization & Performance
 To ensure a seamless experience when working with external Markdown editors (like Obsidian) and large task lists, Todoso uses a specialized synchronization engine:
 * **Why Caching?** Parsing Markdown with regex is resource-intensive. We cache tasks in memory so that switching tags or sorting feels instant, without laggy reparsing on every click.
+* **Smart Component Re-use**: Unlike standard lists that redraw everything, Todoso re-uses existing UI components when data updates. This prevents screen flickering and significantly reduces CPU usage during background file syncs.
 * **Why Path Awareness?** Switching between different todo files or clearing settings triggers an immediate cache invalidation. This ensures you never see "ghost tasks" from a previously selected file.
 * **Why a Refresh Button?** While we auto-sync via IntelliJ's VFS, external file changes can sometimes lag. The Refresh button acts as a "hard reset" that bypasses the cache to read directly from the disk.
+
+#### Modern Component-Based UI
+Todoso moves away from traditional, rigid list views to a modern, dynamic component architecture inspired by modern productivity tools:
+* **Multi-line Text Wrapping**: Descriptions and tags are no longer truncated. The layout intelligently recalculates row heights to wrap text naturally, ensuring your full task is always visible.
+* **Interactive Hover Effects**: A subtle highlight follows your mouse, providing clear visual feedback on which task you are interacting with.
+* **Smart Selection Logic**: Select tasks with a single click to perform actions (Delete/Move). Focus management is handled automatically, ensuring that clicking a task won't accidentally clear your current input draft.
+* **Refined Metadata Tooltip**: Powered by IntelliJ's `HelpTooltip` API, hovering over a task reveals a structured, rounded overlay containing:
+    * **Task ID**: Persistent unique identifier.
+    * **Lifecycle Dates**: Created, Started, Due, and Completion timestamps.
+    * **Execution Duration**: Real-time calculation of how long a task took to complete.
+    * **Sanitized Notes**: Clean presentation of your manual notes and attachments.
 
 #### Flexible Input Field Behavior
 A smart single-input field that intelligently processes plain text, Markdown syntax, and dynamic suggestions:
@@ -73,7 +85,7 @@ Todoso provides an interactive toolbar with dynamic view options and multi-crite
           2. Enable **Priority** (while Status is active) → Inside each status group, tasks are now sorted by urgency.
           3. Enable **Date** (third) → Tasks with the *same status* AND *same priority* will then be ordered by date.
       * **Pro Tip**: To change the hierarchy, simply click "Default" to clear the chain and re-enable them in your preferred order!
-      * **RecommendedMe ** choose Priority first and Status.
+      * **RecommendedMe ** choose `Priority first and Status`.
 *   **Persistent Sort State**: Your custom sorting chain is automatically saved and restored across IDE restarts.
 *   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
 *   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.

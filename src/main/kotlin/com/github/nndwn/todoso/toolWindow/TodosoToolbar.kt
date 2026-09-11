@@ -1,6 +1,7 @@
 package com.github.nndwn.todoso.toolWindow
 
 import com.github.nndwn.todoso.TodosoBundle
+import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
@@ -26,11 +27,13 @@ class TodosoToolbar(
   private val onRefreshUI: () -> Unit,
   private val onRefreshTasks: () -> Unit,
   private val onRandomTask: () -> Unit,
-  private val onToggleVisualMode: () -> Unit,
   private val onErrorHandler: (String) -> Unit,
   private val onSortChanged: (Set<SortOption>) -> Unit,
 ) {
 
+  companion object {
+    private const val EXTENSION_MD = "md"
+  }
   enum class SortOption(val key: String) {
     PRIORITY("PRIORITY"),
     STATUS("STATUS"),
@@ -65,7 +68,7 @@ class TodosoToolbar(
       AnAction(
         TodosoBundle.message("todo.menu.refresh"),
         TodosoBundle.message("todo.action.refresh.desc"),
-        AllIcons.Actions.Refresh,
+        TodosoIcons.Refresh,
       ) {
       override fun actionPerformed(e: AnActionEvent) = onRefreshTasks()
     }
@@ -92,20 +95,20 @@ class TodosoToolbar(
   private fun createViewOptionsActionGroup(): ActionGroup {
     val group =
       DefaultActionGroup().apply {
-        addSeparator("Group By")
+        addSeparator(TodosoBundle.message("todo.view.group.by"))
         add(createDefaultSortToggleAction())
         add(createSortToggleAction(TodosoBundle.message("todo.sort.by.priority"), SortOption.PRIORITY))
         add(createSortToggleAction(TodosoBundle.message("todo.sort.by.status"), SortOption.STATUS))
         add(createSortToggleAction(TodosoBundle.message("todo.sort.by.date"), SortOption.DATE))
 
-        addSeparator("View Color")
+        addSeparator(TodosoBundle.message("todo.view.color"))
         add(createVisualModeToggleAction())
       }
 
-    return object : DefaultActionGroup("View Options", true) {
+    return object : DefaultActionGroup(TodosoBundle.message("todo.view.options"), true) {
       init {
         templatePresentation.icon = AllIcons.Actions.Show
-        templatePresentation.text = "View Options"
+        templatePresentation.text = TodosoBundle.message("todo.view.options")
       }
 
       override fun update(e: AnActionEvent) {
@@ -158,7 +161,7 @@ class TodosoToolbar(
   private fun createVisualModeToggleAction(): ToggleAction =
     object :
       ToggleAction(
-        TodosoBundle.message("todo.menu.visual.mode"),
+        TodosoBundle.message("todo.view.visual.mode"),
         TodosoBundle.message("todo.action.visual.mode.desc"),
         AllIcons.Actions.Show,
       ) {
@@ -166,7 +169,7 @@ class TodosoToolbar(
 
       override fun setSelected(e: AnActionEvent, state: Boolean) {
         settings.state.visualEnabled = state
-        onToggleVisualMode()
+        onRefreshUI()
       }
 
       override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
@@ -182,7 +185,7 @@ class TodosoToolbar(
       override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val descriptor =
-          FileChooserDescriptorFactory.createSingleFileDescriptor("md")
+          FileChooserDescriptorFactory.createSingleFileDescriptor(EXTENSION_MD)
             .withTitle(TodosoBundle.message("todo.open.file"))
             .withDescription(TodosoBundle.message("todo.open.file.desc"))
 

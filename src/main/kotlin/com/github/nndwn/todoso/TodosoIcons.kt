@@ -8,4 +8,6 @@ object TodosoIcons {
   @JvmField val TaskDoing = IconLoader.getIcon("/icons/taskDoing.svg", TodosoIcons::class.java)
   @JvmField val TaskDone = IconLoader.getIcon("/icons/taskDone.svg", TodosoIcons::class.java)
   @JvmField val TaskCancelled = IconLoader.getIcon("/icons/taskCancelled.svg", TodosoIcons::class.java)
+
+  @JvmField val Refresh = IconLoader.getIcon("/icons/refresh.svg", TodosoIcons::class.java)
 }

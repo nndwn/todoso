@@ -1,4 +1,4 @@
-package com.github.nndwn.todoso.toolWindow.itemTodo
+package com.github.nndwn.todoso.toolWindow.itemTodoList
 
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask

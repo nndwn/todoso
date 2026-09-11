@@ -8,7 +8,7 @@ import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
-import com.github.nndwn.todoso.toolWindow.itemTodo.TodosoItemComponent
+import com.github.nndwn.todoso.toolWindow.itemTodoList.TodosoItemComponent
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.intellij.openapi.application.ApplicationManager
@@ -87,7 +87,6 @@ class TodosoMainPanel(
       targetComponent = this,
       onRefreshUI = { refreshUiState() },
       onRandomTask = { handler.handleRandomTask() },
-      onToggleVisualMode = { refreshUiState() },
       onErrorHandler = { errorMessage ->
         handler.handleErrorNotification(errorMessage)
       },
@@ -154,9 +153,9 @@ class TodosoMainPanel(
 
     mainContent.add(inputPanel, BorderLayout.SOUTH)
 
-    // Setup layered pane
-    layeredPane.add(mainContent, JLayeredPane.DEFAULT_LAYER)
-    layeredPane.add(suggestionOverlay, JLayeredPane.POPUP_LAYER)
+    // Setup layered pane dengan konversi eksplisit ke Integer (Layer)
+    layeredPane.add(mainContent, JLayeredPane.DEFAULT_LAYER as Any)
+    layeredPane.add(suggestionOverlay, JLayeredPane.POPUP_LAYER as Any)
 
     add(layeredPane, BorderLayout.CENTER)
 
@@ -172,7 +171,7 @@ class TodosoMainPanel(
 
     addHierarchyListener { event ->
       if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
-        refreshUiState()
+        refreshTasks()
       }
     }
     service.injectInstructionsIfNeeded()
@@ -244,9 +243,10 @@ class TodosoMainPanel(
           taskComponents.addAll(newComponents)
       } else {
           // Update data komponen yang sudah ada tanpa remove-add
+          val currentVisualEnabled = settings.state.visualEnabled
           sortedTasks.forEachIndexed { index, task ->
               val comp = taskComponents[index]
-              comp.updateData(task)
+              comp.updateData(task, currentVisualEnabled)
               comp.setSelected(task.lineNumber == selectedTask?.lineNumber)
           }
       }
@@ -345,7 +345,6 @@ class TodosoMainPanel(
   private fun updateOverlayPosition() {
     if (!suggestionOverlay.isVisible) return
 
-    // Konversi koordinat inputPanel relatif terhadap layeredPane
     val relativeBounds = SwingUtilities.convertRectangle(inputPanel.parent, inputPanel.bounds, layeredPane)
 
     // Gunakan angka 11 dan 22 (11 * 2) agar sinkron dengan padding di TodosoInputPanel

@@ -119,20 +119,12 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
       list.selectedIndex = 0
       isVisible = true
 
-      // Calculate height based on headers and items with more accuracy
-      var totalHeight = JBUI.scale(12) // Initial padding (top + bottom buffer)
-      var currentCategory: String? = null
-      for (item in items) {
-        if (item.category != currentCategory) {
-          totalHeight += JBUI.scale(38) // Header height (font + padding)
-          currentCategory = item.category
-        }
-        totalHeight += JBUI.scale(30) // Item height (font + padding)
-      }
-
+      // Gunakan tinggi asli dari list untuk menghindari gap kosong di bawah
+      val listHeight = list.preferredSize.height
       val maxHeight = JBUI.scale(400)
-      // Tambahkan sedikit buffer (misal 5px) untuk mencegah scrollbar akibat pembulatan pixel
-      preferredSize = Dimension(width, (totalHeight + JBUI.scale(5)).coerceAtMost(maxHeight))
+      
+      // Tambahkan sedikit buffer (10px) untuk border dan internal padding
+      preferredSize = Dimension(width, (listHeight + JBUI.scale(10)).coerceAtMost(maxHeight))
     } else {
       hideOverlay()
     }

@@ -39,3 +39,4 @@
 - [x] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P 🛫 2026-09-10 18:12 ✅ 2026-09-11 10:17
 - [x] tooltip di todoItem 🆔 ZBXy14 🛫 2026-09-11 11:06 ✅ 2026-09-11 11:24
 - [/] rewrite icon with icon-collection repository 🆔 oQ1Frv 🛫 2026-09-11 11:24
+- [x] ⏫ ada issue di showSuggestion ketika muncul ui bertabrakan dengan ui component item #issue 🆔 ETF4bH 🛫 2026-09-11 14:36 ✅ 2026-09-11 14:57
