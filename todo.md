@@ -17,7 +17,7 @@
 - [x] prefix untuk # 🆔 G0bitz 🛫 2026-09-08 22:18 ✅ 2026-09-09 06:41
 - [x] untuk # dan @ untuk tampilan belum bagus tidak tampil di atas inputran dan ukurannya tidak mengikutin ukuran layar plugin yang sudah aktif 🆔 yec9ne 🛫 2026-09-08 21:24 ✅ 2026-09-08 22:17
 - [x] 🔼 seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil dan hapus Navigation Tags 🛫 2026-09-09 08:09 🆔 8tybE7 ✅ 2026-09-09 16:50
-- [ ] 🔽 ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus 🆔 iEWvdY
+- [ ] ⏬ ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus 🆔 iEWvdY
 - [x] untut @TodosoInputPanel.kt ini uda cukup terlalu panjang mungkin perlu di refactoring 🆔 PHxgc4 🛫 2026-09-08 21:27 ✅ 2026-09-08 21:48
 - [x] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu edited 🛫 2026-09-09 09:27 🆔 Kepi8h ✅ 2026-09-09 18:03
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
@@ -36,4 +36,6 @@
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
-- [/] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P 🛫 2026-09-10 18:12
+- [x] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P 🛫 2026-09-10 18:12 ✅ 2026-09-11 10:17
+- [x] tooltip di todoItem 🆔 ZBXy14 🛫 2026-09-11 11:06 ✅ 2026-09-11 11:24
+- [/] rewrite icon with icon-collection repository 🆔 oQ1Frv 🛫 2026-09-11 11:24

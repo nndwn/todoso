@@ -1,6 +1,5 @@
 package com.github.nndwn.todoso.toolWindow
 
-import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
@@ -9,7 +8,7 @@ import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
-import com.github.nndwn.todoso.toolWindow.ItemTodo.TodosoItemComponent
+import com.github.nndwn.todoso.toolWindow.itemTodo.TodosoItemComponent
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.intellij.openapi.application.ApplicationManager
@@ -173,7 +172,7 @@ class TodosoMainPanel(
 
     addHierarchyListener { event ->
       if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
-        refreshTasks()
+        refreshUiState()
       }
     }
     service.injectInstructionsIfNeeded()
@@ -215,22 +214,41 @@ class TodosoMainPanel(
 
       val sortedTasks = applySorting(filteredTasks, currentSortOption)
       
-      // Update Container
-      tasksContainer.removeAll()
-      taskComponents.clear()
+      // Strategi Re-use Komponen untuk Efisiensi
+      val newComponents = mutableListOf<TodosoItemComponent>()
+      var isOrderChanged = sortedTasks.size != taskComponents.size
       
-      sortedTasks.forEach { task ->
-          val component = TodosoItemComponent(
-              task, 
-              settings.state.visualEnabled,
-              onSelect = { t -> handleTaskSelection(t) },
-              onEdit = { /* Biarkan kosong untuk penanganan nanti */ }
-          )
-          if (task.id == selectedTask?.id) {
-              component.setSelected(true)
+      if (!isOrderChanged) {
+          for (i in sortedTasks.indices) {
+              if (sortedTasks[i].lineNumber != taskComponents[i].task.lineNumber) {
+                  isOrderChanged = true
+                  break
+              }
           }
-          tasksContainer.add(component)
-          taskComponents.add(component)
+      }
+
+      if (isOrderChanged) {
+          tasksContainer.removeAll()
+          sortedTasks.forEach { task ->
+              val component = TodosoItemComponent(
+                  task, 
+                  settings.state.visualEnabled,
+                  onSelect = { t -> handleTaskSelection(t) },
+                  onEdit = { /* Biarkan kosong */ }
+              )
+              if (task.lineNumber == selectedTask?.lineNumber) component.setSelected(true)
+              tasksContainer.add(component)
+              newComponents.add(component)
+          }
+          taskComponents.clear()
+          taskComponents.addAll(newComponents)
+      } else {
+          // Update data komponen yang sudah ada tanpa remove-add
+          sortedTasks.forEachIndexed { index, task ->
+              val comp = taskComponents[index]
+              comp.updateData(task)
+              comp.setSelected(task.lineNumber == selectedTask?.lineNumber)
+          }
       }
       
       tasksContainer.revalidate()

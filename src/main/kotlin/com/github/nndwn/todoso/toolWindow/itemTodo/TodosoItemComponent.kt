@@ -1,9 +1,10 @@
-package com.github.nndwn.todoso.toolWindow.ItemTodo
+package com.github.nndwn.todoso.toolWindow.itemTodo
 
 import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
-import com.github.nndwn.todoso.domain.parser.TagParser
+import com.github.nndwn.todoso.domain.parser.DateParser
+import com.intellij.ide.HelpTooltip
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBUI
@@ -24,7 +25,7 @@ import javax.swing.text.DefaultCaret
 import javax.swing.text.html.HTMLEditorKit
 
 class TodosoItemComponent(
-    val task: TodoTask,
+    var task: TodoTask,
     private val isVisualEnabled: Boolean,
     private val onSelect: (TodoTask) -> Unit,
     private val onEdit: (TodoTask) -> Unit
@@ -135,36 +136,85 @@ class TodosoItemComponent(
         updateContent()
     }
 
-    private fun updateContent() {
-        val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
-        textPane.text = buildHtml(foreground)
+    fun updateData(newTask: TodoTask) {
+        // Cek apakah ada perubahan konten atau status
+        if (this.task.rawText != newTask.rawText || this.task.status != newTask.status || this.task.priority != newTask.priority) {
+            this.task = newTask
+            // Update icon
+            iconLabel.icon = when (newTask.status) {
+                TaskStatus.DOING -> TodosoIcons.TaskDoing
+                TaskStatus.DONE -> TodosoIcons.TaskDone
+                TaskStatus.CANCELLED -> TodosoIcons.TaskCancelled
+                else -> TodosoIcons.TaskTodo
+            }
+            updateContent()
+        }
     }
 
-    private fun buildHtml(defaultColor: Color): String {
-        val isDone = task.status == TaskStatus.DONE || task.status == TaskStatus.CANCELLED
-        val baseColorHex = colorToHex(if (isDone && !isSelected) UIUtil.getLabelDisabledForeground() else defaultColor)
-        val tagColorHex = colorToHex(JBColor.CYAN)
-        val priorityColorHex = colorToHex(task.priority.color)
+    private fun updateContent() {
+        val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
+        textPane.text = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
+        
+        // Hapus tooltip lama (Swing default)
+        this.toolTipText = null
+        textPane.toolTipText = null
+        
+        // Pasang Modern HelpTooltip
+        installModernTooltip()
+    }
 
-        val textDecoration = if (isDone) "text-decoration: line-through;" else ""
-        val fontWeight = if (task.status == TaskStatus.DOING) "font-weight: bold;" else ""
-        val finalBaseColor = if (isVisualEnabled && !isDone && !isSelected) priorityColorHex else baseColorHex
+    private fun installModernTooltip() {
+        HelpTooltip.dispose(this)
+        
+        val ht = HelpTooltip()
+        
+        // 1. Judul Tooltip
+        val title = if (task.isPersistentId) "Task ID: ${task.id}" else "Task details"
+        ht.setTitle(title)
 
-        var description = task.description.replace("\n", "<br/>")
-        TagParser.TAG_REGEX.findAll(description).forEach { match ->
-            val tag = match.value
-            description = description.replace(tag, "<span style='color: $tagColorHex; font-style: italic; font-weight: bold;'>$tag</span>")
+        // 2. Gabungkan Dates & Notes ke dalam Description
+        val meta = task.metadata
+        val fullDescription = buildString {
+            val dateLabels = listOfNotNull(
+                meta.startDate?.let { "Start: $it" },
+                meta.dueDate?.let { "Due: $it" },
+                meta.endDate?.let { "Done: $it" },
+                meta.cancelDate?.let { "Cancelled: $it" },
+                meta.createdDate?.let { "Created: $it" },
+            )
+            
+            append(dateLabels.joinToString("\n"))
+            
+            if (task.status == TaskStatus.DONE) {
+                DateParser.calculateDuration(meta)?.let { duration ->
+                    if (isNotEmpty()) append("\n")
+                    append("Duration: $duration")
+                }
+            }
+            
+            if (meta.notes.isNotBlank()) {
+                if (isNotEmpty()) append("\n\nNote:\n")
+                append(processMarkdownLinksForTooltip(meta.notes))
+            }
+        }
+        
+        if (fullDescription.isNotBlank()) {
+            ht.setDescription(fullDescription)
         }
 
-        return """
-            <html>
-            <body style='color: $finalBaseColor; font-family: ${UIUtil.getLabelFont().family}; font-size: ${UIUtil.getLabelFont().size}pt; $textDecoration $fontWeight'>
-                <div style='margin: 0; padding: 0;'>
-                    $description
-                </div>
-            </body>
-            </html>
-        """.trimIndent()
+        ht.installOn(this)
+    }
+
+    private fun processMarkdownLinksForTooltip(notes: String): String {
+        var result = notes
+        // Simplifikasi untuk HelpTooltip (Plain text dengan emoji)
+        val imageRegex = Regex("""!\[.*?]\((.*?)\)""")
+        result = imageRegex.replace(result) { "🖼️ Image: ${it.groupValues[1]}" }
+
+        val linkRegex = Regex("""\[(.*?)]\((.*?)\)""")
+        result = linkRegex.replace(result) { "📎 File: ${it.groupValues[2]}" }
+        
+        return result
     }
 
     override fun getPreferredScrollableViewportSize(): Dimension = preferredSize
@@ -172,6 +222,4 @@ class TodosoItemComponent(
     override fun getScrollableBlockIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 100
     override fun getScrollableTracksViewportWidth(): Boolean = true
     override fun getScrollableTracksViewportHeight(): Boolean = false
-
-    private fun colorToHex(color: Color): String = String.format("#%02x%02x%02x", color.red, color.green, color.blue)
 }

@@ -30,7 +30,7 @@ object TodosoConstants {
                 <li>${TodosoBundle.message("instruction.step.context")}</li>
                 <li>
                     ${TodosoBundle.message("instruction.step.format")}<br/>
-                    <code style="background-color: #2B2D30; color: #A9B7C6; padding: 2px 4px;">[H] task description #tags</code>
+                    <code style="background-color: #2B2D30; color: #A9B7C6; padding: 2px 4px;">[H] task description #feature #development #v0.0.1</code>
                 </li>
                
             </ul>

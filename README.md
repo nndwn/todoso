@@ -7,7 +7,7 @@ I created Todoso because I wanted a way to manage tasks without leaving my IDE. 
 ## Usage
 just type task in field and click right select priority and select tags or if you want fast
 ```txt
-[H] task description #tags1 #tag2 #v1.0.1
+[H] task description #feature #development #v0.0.1 
 ```
 
 I’m not good at typing in English but this AI agent typing is more pathetic than me
@@ -73,6 +73,7 @@ Todoso provides an interactive toolbar with dynamic view options and multi-crite
           2. Enable **Priority** (while Status is active) → Inside each status group, tasks are now sorted by urgency.
           3. Enable **Date** (third) → Tasks with the *same status* AND *same priority* will then be ordered by date.
       * **Pro Tip**: To change the hierarchy, simply click "Default" to clear the chain and re-enable them in your preferred order!
+      * **RecommendedMe ** choose Priority first and Status.
 *   **Persistent Sort State**: Your custom sorting chain is automatically saved and restored across IDE restarts.
 *   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
 *   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
