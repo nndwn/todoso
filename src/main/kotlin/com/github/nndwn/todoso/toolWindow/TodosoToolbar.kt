@@ -107,7 +107,7 @@ class TodosoToolbar(
 
     return object : DefaultActionGroup(TodosoBundle.message("todo.view.options"), true) {
       init {
-        templatePresentation.icon = AllIcons.General.TbHidden
+        templatePresentation.icon = AllIcons.Actions.Show
         templatePresentation.text = TodosoBundle.message("todo.view.options")
       }
 

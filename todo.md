@@ -38,9 +38,9 @@
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
 - [x] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P 🛫 2026-09-10 18:12 ✅ 2026-09-11 10:17
 - [x] tooltip di todoItem 🆔 ZBXy14 🛫 2026-09-11 11:06 ✅ 2026-09-11 11:24
-- [/] rewrite icon with icon-collection repository 🆔 oQ1Frv 🛫 2026-09-11 11:24
+- [-] rewrite icon with icon-collection repository 🆔 oQ1Frv ❌ 2026-09-12 12:28 // noted: lebih nyesuaikan template icon ide yang sudah ada, tapi tetap tambahkan icon yang pada dasarnya tidak ada di ide
 - [x] ⏫ ada issue di showSuggestion ketika muncul ui bertabrakan dengan ui component item #issue 🆔 ETF4bH 🛫 2026-09-11 14:36 ✅ 2026-09-11 14:57
 - [ ] 🔺 buat klik kanan untuk ubah status 🆔 ZshZWF
-- [/] ⏫ mmebuat hide visual berdasarkan status, prioriy , tag eklusif , berdasarkan 5 tah populer , bersarkan 4 tag version paling atas #feature 🆔 xdNreu 🛫 2026-09-11 18:16
+- [/] ⏫ mmebuat hide visual berdasarkan status, prioriy , latest , berdasarkan 10 tah populer , bersarkan 4 tag version paling atas #feature 🛫 2026-09-11 18:16 🆔 xdNreu
 - [x] 🔼 terkadang membingungkan ketika lihat task yang sudah di short , tiba -tiba ketik task baru task tidak tampak sama sekali di pilihan #issue 🛫 2026-09-11 17:32 🆔 q9YqEa ✅ 2026-09-11 18:10
 - [x] taks tidak bewarna hijau ketia doing #issue 🆔 diZ97U 🛫 2026-09-11 17:35 ✅ 2026-09-11 18:09
