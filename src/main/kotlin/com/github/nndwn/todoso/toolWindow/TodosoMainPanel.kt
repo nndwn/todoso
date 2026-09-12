@@ -12,9 +12,15 @@ import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.itemTodoList.TodosoItemComponent
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonShortcuts
+import com.intellij.openapi.actionSystem.CustomShortcutSet
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
+import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
@@ -26,6 +32,7 @@ import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.Locale
 import javax.swing.*
+import javax.swing.event.DocumentEvent
 
 class TodosoMainPanel(
   private val project: Project,
@@ -102,11 +109,20 @@ class TodosoMainPanel(
           TodosoToolbar.FilterType.STATUS -> filterState.status = value as TaskStatus?
           TodosoToolbar.FilterType.DATE -> filterState.date = value as TodosoToolbar.DateFilter?
           TodosoToolbar.FilterType.TAG -> filterState.tag = value as String?
+          TodosoToolbar.FilterType.SEARCH -> {
+            if (value == "TOGGLE") {
+              if (searchPanel.isVisible) hideSearchPanel() else showSearchPanel()
+            } else {
+              filterState.query = value as String?
+              refreshUiState()
+            }
+          }
           TodosoToolbar.FilterType.RESET_ALL -> {
             filterState.priority = null
             filterState.status = null
             filterState.date = null
             filterState.tag = null
+            filterState.query = null
           }
         }
         refreshUiState()
@@ -116,6 +132,21 @@ class TodosoMainPanel(
 
   private val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
     inputPanel.insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask)
+  }
+
+  private val searchField = SearchTextField().apply {
+    addDocumentListener(object : DocumentAdapter() {
+      override fun textChanged(e: DocumentEvent) {
+        filterState.query = text
+        refreshUiState()
+      }
+    })
+  }
+
+  private val searchPanel = JPanel(BorderLayout()).apply {
+    add(searchField, BorderLayout.CENTER)
+    border = JBUI.Borders.empty(2, 5)
+    isVisible = false
   }
 
   private val noMatchPane = JEditorPane(HTML, "").apply {
@@ -134,10 +165,22 @@ class TodosoMainPanel(
   private val inputPanel by lazy {
     TodosoInputPanel(
       project = project,
-      onNewTask = { text -> handler.handleAddTask(text) },
-      onUpdateTask = { text -> handler.handleUpdateTask(text) },
-      onConfirmCancel = { note -> handler.handleConfirmCancel(note) },
-      onCreateNote = { note -> handler.handleConfirmCancel(note) },
+      onNewTask = { text -> 
+        hideSearchPanel()
+        handler.handleAddTask(text) 
+      },
+      onUpdateTask = { text -> 
+        hideSearchPanel()
+        handler.handleUpdateTask(text) 
+      },
+      onConfirmCancel = { note -> 
+        hideSearchPanel()
+        handler.handleConfirmCancel(note) 
+      },
+      onCreateNote = { note -> 
+        hideSearchPanel()
+        handler.handleConfirmCancel(note) 
+      },
       onCancelEdit = { handler.handleCancelEdit() },
       fontInput = uiFont,
       getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
@@ -166,7 +209,24 @@ class TodosoMainPanel(
 
   init {
     val toolbarComponent = toolbarPanel.createComponent()
-    mainContent.add(toolbarComponent, BorderLayout.NORTH)
+    
+    val northPanel = JPanel(BorderLayout())
+    northPanel.add(toolbarComponent, BorderLayout.NORTH)
+    northPanel.add(searchPanel, BorderLayout.SOUTH)
+    
+    mainContent.add(northPanel, BorderLayout.NORTH)
+
+    // Shortcut for Search (Ctrl+F or Cmd+F)
+    val searchAction = object : DumbAwareAction() {
+      override fun actionPerformed(e: AnActionEvent) {
+        if (searchPanel.isVisible) {
+          hideSearchPanel()
+        } else {
+          showSearchPanel()
+        }
+      }
+    }
+    searchAction.registerCustomShortcutSet(CommonShortcuts.getFind(), this)
 
     centerContainer.add(instructionScrollPane, CARD_INSTRUCTION)
     centerContainer.add(JBScrollPane(tasksContainer, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER).apply {
@@ -263,8 +323,15 @@ class TodosoMainPanel(
           TodosoToolbar.DateFilter.WITH_DATE -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
           else -> true
       }
-                      
-      priorityMatch && statusMatch && tagMatch && dateMatch
+
+      val queryMatch = if (filterState.query.isNullOrBlank()) true else {
+          val query = filterState.query!!.lowercase()
+          task.description.lowercase().contains(query) ||
+                  task.metadata.notes.lowercase().contains(query) ||
+                  task.id.lowercase().contains(query)
+      }
+
+      priorityMatch && statusMatch && tagMatch && dateMatch && queryMatch
     }
   }
 
@@ -272,7 +339,7 @@ class TodosoMainPanel(
     var isOrderChanged = sortedTasks.size != taskComponents.size
     if (!isOrderChanged) {
       for (i in sortedTasks.indices) {
-        if (sortedTasks[i].lineNumber != taskComponents[i].task.lineNumber) {
+        if (sortedTasks[i].id != taskComponents[i].task.id) {
           isOrderChanged = true
           break
         }
@@ -318,8 +385,7 @@ class TodosoMainPanel(
   }
 
   private fun isTaskSelected(task: TodoTask): Boolean {
-    return task.lineNumber == selectedTask?.lineNumber || 
-           (task.id.isNotBlank() && task.id == selectedTask?.id)
+    return task.id.isNotBlank() && task.id == selectedTask?.id
   }
 
   private fun scrollToSelected() {
@@ -352,6 +418,18 @@ class TodosoMainPanel(
     }
     requestUnfocus()
     updateButtonStates()
+  }
+
+  private fun showSearchPanel() {
+    searchPanel.isVisible = true
+    searchField.requestFocusInWindow()
+  }
+
+  private fun hideSearchPanel() {
+    searchPanel.isVisible = false
+    searchField.text = ""
+    filterState.query = null
+    refreshUiState()
   }
 
   private fun applySorting(tasks: List<TodoTask>, options: Set<TodosoToolbar.SortOption>): List<TodoTask> {

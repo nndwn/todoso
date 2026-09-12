@@ -179,41 +179,12 @@ class TodosoItemComponent(
         }
         ht.setTitle(title)
 
-        val meta = task.metadata
-        val dateLines = listOfNotNull(
-            meta.startDate?.let { "Start: $it" },
-            meta.dueDate?.let { "Due: $it" },
-            meta.endDate?.let { "Done: $it" },
-            meta.cancelDate?.let { "Cancelled: $it" },
-            meta.createdDate?.let { "Created: $it" },
-            meta.editedDate?.let { "Edited: $it" }
-        )
-
         val chunks = mutableListOf<HtmlChunk>()
-        
-        // 1. Tanggal
-        if (dateLines.isNotEmpty()) {
-            chunks.add(HtmlChunk.text(dateLines.joinToString("\n")))
-        }
 
-        // 2. Durasi
-        if (task.status == TaskStatus.DONE) {
-            DateParser.calculateDuration(meta)?.let { duration ->
-                if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
-                chunks.add(HtmlChunk.text(TodosoBundle.message("todo.tooltip.duration", duration)))
-            }
-        }
+        // 1. Detail Tugas Utama
+        appendTaskMetadata(chunks, task)
 
-        // 3. Catatan
-        if (meta.notes.isNotBlank()) {
-            chunks.add(HtmlChunk.br())
-            chunks.add(HtmlChunk.br())
-            chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.note")))
-            chunks.add(HtmlChunk.br())
-            chunks.add(HtmlChunk.text(processMarkdownLinksForTooltip(meta.notes)))
-        }
-
-        // 4. Rujukan
+        // 2. Rujukan
         val referencedIds = TaskIdParser.TASK_ID_REGEX.findAll(task.description)
             .map { it.groupValues[1] }
             .distinct()
@@ -222,19 +193,10 @@ class TodosoItemComponent(
         referencedIds.forEach { refId ->
             service.findTaskById(refId)?.let { refTask ->
                 chunks.add(HtmlChunk.hr())
-                chunks.add(HtmlChunk.tag("b").addText("Reference $refId:"))
+                chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.reference", refId)))
                 chunks.add(HtmlChunk.br())
                 chunks.add(HtmlChunk.text(refTask.description))
-                
-                val refDates = listOfNotNull(
-                    refTask.metadata.startDate?.let { "Start: $it" },
-                    refTask.metadata.dueDate?.let { "Due: $it" },
-                    refTask.metadata.endDate?.let { "Done: $it" }
-                )
-                if (refDates.isNotEmpty()) {
-                    chunks.add(HtmlChunk.br())
-                    chunks.add(HtmlChunk.text(refDates.joinToString("\n")))
-                }
+                appendTaskMetadata(chunks, refTask)
             }
         }
 
@@ -245,13 +207,45 @@ class TodosoItemComponent(
         ht.installOn(this)
     }
 
+    private fun appendTaskMetadata(chunks: MutableList<HtmlChunk>, task: TodoTask) {
+        val meta = task.metadata
+        val dateLines = listOfNotNull(
+            meta.startDate?.let { TodosoBundle.message("todo.tooltip.date.start", it) },
+            meta.dueDate?.let { TodosoBundle.message("todo.tooltip.date.due", it) },
+            meta.endDate?.let { TodosoBundle.message("todo.tooltip.date.done", it) },
+            meta.cancelDate?.let { TodosoBundle.message("todo.tooltip.date.cancelled", it) },
+            meta.createdDate?.let { TodosoBundle.message("todo.tooltip.date.created", it) },
+            meta.editedDate?.let { TodosoBundle.message("todo.tooltip.date.edited", it) }
+        )
+
+        if (dateLines.isNotEmpty()) {
+            if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
+            chunks.add(HtmlChunk.text(dateLines.joinToString("\n")))
+        }
+
+        if (task.status == TaskStatus.DONE) {
+            DateParser.calculateDuration(meta)?.let { duration ->
+                if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
+                chunks.add(HtmlChunk.text(TodosoBundle.message("todo.tooltip.duration", duration)))
+            }
+        }
+
+        if (meta.notes.isNotBlank()) {
+            chunks.add(HtmlChunk.br())
+            chunks.add(HtmlChunk.br())
+            chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.note")))
+            chunks.add(HtmlChunk.br())
+            chunks.add(HtmlChunk.text(processMarkdownLinksForTooltip(meta.notes)))
+        }
+    }
+
     private fun processMarkdownLinksForTooltip(notes: String): String {
         var result = notes
         val imageRegex = Regex("""!\[.*?]\((.*?)\)""")
-        result = imageRegex.replace(result) { "🖼️ Image: ${it.groupValues[1]}" }
+        result = imageRegex.replace(result) { TodosoBundle.message("todo.tooltip.image", it.groupValues[1]) }
 
         val linkRegex = Regex("""\[(.*?)]\((.*?)\)""")
-        result = linkRegex.replace(result) { "📎 File: ${it.groupValues[2]}" }
+        result = linkRegex.replace(result) { TodosoBundle.message("todo.tooltip.file", it.groupValues[2]) }
         
         return result
     }

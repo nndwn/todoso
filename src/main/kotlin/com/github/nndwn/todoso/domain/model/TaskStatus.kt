@@ -1,10 +1,15 @@
 package com.github.nndwn.todoso.domain.model
 
+import com.github.nndwn.todoso.TodosoBundle
+
 enum class TaskStatus(val code: String) {
   DOING("/"),
   TODO(" "),
   DONE("x"),
   CANCELLED("-");
+
+  val displayName: String
+    get() = TodosoBundle.message("status.${name.lowercase()}")
 
   companion object {
     private val LINE_START_STATUS_REGEX = Regex("""^\s*-\s*\[([\s/xX-])?]""")

@@ -31,7 +31,8 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
 
 #### Data Synchronization & Performance
 To ensure a seamless experience when working with external Markdown editors (like Obsidian) and large task lists, Todoso uses a specialized synchronization engine:
-* **Why Caching?** Parsing Markdown with regex is resource-intensive. We cache tasks in memory so that switching tags or sorting feels instant, without laggy reparsing on every click.
+* **High-Speed Task Lookup (O(1))**: Task searches (like ID references) are optimized using a internal `HashMap`. This ensures that even with thousands of tasks, looking up a specific ID feels instantaneous.
+* **Why Caching?** Parsing Markdown with regex is resource-intensive. We cache tasks in memory so that switching tags or sorting feels instant, tanpa repot *re-parsing* setiap saat.
 * **Smart Component Re-use**: Unlike standard lists that redraw everything, Todoso re-uses existing UI components when data updates. This prevents screen flickering and significantly reduces CPU usage during background file syncs.
 * **Why Path Awareness?** Switching between different todo files or clearing settings triggers an immediate cache invalidation. This ensures you never see "ghost tasks" from a previously selected file.
 * **Why a Refresh Button?** While we auto-sync via IntelliJ's VFS, external file changes can sometimes lag. The Refresh button acts as a "hard reset" that bypasses the cache to read directly from the disk.
@@ -43,9 +44,10 @@ Todoso moves away from traditional, rigid list views to a modern, dynamic compon
 * **Smart Selection Logic**: Select tasks with a single click to perform actions (Delete/Move). Focus management is handled automatically, ensuring that clicking a task won't accidentally clear your current input draft.
 * **Refined Metadata Tooltip**: Powered by IntelliJ's `HelpTooltip` API, hovering over a task reveals a structured, rounded overlay containing:
     * **Task ID**: Persistent unique identifier.
-    * **Lifecycle Dates**: Created, Started, Due, and Completion timestamps.
+    * **Lifecycle Dates**: Created, Started, Due, Completion, Edited, and Cancelled timestamps.
     * **Execution Duration**: Real-time calculation of how long a task took to complete.
-    * **Sanitized Notes**: Clean presentation of your manual notes and attachments.
+    * **Deep References**: If a task description mentions another Task ID, the tooltip automatically shows the **description, dates, and notes** of the referenced task.
+    * **Sanitized Notes**: Clean presentation of your manual notes and attachments, with support for image/file path detection.
 
 #### Flexible Input Field Behavior
 A smart single-input field that intelligently processes plain text, Markdown syntax, and dynamic suggestions:
@@ -90,8 +92,13 @@ Todoso provides an interactive toolbar with dynamic view options and multi-crite
 *   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
 *   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
 
-####  Comprehensive Filtering System
+####  Comprehensive Filtering & Search System
 Manage large task lists with precision using the new integrated filtering engine:
+*   **Integrated Search Bar**:
+    *   **Toggle Interface**: A dedicated search button on the toolbar opens/closes the search panel to save space.
+    *   **Quick Shortcut**: Press **`Ctrl + F`** (Windows/Linux) or **`Cmd + F`** (Mac) to instantly focus on the search field.
+    *   **Context-Aware**: The search panel automatically hides when you start interacting with the Input Panel to keep your workspace focused.
+    *   **Deep Search**: Searches through description text, metadata notes, and Task IDs.
 *   **Filter by Priority & Status**: Quickly isolate critical bugs or focus only on tasks currently in progress.
 *   **Smart Date Explorer**:
     *   **Today**: View tasks starting or due exactly today.
@@ -176,9 +183,9 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
 2. **Collision Resolution**:
    * If duplicate IDs exist in `todo.md` (e.g., from manual copy-pasting), Todoso automatically resolves the conflict by generating a new temporary in-memory ID for the duplicate line.
 
-3. **Lazy Persistence**:
-   * Tasks lacking a physical `🆔` in `todo.md` are assigned a 6-character ID in-memory (`isPersistentId = false`).
-   * Temporary IDs are only written permanently to `todo.md` upon the first user interaction (e.g., editing, toggling status, or changing priority).
+3. **Auto-Persistence**:
+   * Tasks lacking a physical `🆔` in `todo.md` are automatically assigned a 6-character unique ID.
+   * **Instant Save**: Unlike older versions, IDs are now automatically written to the `todo.md` file as soon as the file is loaded. This ensures that IDs remain consistent across IDE restarts and that cross-references (`🆔`) never break.
      Todoso extracts standard Obsidian Tasks date emojis to track task lifecycles and completion duration:
 4. **Line Drift Safety Net**:
    File mutations include an automatic ID fallback check (`findTaskIndex`) to prevent accidental line overwrites if external edits shift line positions before background VFS listeners trigger.

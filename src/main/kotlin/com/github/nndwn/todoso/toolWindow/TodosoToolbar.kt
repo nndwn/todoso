@@ -8,7 +8,13 @@ import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -33,12 +39,13 @@ class TodosoToolbar(
     var priority: Priority? = null,
     var status: TaskStatus? = null,
     var date: DateFilter? = null,
-    var tag: String? = null
+    var tag: String? = null,
+    var query: String? = null
   )
 
   enum class DateFilter { TODAY, THIS_WEEK, WITH_DATE }
 
-  enum class FilterType { PRIORITY, STATUS, DATE, TAG, RESET_ALL }
+  enum class FilterType { PRIORITY, STATUS, DATE, TAG, SEARCH, RESET_ALL }
 
   companion object {
     private const val EXTENSION_MD = "md"
@@ -60,6 +67,8 @@ class TodosoToolbar(
   fun createComponent(): JComponent {
     val actionGroup =
       DefaultActionGroup().apply {
+        add(createSearchToggleAction())
+        addSeparator()
         add(createRefreshAction())
         add(createSelectFileAction())
         add(createRandomTaskAction())
@@ -74,6 +83,17 @@ class TodosoToolbar(
     toolbar.targetComponent = targetComponent
     return toolbar.component
   }
+
+  private fun createSearchToggleAction(): AnAction =
+    object : AnAction(
+      TodosoBundle.message("todo.filter.search"),
+      TodosoBundle.message("todo.filter.search.desc"),
+      AllIcons.Actions.Find
+    ) {
+      override fun actionPerformed(e: AnActionEvent) {
+        onFilterChanged(FilterType.SEARCH, "TOGGLE")
+      }
+    }
 
   private fun createRefreshAction(): AnAction =
     object :
@@ -248,7 +268,7 @@ class TodosoToolbar(
     }
 
   private fun createPriorityFilterAction(priority: Priority): ToggleAction {
-    val text = priority.label
+    val text = priority.displayName
     return object : ToggleAction(text) {
       override fun isSelected(e: AnActionEvent): Boolean = filterState.priority == priority
       override fun setSelected(e: AnActionEvent, state: Boolean) {
@@ -259,7 +279,7 @@ class TodosoToolbar(
   }
 
   private fun createStatusFilterAction(status: TaskStatus): ToggleAction {
-    val text = status.name.lowercase().replaceFirstChar { it.uppercase() }
+    val text = status.displayName
     return object : ToggleAction(text) {
       override fun isSelected(e: AnActionEvent): Boolean = filterState.status == status
       override fun setSelected(e: AnActionEvent, state: Boolean) {

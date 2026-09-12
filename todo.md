@@ -1,3 +1,5 @@
+<!-- For instructions, read more here: https://github.com/nndwn/todoso -->
+
 > [!NOTE]
 > **AI Agent Protocol**:
 > 1. DO NOT update task statuses (e.g., changing `[ ]` to `[x]`) unless explicitly requested.
@@ -46,5 +48,5 @@
 - [x] taks tidak bewarna hijau ketia doing #issue 🆔 diZ97U 🛫 2026-09-11 17:35 ✅ 2026-09-11 18:09
 - [x] 🔼 No Match Panel kurang rapi selalu tengah coba ambil teknik yang sama ketika no list task #Issue 🆔 iuBekw 🛫 2026-09-12 14:55 ✅ 2026-09-12 17:32
 - [ ] ⏬ Item component ketika di klik id dan descripsi akan menuju ke line file line nya  🆔 dfeotS
-- [/] ⏫ membuat sistem tooltip yang lebih informatif jika seandai nya di descripsi memiliki id yang terhubung maka tampikan detail descripsi task di tooltip 🛫 2026-09-12 18:05 🆔 t954Ej
-- [/] 🔺 posible buat search ? 🆔 gDcVlJ 🛫 2026-09-12 23:00
+- [x] ⏫ membuat sistem tooltip yang lebih informatif jika seandai nya di descripsi memiliki id yang terhubung maka tampikan detail descripsi task di tooltip 🛫 2026-09-12 18:05 🆔 t954Ej ✅ 2026-09-13 00:13
+- [x] 🔺 posible buat search ? 🆔 gDcVlJ 🛫 2026-09-12 23:00 ✅ 2026-09-13 01:31

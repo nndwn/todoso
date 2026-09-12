@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.domain.model
 
+import com.github.nndwn.todoso.TodosoBundle
 import com.intellij.ui.JBColor
 import java.awt.Color
 
@@ -15,6 +16,9 @@ enum class Priority(
   LOW("🔽", "L", "Low", JBColor(0x4078F2, 0x61AFEF)),
   LOWEST("⏬", "LL", "Lowest", JBColor(0x0184BC, 0x56B6C2)),
   NONE("", "", "None", JBColor(0xABB2BF, 0x5C6370));
+
+  val displayName: String
+    get() = TodosoBundle.message("priority.${name.lowercase()}")
 
   companion object {
     private val STRICT_PRIORITY_REGEX = Regex("""^\s*-\s*\[[\s/xX-]?]\s*(?:\[\s*([a-zA-Z]+)\s*]|([🔺⏫🔼🔽⏬]))""")

@@ -10,6 +10,7 @@ import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -40,6 +41,7 @@ class TodosoService(private val project: Project) {
 
   private val settings = TodosoSettingsService.getInstance(project)
   private var cachedTasks: List<TodoTask> = emptyList()
+  private var tasksById: Map<String, TodoTask> = emptyMap()
   private var isCacheDirty = true
 
   private var lastLoadedPath: String? = null
@@ -170,13 +172,45 @@ class TodosoService(private val project: Project) {
     }
 
     cachedTasks = tasks
+    tasksById = tasks.associateBy { it.id }
     isCacheDirty = false
     lastLoadedPath = currentPath
+    
+    // UX: Jika ada task tanpa ID permanen, buatkan ID permanen secara otomatis
+    if (tasks.any { !it.isPersistentId }) {
+        ApplicationManager.getApplication().invokeLater {
+            persistMissingIds(todoFile, tasks)
+        }
+    }
+    
     return cachedTasks
   }
 
+  private fun persistMissingIds(file: VirtualFile, tasks: List<TodoTask>) {
+    runWriteCommandAction(project, "Persist Missing Task IDs", null, {
+      val content = VfsUtil.loadText(file)
+      val lines = content.lines().toMutableList()
+      var modified = false
+
+      tasks.filter { !it.isPersistentId }.forEach { task ->
+        val index = findTaskIndex(lines, task)
+        if (index != null) {
+          val updatedTask = task.copy(isPersistentId = true)
+          lines[index] = TodoTaskBuilder.rebuildTaskLine(updatedTask)
+          modified = true
+        }
+      }
+
+      if (modified) {
+        saveContent(file, lines)
+        markCacheDirty()
+      }
+    })
+  }
+
   fun findTaskById(id: String): TodoTask? {
-      return loadTask().find { it.id == id }
+      loadTask() // Pastikan cache sudah terisi
+      return tasksById[id]
   }
 
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
