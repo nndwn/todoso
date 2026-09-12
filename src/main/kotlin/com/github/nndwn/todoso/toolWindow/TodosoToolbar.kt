@@ -2,17 +2,13 @@ package com.github.nndwn.todoso.toolWindow
 
 import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoIcons
+import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
+import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionUpdateThread
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.ToggleAction
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -29,11 +25,23 @@ class TodosoToolbar(
   private val onRandomTask: () -> Unit,
   private val onErrorHandler: (String) -> Unit,
   private val onSortChanged: (Set<SortOption>) -> Unit,
+  private val filterState: FilterState,
+  private val onFilterChanged: (FilterType, Any?) -> Unit,
 ) {
+
+  data class FilterState(
+    var priority: Priority? = null,
+    var status: TaskStatus? = null,
+    var date: String? = null,
+    var tag: String? = null
+  )
+
+  enum class FilterType { PRIORITY, STATUS, DATE, TAG, RESET_ALL }
 
   companion object {
     private const val EXTENSION_MD = "md"
   }
+
   enum class SortOption(val key: String) {
     PRIORITY("PRIORITY"),
     STATUS("STATUS"),
@@ -54,6 +62,8 @@ class TodosoToolbar(
         add(createSelectFileAction())
         add(createRandomTaskAction())
         addSeparator()
+        add(createFilterActionGroup())
+        add(createTagsFilterActionGroup())
         add(createViewOptionsActionGroup())
       }
 
@@ -120,6 +130,162 @@ class TodosoToolbar(
 
       override fun getChildren(e: AnActionEvent?): Array<AnAction> = group.getChildren(e)
 
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createFilterActionGroup(): ActionGroup {
+    return object : DefaultActionGroup("Filters", true) {
+      init {
+        templatePresentation.icon = AllIcons.General.Filter
+      }
+
+      override fun update(e: AnActionEvent) {
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+        e.presentation.isEnabled = service.loadTask().isNotEmpty()
+      }
+
+      override fun getChildren(e: AnActionEvent?): Array<AnAction> {
+        val project = e?.project ?: return emptyArray()
+        val service = project.service<TodosoService>()
+        val tasks = service.loadTask()
+
+        val dynamicGroup = DefaultActionGroup()
+
+        // 0. Global Reset
+        val hasActiveFilter = filterState.priority != null || filterState.status != null || 
+                             filterState.date != null || filterState.tag != null
+        if (hasActiveFilter) {
+          dynamicGroup.add(createClearAllAction())
+          dynamicGroup.addSeparator()
+        }
+
+        // 1. Priority
+        dynamicGroup.addSeparator(TodosoBundle.message("todo.view.group.priority"))
+        Priority.entries
+          .filter { it != Priority.NONE }
+          .forEach { dynamicGroup.add(createPriorityFilterAction(it)) }
+
+        // 2. Status
+        dynamicGroup.addSeparator(TodosoBundle.message("todo.view.group.status"))
+        TaskStatus.entries.forEach { dynamicGroup.add(createStatusFilterAction(it)) }
+
+        // 3. Date (Only show if at least one task has a date)
+        val hasAnyDate =
+          tasks.any {
+            it.metadata.dueDate != null ||
+              it.metadata.startDate != null ||
+              it.metadata.createdDate != null
+          }
+        if (hasAnyDate) {
+          dynamicGroup.addSeparator(TodosoBundle.message("todo.sort.by.date"))
+          dynamicGroup.add(createDateFilterAction("TODAY"))
+          dynamicGroup.add(createDateFilterAction("THIS_WEEK"))
+          dynamicGroup.add(createDateFilterAction("WITH_DATE"))
+        }
+
+        return dynamicGroup.getChildren(e)
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createTagsFilterActionGroup(): ActionGroup {
+    return object : DefaultActionGroup("Tags", true) {
+      init {
+        templatePresentation.icon = AllIcons.Nodes.Tag
+      }
+
+      override fun update(e: AnActionEvent) {
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+        e.presentation.isEnabled = service.loadTask().any { it.tags.isNotEmpty() }
+      }
+
+      override fun getChildren(e: AnActionEvent?): Array<AnAction> {
+        val project = e?.project ?: return emptyArray()
+        val service = project.service<TodosoService>()
+        val tasks = service.loadTask()
+        
+        val dynamicGroup = DefaultActionGroup()
+        
+        val popularTags = TagParser.getPopularTags(tasks)
+        if (popularTags.isNotEmpty()) {
+          dynamicGroup.addSeparator(TodosoBundle.message("todo.suggestion.popular.tags"))
+          popularTags.forEach { tag ->
+            val count = tasks.count { it.tags.contains(tag) }
+            dynamicGroup.add(createTagFilterAction(tag, count))
+          }
+        }
+        
+        val recentVersions = TagParser.getRecentVersions(tasks = tasks)
+        if (recentVersions.isNotEmpty()) {
+          dynamicGroup.addSeparator("Versions")
+          recentVersions.forEach { tag ->
+            val count = tasks.count { it.tags.contains(tag) }
+            dynamicGroup.add(createTagFilterAction(tag, count))
+          }
+        }
+        
+        return dynamicGroup.getChildren(e)
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createClearAllAction(): AnAction =
+    object : AnAction("Clear All Filters", "Reset all active filters", AllIcons.Actions.GC) {
+      override fun actionPerformed(e: AnActionEvent) = onFilterChanged(FilterType.RESET_ALL, null)
+    }
+
+  private fun createPriorityFilterAction(priority: Priority): ToggleAction {
+    val text = priority.label
+    return object : ToggleAction(text) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.priority == priority
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.PRIORITY, if (state) priority else null)
+      }
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createStatusFilterAction(status: TaskStatus): ToggleAction {
+    val text = status.name.lowercase().replaceFirstChar { it.uppercase() }
+    return object : ToggleAction(text) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.status == status
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.STATUS, if (state) status else null)
+      }
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createDateFilterAction(filter: String): ToggleAction {
+    val text = when(filter) {
+        "TODAY" -> "Today"
+        "THIS_WEEK" -> "This Week"
+        "WITH_DATE" -> "Has Date"
+        else -> filter
+    }
+    return object : ToggleAction(text) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.date == filter
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.DATE, if (state) filter else null)
+      }
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createTagFilterAction(tag: String, count: Int): ToggleAction {
+    val text = "#$tag ($count)"
+    return object : ToggleAction(text) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == tag
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.TAG, if (state) tag else null)
+      }
       override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
     }
   }

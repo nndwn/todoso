@@ -3,7 +3,7 @@ package com.github.nndwn.todoso
 object TodosoConstants {
   const val GITHUB_REPO_URL = "https://github.com/nndwn/todoso"
   const val PLUGIN_ID = "com.github.nndwn.todoso"
-  const val PLUGIN_NAME = "Todoso"
+  const val PLUGIN_NAME = "Todoso: Markdown Todo List"
   const val FILENAME = "TODO.md"
 
   private val EXCLUSIVE_RELATIONS = listOf(

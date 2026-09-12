@@ -1,4 +1,4 @@
-# Todoso - IntelliJ Todo Manager
+# Todoso: Markdown Todo List - IntelliJ Plugin
 
 An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root. Designed for simplicity, it supports modern standards inspired by **Obsidian** and **Notion**.
 
@@ -85,10 +85,22 @@ Todoso provides an interactive toolbar with dynamic view options and multi-crite
           2. Enable **Priority** (while Status is active) → Inside each status group, tasks are now sorted by urgency.
           3. Enable **Date** (third) → Tasks with the *same status* AND *same priority* will then be ordered by date.
       * **Pro Tip**: To change the hierarchy, simply click "Default" to clear the chain and re-enable them in your preferred order!
-      * **RecommendedMe ** choose `Priority first and Status`.
+      * **RecommendedMe ** choose `Status first and Priority`.
 *   **Persistent Sort State**: Your custom sorting chain is automatically saved and restored across IDE restarts.
 *   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
 *   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
+
+####  Comprehensive Filtering System
+Manage large task lists with precision using the new integrated filtering engine:
+*   **Filter by Priority & Status**: Quickly isolate critical bugs or focus only on tasks currently in progress.
+*   **Smart Date Explorer**:
+    *   **Today**: View tasks starting or due exactly today.
+    *   **This Week**: Plan your week with a dynamic view of upcoming tasks.
+    *   **Has Date**: Filter out tasks that lack any scheduling metadata.
+*   **Dynamic Tag Explorer**:
+    *   **Popular Tags**: Instantly filter by your 10 most used tags.
+    *   **Version Tracking**: Automatically identifies and groups tasks by project versions (tags starting with `v`).
+*   **Session-Based Integrity**: To prevent confusion (e.g., "Where did my data go?"), filters are stored **in-memory only**. They reset on every IDE restart so you always start your day with a full view of your project.
      
 #### Strict Line Parsing Rules
 

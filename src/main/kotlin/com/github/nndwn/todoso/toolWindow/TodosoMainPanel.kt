@@ -21,13 +21,10 @@ import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.HierarchyEvent
-import javax.swing.BorderFactory
-import javax.swing.BoxLayout
-import javax.swing.JEditorPane
-import javax.swing.JLayeredPane
-import javax.swing.JPanel
-import javax.swing.Scrollable
-import javax.swing.SwingUtilities
+import java.time.LocalDate
+import java.time.temporal.WeekFields
+import java.util.Locale
+import javax.swing.*
 
 class TodosoMainPanel(
   private val project: Project,
@@ -38,17 +35,20 @@ class TodosoMainPanel(
   companion object {
     private const val CARD_INSTRUCTION = "EMPTY_STATE"
     private const val CARD_TASK_LIST = "TASK_LIST"
+    private const val CARD_NO_MATCH = "NO_MATCH"
     private const val HTML = "text/html"
   }
 
   val uiFont: Font = JBUI.Fonts.label()
-
   private val handler = TodosoActionHandler(project, service, this)
+
+  // Filter States (In-Memory Only)
+  private val filterState = TodosoToolbar.FilterState()
+  private var currentTagFilter: String? = null
 
   private var currentSortOption: Set<TodosoToolbar.SortOption> =
     settings.state.sortOption.split(",").mapNotNull { TodosoToolbar.SortOption.fromKey(it.trim()) }.toSet()
 
-  private var currentTagFilter: String? = null
   private val cardLayout = CardLayout()
   private val centerContainer = JPanel(cardLayout)
   private val instructionPane =
@@ -79,7 +79,7 @@ class TodosoMainPanel(
   }
 
   private var selectedTask: TodoTask? = null
-  private val taskComponents = mutableListOf<TodosoItemComponent>()
+  internal val taskComponents = mutableListOf<TodosoItemComponent>()
 
   private val toolbarPanel by lazy {
     TodosoToolbar(
@@ -95,15 +95,35 @@ class TodosoMainPanel(
         currentSortOption = sortOptions
         refreshTasks()
       },
+      filterState = filterState,
+      onFilterChanged = { type, value ->
+        when (type) {
+          TodosoToolbar.FilterType.PRIORITY -> filterState.priority = value as Priority?
+          TodosoToolbar.FilterType.STATUS -> filterState.status = value as TaskStatus?
+          TodosoToolbar.FilterType.DATE -> filterState.date = value as String?
+          TodosoToolbar.FilterType.TAG -> filterState.tag = value as String?
+          TodosoToolbar.FilterType.RESET_ALL -> {
+            filterState.priority = null
+            filterState.status = null
+            filterState.date = null
+            filterState.tag = null
+          }
+        }
+        refreshUiState()
+      }
     )
-  }
-
-  private val tagsNavigationPanel = TodosoTagsNavigation { selectedTag ->
-    setTagFilter(selectedTag)
   }
 
   private val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
     inputPanel.insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask)
+  }
+
+  private val noMatchPane = JEditorPane(HTML, "").apply {
+      isEditable = false
+      isOpaque = false
+      isFocusable = false
+      highlighter = null
+      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
   }
 
   private val inputPanel by lazy {
@@ -115,8 +135,8 @@ class TodosoMainPanel(
       onCreateNote = { note -> handler.handleConfirmCancel(note) },
       onCancelEdit = { handler.handleCancelEdit() },
       fontInput = uiFont,
-      getPopularTags = { TagParser.getPopularTags(service.getCachedTasks()) },
-      getAllTasks = { service.getCachedTasks() },
+      getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
+      getAllTasks = { service.loadTask() },
       onSuggestionRequest = { items ->
         if (items != null) {
           suggestionOverlay.updateItems(items)
@@ -149,17 +169,20 @@ class TodosoMainPanel(
         viewport.isOpaque = false
         isOpaque = false
     }, CARD_TASK_LIST)
-    mainContent.add(centerContainer, BorderLayout.CENTER)
+    
+    centerContainer.add(JBScrollPane(noMatchPane).apply {
+        border = BorderFactory.createEmptyBorder()
+        isFocusable = false
+    }, CARD_NO_MATCH)
 
+    mainContent.add(centerContainer, BorderLayout.CENTER)
     mainContent.add(inputPanel, BorderLayout.SOUTH)
 
-    // Setup layered pane dengan konversi eksplisit ke Integer (Layer)
     layeredPane.add(mainContent, JLayeredPane.DEFAULT_LAYER as Any)
     layeredPane.add(suggestionOverlay, JLayeredPane.POPUP_LAYER as Any)
 
     add(layeredPane, BorderLayout.CENTER)
 
-    // Sync mainContent size with layeredPane
     layeredPane.addComponentListener(
       object : ComponentAdapter() {
         override fun componentResized(e: ComponentEvent?) {
@@ -197,23 +220,36 @@ class TodosoMainPanel(
     if (allTasks.isEmpty()) {
       tasksContainer.removeAll()
       taskComponents.clear()
-      tagsNavigationPanel.isVisible = false
       cardLayout.show(centerContainer, CARD_INSTRUCTION)
     } else {
-      val tagCounts = extractTagCounts(allTasks)
-      tagsNavigationPanel.isVisible = tagCounts.isNotEmpty()
-      tagsNavigationPanel.setTags(tagCounts, currentTagFilter)
-
-      val filteredTasks =
-        if (currentTagFilter == null) {
-          allTasks
-        } else {
-          allTasks.filter { task -> task.tags.contains(currentTagFilter) }
+      // 1. Filter Tasks
+      val filteredTasks = allTasks.filter { task ->
+        val priorityMatch = filterState.priority == null || task.priority == filterState.priority
+        val statusMatch = filterState.status == null || task.status == filterState.status
+        
+        val activeTag = filterState.tag ?: currentTagFilter
+        val tagMatch = activeTag == null || task.tags.contains(activeTag)
+        
+        val dateMatch = when (filterState.date) {
+            "TODAY" -> isTaskMatchingDate(task) { it == LocalDate.now() }
+            "THIS_WEEK" -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
+            "WITH_DATE" -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
+            else -> true
         }
+                        
+        priorityMatch && statusMatch && tagMatch && dateMatch
+      }
+
+      if (filteredTasks.isEmpty()) {
+          tasksContainer.removeAll()
+          taskComponents.clear()
+          noMatchPane.text = buildNoMatchHtml()
+          cardLayout.show(centerContainer, CARD_NO_MATCH)
+          return
+      }
 
       val sortedTasks = applySorting(filteredTasks, currentSortOption)
       
-      // Strategi Re-use Komponen untuk Efisiensi
       val newComponents = mutableListOf<TodosoItemComponent>()
       var isOrderChanged = sortedTasks.size != taskComponents.size
       
@@ -233,7 +269,7 @@ class TodosoMainPanel(
                   task, 
                   settings.state.visualEnabled,
                   onSelect = { t -> handleTaskSelection(t) },
-                  onEdit = { /* Biarkan kosong */ }
+                  onEdit = { /* ... */ }
               )
               if (task.lineNumber == selectedTask?.lineNumber || (task.id.isNotBlank() && task.id == selectedTask?.id)) {
                   component.setSelected(true)
@@ -244,7 +280,6 @@ class TodosoMainPanel(
           taskComponents.clear()
           taskComponents.addAll(newComponents)
       } else {
-          // Update data komponen yang sudah ada tanpa remove-add
           val currentVisualEnabled = settings.state.visualEnabled
           sortedTasks.forEachIndexed { index, task ->
               val comp = taskComponents[index]
@@ -258,7 +293,6 @@ class TodosoMainPanel(
       tasksContainer.repaint()
       cardLayout.show(centerContainer, CARD_TASK_LIST)
       
-      // Auto-scroll ke tugas yang sedang terpilih
       SwingUtilities.invokeLater { scrollToSelected() }
     }
   }
@@ -266,9 +300,21 @@ class TodosoMainPanel(
   private fun scrollToSelected() {
       val target = selectedTask ?: return
       val component = taskComponents.find { it.task.id == target.id } ?: return
-      
-      val rect = component.bounds
-      tasksContainer.scrollRectToVisible(rect)
+      tasksContainer.scrollRectToVisible(component.bounds)
+  }
+
+  private fun buildNoMatchHtml(): String {
+      return """
+          <html>
+          <body style="font-family: sans-serif; padding: 20px; text-align: center; color: #BBBBBB;">
+              <h2 style="color: #FFFFFF;">No Tasks Found</h2>
+              <p>No tasks match your active filters.</p>
+              <p style="margin-top: 10px;">
+                  Try adjusting your <b>Priority</b>, <b>Status</b>, or <b>Tag</b> filters in the toolbar above.
+              </p>
+          </body>
+          </html>
+      """.trimIndent()
   }
 
   private fun handleTaskSelection(task: TodoTask) {
@@ -283,21 +329,9 @@ class TodosoMainPanel(
       updateButtonStates()
   }
 
-  private fun extractTagCounts(tasks: List<TodoTask>): Map<String, Int> {
-    val counts = mutableMapOf<String, Int>()
-    tasks.forEach { task ->
-      task.tags.forEach { tag ->
-        counts[tag] = counts.getOrDefault(tag, 0) + 1
-      }
-    }
-    return counts
-  }
-
   private fun applySorting(tasks: List<TodoTask>, options: Set<TodosoToolbar.SortOption>): List<TodoTask> {
     if (options.isEmpty()) return tasks
-
     val comparators = mutableListOf<Comparator<TodoTask>>()
-
     for (option in options) {
       when (option) {
         TodosoToolbar.SortOption.STATUS -> comparators.add(compareBy { it.status })
@@ -306,14 +340,11 @@ class TodosoMainPanel(
         TodosoToolbar.SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
       }
     }
-
     if (comparators.isEmpty()) return tasks
-
     var finalComparator = comparators[0]
     for (i in 1 until comparators.size) {
       finalComparator = finalComparator.then(comparators[i])
     }
-
     return tasks.sortedWith(finalComparator)
   }
 
@@ -331,50 +362,67 @@ class TodosoMainPanel(
   }
 
   override fun getSelectedTask(): TodoTask? = selectedTask
-
   override fun getInputText(): String = inputPanel.inputTextArea.text
-
-  override fun clearInputText() {
-    inputPanel.clearInputText()
-  }
-
-  override fun requestUnfocus() {
-    inputPanel.requestUnfocus()
-  }
-
-  override fun setSelectedTask(task: TodoTask?) {
-      this.selectedTask = task
-  }
-
+  override fun clearInputText() { inputPanel.clearInputText() }
+  override fun requestUnfocus() { inputPanel.requestUnfocus() }
+  override fun setSelectedTask(task: TodoTask?) { this.selectedTask = task }
   override fun setTagFilter(tag: String?) {
     currentTagFilter = tag
     refreshUiState()
   }
-
-  override fun updateButtonStates() {
-    // Callback untuk update state tombol jika ada dependensi eksternal
+  override fun setPriorityFilter(priority: Priority?) {
+    filterState.priority = priority
+    refreshUiState()
   }
 
-  override fun setPriorityFilter(priority: Priority?) {}
-
-  override fun setStatusFilter(status: TaskStatus?) {}
+  override fun setStatusFilter(status: TaskStatus?) {
+    filterState.status = status
+    refreshUiState()
+  }
+  override fun setDateFilter(filter: String?) {
+    filterState.date = filter
+    refreshUiState()
+  }
+  override fun updateButtonStates() { /* ... */ }
 
   private fun updateOverlayPosition() {
     if (!suggestionOverlay.isVisible) return
-
     val relativeBounds = SwingUtilities.convertRectangle(inputPanel.parent, inputPanel.bounds, layeredPane)
-
-    // Gunakan angka 11 dan 22 (11 * 2) agar sinkron dengan padding di TodosoInputPanel
     val overlayWidth = relativeBounds.width - JBUI.scale(30)
     val overlayHeight = suggestionOverlay.preferredSize.height.coerceAtMost(JBUI.scale(400))
-
     val x = relativeBounds.x + JBUI.scale(15)
-    // Tambahkan jarak 8px agar benar-benar terlihat melayang di atas input
     val y = relativeBounds.y - overlayHeight - JBUI.scale(8)
-
     suggestionOverlay.bounds = Rectangle(x, y, overlayWidth, overlayHeight)
-    layeredPane.moveToFront(suggestionOverlay) // Jaminan overlay ada di depan
+    layeredPane.moveToFront(suggestionOverlay)
     suggestionOverlay.revalidate()
     suggestionOverlay.repaint()
   }
+
+  private fun isTaskMatchingDate(task: TodoTask, predicate: (LocalDate) -> Boolean): Boolean {
+    val dates = listOfNotNull(
+      task.metadata.dueDate,
+      task.metadata.startDate,
+      task.metadata.createdDate
+    )
+    return dates.any { dateStr ->
+      try {
+        val date = LocalDate.parse(dateStr.take(10))
+        predicate(date)
+      } catch (_: Exception) {
+        false
+      }
+    }
+  }
+
+  private fun isDateInCurrentWeek(date: LocalDate): Boolean {
+    val now = LocalDate.now()
+    val weekFields = WeekFields.of(Locale.getDefault())
+    val currentWeek = now.get(weekFields.weekOfWeekBasedYear())
+    val currentYear = now.get(weekFields.weekBasedYear())
+    
+    return date.get(weekFields.weekOfWeekBasedYear()) == currentWeek && 
+           date.get(weekBasedYear()) == currentYear
+  }
+
+  private fun weekBasedYear() = WeekFields.of(Locale.getDefault()).weekBasedYear()
 }

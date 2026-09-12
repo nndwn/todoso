@@ -98,7 +98,7 @@ class TodosoItemComponent(
             }
 
             override fun mouseExited(e: MouseEvent) {
-                if (!isSelected) {
+                if (!isSelected && isShowing) {
                     val point = e.point
                     SwingUtilities.convertPointToScreen(point, e.component)
                     val bounds = Rectangle(locationOnScreen, size)

@@ -1,0 +1,212 @@
+# Todoso Sample Project Tasks
+
+- [ ] 🔺 Implement core synchronization engine #feature #development 🆔 c1e9f2 ➕ 2026-09-01
+- [/] ⏫ Refactor VFS listener for better performance #issue #development 🆔 a2b3c4 🛫 2026-09-10 10:00
+- [x] Fix memory leak in suggestion overlay #issue #production 🆔 d4e5f6 🛫 2026-09-08 ✅ 2026-09-09 14:30 // Fixed by disposing container early
+- [ ] 🔼 Add support for nested tag hierarchy #feature 🆔 g7h8i9 📅 2026-10-15
+- [ ] 🔽 Update README with new lifecycle tracking rules #development 🆔 j0k1l2
+- [-] ⏬ Deprecated legacy popup system #issue 🆔 m3n4o5 ❌ 2026-09-09 // Decided to use Overlay UI instead
+- [ ] 🔺 Security audit for local file access #urgent #production 🆔 p6q7r8 📅 2026-09-12
+- [/] 🔼 Migration to Android Studio Quail 4 #development 🆔 s9t0u1 🛫 2026-09-10
+- [x] ⏫ Initial project setup #feature #production 🆔 v2w3x4 ✅ 2026-09-01
+- [ ] Create 200 sample tasks for stress testing #test 🆔 y5z6a7 📅 2026-09-11
+
+## User Interface (UI/UX)
+- [ ] 🔼 Implement dark mode support for task icons #ui #feature 🆔 ui001
+- [/] ⏫ Smooth animation for suggestion overlay #ui #development 🆔 ui002 🛫 2026-09-10 13:00
+- [ ] 🔺 Fix alignment of Add Task button on small screens #ui #issue 🆔 ui003 📅 2026-09-15
+- [x] New paperclip icon for attachments #ui #production 🆔 ui004 ✅ 2026-09-10 📝 2026-09-10 14:00
+- [ ] 🔽 Add hover effect on task list items #ui #development 🆔 ui005
+- [ ] 🔼 Dynamic width for tooltips based on content #ui #feature 🆔 ui006
+- [ ] ⏬ Remove redundant padding in input panel #ui #issue 🆔 ui007
+- [ ] 🔼 Color-coded tags in the navigation panel #ui #feature 🆔 ui008
+- [/] ⏫ Floating action button for quick task entry #ui #development 🆔 ui009 🛫 2026-09-10
+- [ ] 🔺 Fix font rendering issues on Windows 11 #ui #issue 🆔 ui010 📅 2026-10-01
+
+## Backend & Services
+- [ ] 🔺 Optimize TaskIdParser regex for large files #core #issue 🆔 srv01
+- [ ] ⏫ Implement background indexing for tags #core #feature 🆔 srv02 📅 2026-09-30
+- [/] 🔼 Refactor TodosoService to use TodoValidator #core #development 🆔 srv03 🛫 2026-09-10
+- [x] Database migration to version 2.0 #core #production 🆔 srv04 ✅ 2026-09-05
+- [ ] 🔽 Add logging system for internal errors #core #development 🆔 srv05
+- [ ] 🔼 Support for multiple todo files #core #feature 🆔 srv06
+- [ ] 🔺 Fix race condition in VfsListener #core #issue 🆔 srv07 📅 2026-09-12
+- [ ] ⏫ Encrypt sensitive notes in todo.md #security #feature 🆔 srv08
+- [x] 🔼 Local cache invalidation on file delete #core #production 🆔 srv09 ✅ 2026-09-07
+- [ ] ⏬ Clean up unused imports in all services #cleanup #development 🆔 srv10
+
+## Bug Fixes (Issues)
+- [ ] 🔺 Fix 🆔 collision when copy-pasting tasks #issue #development 🆔 bug01 📅 2026-09-11
+- [ ] ⏫ Resolve ComparisonFailure in UI tests #issue #development 🆔 bug02
+- [/] 🔼 Fix "What's New" crash in AS Quail sandbox #issue #development 🆔 bug03 🛫 2026-09-10
+- [x] Attachment path fallback to absolute when outside project #issue #production 🆔 bug04 ✅ 2026-09-10
+- [ ] 🔺 Fix tooltip bloat with large images #issue #ui 🆔 bug05
+- [ ] 🔽 Fix scrolling lag with 1000+ tasks #issue #performance 🆔 bug06
+- [ ] 🔼 Correct tag extraction from URLs in description #issue #parser 🆔 bug07
+- [ ] ⏫ Fix editedDate not updating on tag-only change #issue #core 🆔 bug08
+- [x] Empty task submission protection #issue #production 🆔 bug09 ✅ 2026-09-10
+- [ ] 🔺 Fix keyboard focus lost after file choice #issue #ui 🆔 bug10
+
+## Feature Requests
+- [ ] 🔼 Add progress bar for project completion percentage #feature 🆔 req01
+- [ ] ⏫ Export todo list to PDF/HTML #feature 🆔 req02 📅 2026-12-01
+- [ ] 🔽 Integrate with Git branch names for auto-tagging #feature 🆔 req03
+- [ ] 🔺 Pomodoro timer integration #feature 🆔 req04
+- [ ] 🔼 Voice-to-task entry support #feature #ai 🆔 req05
+- [ ] ⏫ Markdown preview inside the tool window #feature 🆔 req06
+- [ ] 🔽 Recurring tasks (daily/weekly) #feature 🆔 req07
+- [ ] 🔼 Drag and drop to reorder tasks #feature #ui 🆔 req08
+- [ ] ⏫ Cloud sync across multiple IDE instances #feature 🆔 req09
+- [ ] 🔺 Desktop notifications for due tasks #feature #system 🆔 req10
+
+## Miscellaneous (150 More Generated Tasks)
+- [ ] 🔼 Task 51 #development 🆔 t51
+- [/] Task 52 #issue 🆔 t52 🛫 2026-09-10
+- [x] Task 53 #production 🆔 t53 ✅ 2026-09-10
+- [ ] 🔺 Task 54 #urgent 🆔 t54 📅 2026-09-15
+- [ ] ⏫ Task 55 #feature 🆔 t55
+- [ ] Task 56 #development 🆔 t56
+- [ ] 🔽 Task 57 #cleanup 🆔 t57
+- [ ] 🔼 Task 58 #test 🆔 t58
+- [ ] Task 59 #ui 🆔 t59
+- [x] Task 60 #production 🆔 t60 ✅ 2026-09-08
+- [ ] 🔺 Task 61 #development 🆔 t61
+- [ ] ⏫ Task 62 #feature 🆔 t62 📅 2026-10-01
+- [/] Task 63 #issue 🆔 t63 🛫 2026-09-10
+- [ ] 🔼 Task 64 #ui 🆔 t64
+- [ ] ⏬ Task 65 #cleanup 🆔 t65
+- [ ] Task 66 #development 🆔 t66
+- [x] Task 67 #production 🆔 t67 ✅ 2026-09-01
+- [ ] 🔺 Task 68 #urgent 🆔 t68 📅 2026-09-11
+- [ ] ⏫ Task 69 #feature 🆔 t69
+- [ ] Task 70 #development 🆔 t70
+- [ ] 🔽 Task 71 #issue 🆔 t71
+- [ ] 🔼 Task 72 #ui 🆔 t72
+- [/] Task 73 #development 🆔 t73 🛫 2026-09-10
+- [x] Task 74 #production 🆔 t74 ✅ 2026-09-05
+- [ ] 🔺 Task 75 #urgent 🆔 t75 📅 2026-09-20
+- [ ] ⏫ Task 76 #feature 🆔 t76
+- [ ] Task 77 #development 🆔 t77
+- [ ] 🔽 Task 78 #cleanup 🆔 t78
+- [ ] 🔼 Task 79 #test 🆔 t79
+- [ ] Task 80 #ui 🆔 t80
+- [x] Task 81 #production 🆔 t81 ✅ 2026-09-09
+- [ ] 🔺 Task 82 #development 🆔 t82
+- [ ] ⏫ Task 83 #feature 🆔 t83 📅 2026-11-15
+- [/] Task 84 #issue 🆔 t84 🛫 2026-09-10
+- [ ] 🔼 Task 85 #ui 🆔 t85
+- [ ] ⏬ Task 86 #cleanup 🆔 t86
+- [ ] Task 87 #development 🆔 t87
+- [x] Task 88 #production 🆔 t88 ✅ 2026-09-02
+- [ ] 🔺 Task 89 #urgent 🆔 t89 📅 2026-09-12
+- [ ] ⏫ Task 90 #feature 🆔 t90
+- [ ] Task 91 #development 🆔 t91
+- [ ] 🔽 Task 92 #issue 🆔 t92
+- [ ] 🔼 Task 93 #ui 🆔 t93
+- [/] Task 94 #development 🆔 t94 🛫 2026-09-10
+- [x] Task 95 #production 🆔 t95 ✅ 2026-09-06
+- [ ] 🔺 Task 96 #urgent 🆔 t96 📅 2026-09-25
+- [ ] ⏫ Task 97 #feature 🆔 t97
+- [ ] Task 98 #development 🆔 t98
+- [ ] 🔽 Task 99 #cleanup 🆔 t99
+- [ ] 🔼 Task 100 #test 🆔 t100
+- [ ] Task 101 #ui 🆔 t101
+- [x] Task 102 #production 🆔 t102 ✅ 2026-09-08
+- [ ] 🔺 Task 103 #development 🆔 t103
+- [ ] ⏫ Task 104 #feature 🆔 t104 📅 2026-10-10
+- [/] Task 105 #issue 🆔 t105 🛫 2026-09-10
+- [ ] 🔼 Task 106 #ui 🆔 t106
+- [ ] ⏬ Task 107 #cleanup 🆔 t107
+- [ ] Task 108 #development 🆔 t108
+- [x] Task 109 #production 🆔 t109 ✅ 2026-09-03
+- [ ] 🔺 Task 110 #urgent 🆔 t110 📅 2026-09-13
+- [ ] ⏫ Task 111 #feature 🆔 t111
+- [ ] Task 112 #development 🆔 t112
+- [ ] 🔽 Task 113 #issue 🆔 t113
+- [ ] 🔼 Task 114 #ui 🆔 t114
+- [/] Task 115 #development 🆔 t115 🛫 2026-09-10
+- [x] Task 116 #production 🆔 t116 ✅ 2026-09-07
+- [ ] 🔺 Task 117 #urgent 🆔 t117 📅 2026-09-30
+- [ ] ⏫ Task 118 #feature 🆔 t118
+- [ ] Task 119 #development 🆔 t119
+- [ ] 🔽 Task 120 #cleanup 🆔 t120
+- [ ] 🔼 Task 121 #test 🆔 t121
+- [ ] Task 122 #ui 🆔 t122
+- [x] Task 123 #production 🆔 t123 ✅ 2026-09-09
+- [ ] 🔺 Task 124 #development 🆔 t124
+- [ ] ⏫ Task 125 #feature 🆔 t125 📅 2026-10-20
+- [/] Task 126 #issue 🆔 t126 🛫 2026-09-10
+- [ ] 🔼 Task 127 #ui 🆔 t127
+- [ ] ⏬ Task 128 #cleanup 🆔 t128
+- [ ] Task 129 #development 🆔 t129
+- [x] Task 130 #production 🆔 t130 ✅ 2026-09-04
+- [ ] 🔺 Task 131 #urgent 🆔 t131 📅 2026-09-14
+- [ ] ⏫ Task 132 #feature 🆔 t132
+- [ ] Task 133 #development 🆔 t133
+- [ ] 🔽 Task 134 #issue 🆔 t134
+- [ ] 🔼 Task 135 #ui 🆔 t135
+- [/] Task 136 #development 🆔 t136 🛫 2026-09-10
+- [x] Task 137 #production 🆔 t137 ✅ 2026-09-08
+- [ ] 🔺 Task 138 #urgent 🆔 t138 📅 2026-10-05
+- [ ] ⏫ Task 139 #feature 🆔 t139
+- [ ] Task 140 #development 🆔 t140
+- [ ] 🔽 Task 141 #cleanup 🆔 t141
+- [ ] 🔼 Task 142 #test 🆔 t142
+- [ ] Task 143 #ui 🆔 t143
+- [x] Task 144 #production 🆔 t144 ✅ 2026-09-10
+- [ ] 🔺 Task 145 #development 🆔 t145
+- [ ] ⏫ Task 146 #feature 🆔 t146 📅 2026-11-20
+- [/] Task 147 #issue 🆔 t147 🛫 2026-09-10
+- [ ] 🔼 Task 148 #ui 🆔 t148
+- [ ] ⏬ Task 149 #cleanup 🆔 t149
+- [ ] Task 150 #development 🆔 t150
+- [x] Task 151 #production 🆔 t151 ✅ 2026-09-05
+- [ ] 🔺 Task 152 #urgent 🆔 t152 📅 2026-09-15
+- [ ] ⏫ Task 153 #feature 🆔 t153
+- [ ] Task 154 #development 🆔 t154
+- [ ] 🔽 Task 155 #issue 🆔 t155
+- [ ] 🔼 Task 156 #ui 🆔 t156
+- [/] Task 157 #development 🆔 t157 🛫 2026-09-10
+- [x] Task 158 #production 🆔 t158 ✅ 2026-09-09
+- [ ] 🔺 Task 159 #urgent 🆔 t159 📅 2026-10-15
+- [ ] ⏫ Task 160 #feature 🆔 t160
+- [ ] Task 161 #development 🆔 t161
+- [ ] 🔽 Task 162 #cleanup 🆔 t162
+- [ ] 🔼 Task 163 #test 🆔 t163
+- [ ] Task 164 #ui 🆔 t164
+- [x] Task 165 #production 🆔 t165 ✅ 2026-09-10
+- [ ] 🔺 Task 166 #development 🆔 t166
+- [ ] ⏫ Task 167 #feature 🆔 t167 📅 2026-12-25
+- [/] Task 168 #issue 🆔 t168 🛫 2026-09-10
+- [ ] 🔼 Task 169 #ui 🆔 t169
+- [ ] ⏬ Task 170 #cleanup 🆔 t170
+- [ ] Task 171 #development 🆔 t171
+- [x] Task 172 #production 🆔 t172 ✅ 2026-09-06
+- [ ] 🔺 Task 173 #urgent 🆔 t173 📅 2026-09-16
+- [ ] ⏫ Task 174 #feature 🆔 t174
+- [ ] Task 175 #development 🆔 t175
+- [ ] 🔽 Task 176 #issue 🆔 t176
+- [ ] 🔼 Task 177 #ui 🆔 t177
+- [/] Task 178 #development 🆔 t178 🛫 2026-09-10
+- [x] Task 179 #production 🆔 t179 ✅ 2026-09-10
+- [ ] 🔺 Task 180 #urgent 🆔 t180 📅 2026-11-01
+- [ ] ⏫ Task 181 #feature 🆔 t181
+- [ ] Task 182 #development 🆔 t182
+- [ ] 🔽 Task 183 #cleanup 🆔 t183
+- [ ] 🔼 Task 184 #test 🆔 t184
+- [ ] Task 185 #ui 🆔 t185
+- [x] Task 186 #production 🆔 t186 ✅ 2026-09-10
+- [ ] 🔺 Task 187 #development 🆔 t187
+- [ ] ⏫ Task 188 #feature 🆔 t188 📅 2027-01-01
+- [/] Task 189 #issue 🆔 t189 🛫 2026-09-10
+- [ ] 🔼 Task 190 #ui 🆔 t190
+- [ ] ⏬ Task 191 #cleanup 🆔 t191
+- [ ] Task 192 #development 🆔 t192
+- [x] Task 193 #production 🆔 t193 ✅ 2026-09-07
+- [ ] 🔺 Task 194 #urgent 🆔 t194 📅 2026-09-17
+- [ ] ⏫ Task 195 #feature 🆔 t195
+- [ ] Task 196 #development 🆔 t196
+- [ ] 🔽 Task 197 #issue 🆔 t197
+- [ ] 🔼 Task 198 #ui 🆔 t198
+- [/] Task 199 #development 🆔 t199 🛫 2026-09-10
+- [x] Task 200 Final stress test completed #test #production 🆔 t200 ✅ 2026-09-10 15:00 // Plugin handled 200 tasks perfectly!

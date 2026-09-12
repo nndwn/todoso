@@ -32,6 +32,8 @@ class TodosoActionHandler(
 
     fun setStatusFilter(status: TaskStatus?)
 
+    fun setDateFilter(filter: String?)
+
     fun setTagFilter(tag: String?)
 
     fun setCancelMode(enabled: Boolean)

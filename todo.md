@@ -40,7 +40,9 @@
 - [x] tooltip di todoItem 🆔 ZBXy14 🛫 2026-09-11 11:06 ✅ 2026-09-11 11:24
 - [-] rewrite icon with icon-collection repository 🆔 oQ1Frv ❌ 2026-09-12 12:28 // noted: lebih nyesuaikan template icon ide yang sudah ada, tapi tetap tambahkan icon yang pada dasarnya tidak ada di ide
 - [x] ⏫ ada issue di showSuggestion ketika muncul ui bertabrakan dengan ui component item #issue 🆔 ETF4bH 🛫 2026-09-11 14:36 ✅ 2026-09-11 14:57
-- [ ] 🔺 buat klik kanan untuk ubah status 🆔 ZshZWF
-- [/] ⏫ mmebuat hide visual berdasarkan status, prioriy , latest , berdasarkan 10 tah populer , bersarkan 4 tag version paling atas #feature 🛫 2026-09-11 18:16 🆔 xdNreu
+- [/] 🔺 buat klik kanan untuk ubah status 🆔 ZshZWF 🛫 2026-09-12 15:42
+- [x] ⏫ mmebuat hide visual berdasarkan status, prioriy , latest , berdasarkan 10 tah populer , bersarkan 4 tag version paling atas #feature 🛫 2026-09-11 18:16 🆔 xdNreu ✅ 2026-09-12 14:54
 - [x] 🔼 terkadang membingungkan ketika lihat task yang sudah di short , tiba -tiba ketik task baru task tidak tampak sama sekali di pilihan #issue 🛫 2026-09-11 17:32 🆔 q9YqEa ✅ 2026-09-11 18:10
 - [x] taks tidak bewarna hijau ketia doing #issue 🆔 diZ97U 🛫 2026-09-11 17:35 ✅ 2026-09-11 18:09
+- [/] 🔼 No Match Panel kurang rapi selalu tengah coba ambil teknik yang sama ketika no list task #Issue 🆔 iuBekw 🛫 2026-09-12 14:55
+- [/] ⏫ Item component ketika di klik id dan descripsi akan menuju ke line file line nya 🆔 dfeotS 🛫 2026-09-12 15:46

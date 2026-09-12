@@ -43,8 +43,7 @@ object TagParser {
     return tasks
       .asSequence()
       .flatMap { it.tags }
-      .filter { it.startsWith("v") || it.startsWith("#v") }
-      .map { if (it.startsWith("#")) it else "#$it" }
+      .filter { it.startsWith("v", ignoreCase = true) }
       .distinct()
       .sortedDescending()
       .take(limit)
