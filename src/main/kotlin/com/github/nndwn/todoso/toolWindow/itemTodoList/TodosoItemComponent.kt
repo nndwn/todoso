@@ -8,16 +8,14 @@ import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.services.TodosoService
 import com.intellij.ide.HelpTooltip
+import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.IconUtil
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.Cursor
-import java.awt.Dimension
-import java.awt.Rectangle
+import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JPanel
@@ -167,12 +165,11 @@ class TodosoItemComponent(
         this.toolTipText = null
         textPane.toolTipText = null
 
-        installModernTooltip()
+        tooltip()
     }
 
-    private fun installModernTooltip() {
+    private fun tooltip() {
         HelpTooltip.dispose(this)
-        
         val ht = HelpTooltip()
 
         val title = if (task.isPersistentId) {
@@ -183,66 +180,66 @@ class TodosoItemComponent(
         ht.setTitle(title)
 
         val meta = task.metadata
-        val fullDescription = buildString {
-            val dateLabels = listOfNotNull(
-                meta.startDate?.let { "Start: $it" },
-                meta.dueDate?.let { "Due: $it" },
-                meta.endDate?.let { "Done: $it" },
-                meta.cancelDate?.let { "Cancelled: $it" },
-                meta.createdDate?.let { "Created: $it" },
-            )
-            
-            append(dateLabels.joinToString("\n"))
-            
-            if (task.status == TaskStatus.DONE) {
-                DateParser.calculateDuration(meta)?.let { duration ->
-                    if (isNotEmpty()) append("\n")
-                    append(TodosoBundle.message("todo.tooltip.duration", duration))
-                }
-            }
-            
-            if (meta.notes.isNotBlank()) {
-                if (isNotEmpty()) append("\n\n")
-                append(TodosoBundle.message("todo.tooltip.note"))
-                append("\n")
-                append(processMarkdownLinksForTooltip(meta.notes))
-            }
+        val dateLines = listOfNotNull(
+            meta.startDate?.let { "Start: $it" },
+            meta.dueDate?.let { "Due: $it" },
+            meta.endDate?.let { "Done: $it" },
+            meta.cancelDate?.let { "Cancelled: $it" },
+            meta.createdDate?.let { "Created: $it" },
+            meta.editedDate?.let { "Edited: $it" }
+        )
 
-            // Tambahkan rujukan ID jika ada di dalam deskripsi
-            val referencedIds = TaskIdParser.TASK_ID_REGEX.findAll(task.description)
-                .map { it.groupValues[1] }
-                .distinct()
-                .filter { it != task.id } // Jangan merujuk diri sendiri
-            
-            referencedIds.forEach { refId ->
-                service.findTaskById(refId)?.let { refTask ->
-                    append("\n\n---\n")
-                    append("Reference 🆔 $refId:\n")
-                    append(refTask.description)
-                    
-                    val refMeta = refTask.metadata
-                    val refDates = listOfNotNull(
-                        refMeta.startDate?.let { "Start: $it" },
-                        refMeta.dueDate?.let { "Due: $it" },
-                        refMeta.endDate?.let { "Done: $it" },
-                        refMeta.cancelDate?.let { "Cancelled: $it" },
-                    )
-                    
-                    if (refDates.isNotEmpty()) {
-                        append("\n")
-                        append(refDates.joinToString("\n"))
-                    }
-                    
-                    if (refMeta.notes.isNotBlank()) {
-                        append("\nNote: ")
-                        append(processMarkdownLinksForTooltip(refMeta.notes))
-                    }
+        val chunks = mutableListOf<HtmlChunk>()
+        
+        // 1. Tanggal
+        if (dateLines.isNotEmpty()) {
+            chunks.add(HtmlChunk.text(dateLines.joinToString("\n")))
+        }
+
+        // 2. Durasi
+        if (task.status == TaskStatus.DONE) {
+            DateParser.calculateDuration(meta)?.let { duration ->
+                if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
+                chunks.add(HtmlChunk.text(TodosoBundle.message("todo.tooltip.duration", duration)))
+            }
+        }
+
+        // 3. Catatan
+        if (meta.notes.isNotBlank()) {
+            chunks.add(HtmlChunk.br())
+            chunks.add(HtmlChunk.br())
+            chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.note")))
+            chunks.add(HtmlChunk.br())
+            chunks.add(HtmlChunk.text(processMarkdownLinksForTooltip(meta.notes)))
+        }
+
+        // 4. Rujukan
+        val referencedIds = TaskIdParser.TASK_ID_REGEX.findAll(task.description)
+            .map { it.groupValues[1] }
+            .distinct()
+            .filter { it != task.id }
+
+        referencedIds.forEach { refId ->
+            service.findTaskById(refId)?.let { refTask ->
+                chunks.add(HtmlChunk.hr())
+                chunks.add(HtmlChunk.tag("b").addText("Reference $refId:"))
+                chunks.add(HtmlChunk.br())
+                chunks.add(HtmlChunk.text(refTask.description))
+                
+                val refDates = listOfNotNull(
+                    refTask.metadata.startDate?.let { "Start: $it" },
+                    refTask.metadata.dueDate?.let { "Due: $it" },
+                    refTask.metadata.endDate?.let { "Done: $it" }
+                )
+                if (refDates.isNotEmpty()) {
+                    chunks.add(HtmlChunk.br())
+                    chunks.add(HtmlChunk.text(refDates.joinToString("\n")))
                 }
             }
         }
-        
-        if (fullDescription.isNotBlank()) {
-            ht.description = fullDescription
+
+        if (chunks.isNotEmpty()) {
+            ht.description = HtmlChunk.div().children(*chunks.toTypedArray()).toString()
         }
 
         ht.installOn(this)

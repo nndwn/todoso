@@ -47,3 +47,4 @@
 - [x] 🔼 No Match Panel kurang rapi selalu tengah coba ambil teknik yang sama ketika no list task #Issue 🆔 iuBekw 🛫 2026-09-12 14:55 ✅ 2026-09-12 17:32
 - [ ] ⏬ Item component ketika di klik id dan descripsi akan menuju ke line file line nya  🆔 dfeotS
 - [/] ⏫ membuat sistem tooltip yang lebih informatif jika seandai nya di descripsi memiliki id yang terhubung maka tampikan detail descripsi task di tooltip 🛫 2026-09-12 18:05 🆔 t954Ej
+- [/] 🔺 posible buat search ? 🆔 gDcVlJ 🛫 2026-09-12 23:00
