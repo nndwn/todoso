@@ -68,7 +68,7 @@ class TodosoToolbar(
       AnAction(
         TodosoBundle.message("todo.menu.refresh"),
         TodosoBundle.message("todo.action.refresh.desc"),
-        TodosoIcons.Refresh,
+        AllIcons.Actions.Refresh,
       ) {
       override fun actionPerformed(e: AnActionEvent) = onRefreshTasks()
     }
@@ -107,7 +107,7 @@ class TodosoToolbar(
 
     return object : DefaultActionGroup(TodosoBundle.message("todo.view.options"), true) {
       init {
-        templatePresentation.icon = AllIcons.Actions.Show
+        templatePresentation.icon = AllIcons.General.TbHidden
         templatePresentation.text = TodosoBundle.message("todo.view.options")
       }
 
@@ -180,7 +180,7 @@ class TodosoToolbar(
       AnAction(
         TodosoBundle.message("todo.open.file"),
         TodosoBundle.message("todo.open.file.desc"),
-        AllIcons.Actions.MenuOpen,
+        TodosoIcons.FolderMd,
       ) {
       override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return

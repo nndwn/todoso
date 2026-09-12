@@ -22,9 +22,18 @@ object TodosoHtmlBuilder {
         val priorityColorHex = colorToHex(task.priority.color)
 
         // Gaya CSS
+        val isDoing = task.status == TaskStatus.DOING
         val textDecoration = if (isDone) "text-decoration: line-through;" else ""
-        val fontWeight = if (task.status == TaskStatus.DOING) "font-weight: bold;" else ""
-        val finalBaseColor = if (isVisualEnabled && !isDone && !isSelected) priorityColorHex else baseColorHex
+        val fontWeight = if (isDoing) "font-weight: bold;" else ""
+        
+        // Warna dasar menyesuaikan status dan visual mode
+        val finalBaseColor = when {
+            isSelected -> baseColorHex
+            isDone -> baseColorHex
+            isDoing && isVisualEnabled -> colorToHex(JBColor.GREEN)
+            isVisualEnabled -> priorityColorHex
+            else -> baseColorHex
+        }
 
         // Pemrosesan Teks Deskripsi
         var description = task.description

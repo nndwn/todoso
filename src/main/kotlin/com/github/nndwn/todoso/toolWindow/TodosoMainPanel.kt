@@ -235,7 +235,9 @@ class TodosoMainPanel(
                   onSelect = { t -> handleTaskSelection(t) },
                   onEdit = { /* Biarkan kosong */ }
               )
-              if (task.lineNumber == selectedTask?.lineNumber) component.setSelected(true)
+              if (task.lineNumber == selectedTask?.lineNumber || (task.id.isNotBlank() && task.id == selectedTask?.id)) {
+                  component.setSelected(true)
+              }
               tasksContainer.add(component)
               newComponents.add(component)
           }
@@ -247,14 +249,26 @@ class TodosoMainPanel(
           sortedTasks.forEachIndexed { index, task ->
               val comp = taskComponents[index]
               comp.updateData(task, currentVisualEnabled)
-              comp.setSelected(task.lineNumber == selectedTask?.lineNumber)
+              val isSelected = task.lineNumber == selectedTask?.lineNumber || (task.id.isNotBlank() && task.id == selectedTask?.id)
+              comp.setSelected(isSelected)
           }
       }
       
       tasksContainer.revalidate()
       tasksContainer.repaint()
       cardLayout.show(centerContainer, CARD_TASK_LIST)
+      
+      // Auto-scroll ke tugas yang sedang terpilih
+      SwingUtilities.invokeLater { scrollToSelected() }
     }
+  }
+
+  private fun scrollToSelected() {
+      val target = selectedTask ?: return
+      val component = taskComponents.find { it.task.id == target.id } ?: return
+      
+      val rect = component.bounds
+      tasksContainer.scrollRectToVisible(rect)
   }
 
   private fun handleTaskSelection(task: TodoTask) {
@@ -284,12 +298,11 @@ class TodosoMainPanel(
 
     val comparators = mutableListOf<Comparator<TodoTask>>()
 
-    // Ikuti urutan pemilihan yang ada di set options
     for (option in options) {
       when (option) {
         TodosoToolbar.SortOption.STATUS -> comparators.add(compareBy { it.status })
         TodosoToolbar.SortOption.DATE ->
-          comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: "9999-99-99" })
+          comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: it.metadata.createdDate ?: "9999-99-99" })
         TodosoToolbar.SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
       }
     }
@@ -327,6 +340,10 @@ class TodosoMainPanel(
 
   override fun requestUnfocus() {
     inputPanel.requestUnfocus()
+  }
+
+  override fun setSelectedTask(task: TodoTask?) {
+      this.selectedTask = task
   }
 
   override fun setTagFilter(tag: String?) {

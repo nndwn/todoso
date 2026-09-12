@@ -2,6 +2,7 @@ package com.github.nndwn.todoso.toolWindow.inputWindow
 
 import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
+import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
@@ -83,7 +84,7 @@ class TodosoInputPanel(
     }
 
   val attachButton =
-    JButton(AllIcons.Actions.AddFile).apply {
+    JButton(TodosoIcons.AddFile).apply {
       toolTipText = TodosoBundle.message("todo.insert.file")
       isContentAreaFilled = false
       isBorderPainted = false
@@ -91,7 +92,7 @@ class TodosoInputPanel(
       isFocusable = false
       margin = JBUI.emptyInsets()
       border = null
-      preferredSize = Dimension(JBUI.scale(22), JBUI.scale(22))
+      preferredSize = Dimension(JBUI.scale(30), JBUI.scale(30))
       cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
       addActionListener { handleAttachFile() }
     }

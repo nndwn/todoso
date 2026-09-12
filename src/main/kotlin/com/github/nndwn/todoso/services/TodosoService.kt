@@ -195,11 +195,12 @@ class TodosoService(private val project: Project) {
     }
   }
 
-  fun addTask(rawInputText: String) {
+  fun addTask(rawInputText: String): TodoTask? {
     val cleanInput = sanitizeInputText(rawInputText)
-    if (cleanInput.isBlank()) return
+    if (cleanInput.isBlank()) return null
 
-    val formattedTaskLine = formatNewTaskLine(cleanInput) ?: return
+    val formattedTaskLine = formatNewTaskLine(cleanInput) ?: return null
+    val newTask = TodoTaskParser.parseLine(formattedTaskLine, -1) ?: return null
 
     runWriteCommandAction(
       project,
@@ -224,6 +225,7 @@ class TodosoService(private val project: Project) {
         markCacheDirty()
       },
     )
+    return newTask
   }
 
   internal fun formatNewTaskLine(input: String): String? {

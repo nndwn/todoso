@@ -41,6 +41,8 @@ class TodosoActionHandler(
     fun clearInputText()
 
     fun requestUnfocus()
+
+    fun setSelectedTask(task: TodoTask?)
   }
 
   private var pendingCancelTask: TodoTask? = null
@@ -56,9 +58,12 @@ class TodosoActionHandler(
   fun setStatusFilter(status: TaskStatus?) = view.setStatusFilter(status)
 
   fun handleAddTask(text: String) {
-    service.addTask(text.trim())
+    val newTask = service.addTask(text.trim())
     view.setEditMode(false)
-    ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+    ApplicationManager.getApplication().invokeLater {
+      view.setSelectedTask(newTask)
+      view.refreshTasks()
+    }
   }
 
   fun handleUpdateTask(text: String) {

@@ -73,7 +73,7 @@ class TodosoItemComponent(
         add(iconLabel, BorderLayout.WEST)
         add(textPane, BorderLayout.CENTER)
         
-        border = JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 1, 0, 0, 0)
+        border = JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 0, 0, 0, 0)
         
         updateContent()
         setupEvents()
@@ -159,12 +159,10 @@ class TodosoItemComponent(
     private fun updateContent() {
         val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
         textPane.text = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
-        
-        // Hapus tooltip lama (Swing default)
+
         this.toolTipText = null
         textPane.toolTipText = null
-        
-        // Pasang Modern HelpTooltip
+
         installModernTooltip()
     }
 
@@ -172,12 +170,10 @@ class TodosoItemComponent(
         HelpTooltip.dispose(this)
         
         val ht = HelpTooltip()
-        
-        // 1. Judul Tooltip
+
         val title = if (task.isPersistentId) "Task ID: ${task.id}" else "Task details"
         ht.setTitle(title)
 
-        // 2. Gabungkan Dates & Notes ke dalam Description
         val meta = task.metadata
         val fullDescription = buildString {
             val dateLabels = listOfNotNull(
@@ -212,7 +208,6 @@ class TodosoItemComponent(
 
     private fun processMarkdownLinksForTooltip(notes: String): String {
         var result = notes
-        // Simplifikasi untuk HelpTooltip (Plain text dengan emoji)
         val imageRegex = Regex("""!\[.*?]\((.*?)\)""")
         result = imageRegex.replace(result) { "🖼️ Image: ${it.groupValues[1]}" }
 
