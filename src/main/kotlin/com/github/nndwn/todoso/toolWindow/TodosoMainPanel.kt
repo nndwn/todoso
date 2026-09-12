@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow
 
+import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
@@ -42,7 +43,6 @@ class TodosoMainPanel(
   val uiFont: Font = JBUI.Fonts.label()
   private val handler = TodosoActionHandler(project, service, this)
 
-  // Filter States (In-Memory Only)
   private val filterState = TodosoToolbar.FilterState()
   private var currentTagFilter: String? = null
 
@@ -100,7 +100,7 @@ class TodosoMainPanel(
         when (type) {
           TodosoToolbar.FilterType.PRIORITY -> filterState.priority = value as Priority?
           TodosoToolbar.FilterType.STATUS -> filterState.status = value as TaskStatus?
-          TodosoToolbar.FilterType.DATE -> filterState.date = value as String?
+          TodosoToolbar.FilterType.DATE -> filterState.date = value as TodosoToolbar.DateFilter?
           TodosoToolbar.FilterType.TAG -> filterState.tag = value as String?
           TodosoToolbar.FilterType.RESET_ALL -> {
             filterState.priority = null
@@ -124,6 +124,11 @@ class TodosoMainPanel(
       isFocusable = false
       highlighter = null
       putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
+  }
+
+  private val noMatchScrollPane = JBScrollPane(noMatchPane).apply {
+      border = BorderFactory.createEmptyBorder()
+      isFocusable = false
   }
 
   private val inputPanel by lazy {
@@ -170,10 +175,7 @@ class TodosoMainPanel(
         isOpaque = false
     }, CARD_TASK_LIST)
     
-    centerContainer.add(JBScrollPane(noMatchPane).apply {
-        border = BorderFactory.createEmptyBorder()
-        isFocusable = false
-    }, CARD_NO_MATCH)
+    centerContainer.add(noMatchScrollPane, CARD_NO_MATCH)
 
     mainContent.add(centerContainer, BorderLayout.CENTER)
     mainContent.add(inputPanel, BorderLayout.SOUTH)
@@ -216,117 +218,140 @@ class TodosoMainPanel(
 
   fun refreshUiState() {
     val allTasks = service.loadTask()
-
     if (allTasks.isEmpty()) {
-      tasksContainer.removeAll()
-      taskComponents.clear()
-      cardLayout.show(centerContainer, CARD_INSTRUCTION)
-    } else {
-      // 1. Filter Tasks
-      val filteredTasks = allTasks.filter { task ->
-        val priorityMatch = filterState.priority == null || task.priority == filterState.priority
-        val statusMatch = filterState.status == null || task.status == filterState.status
-        
-        val activeTag = filterState.tag ?: currentTagFilter
-        val tagMatch = activeTag == null || task.tags.contains(activeTag)
-        
-        val dateMatch = when (filterState.date) {
-            "TODAY" -> isTaskMatchingDate(task) { it == LocalDate.now() }
-            "THIS_WEEK" -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
-            "WITH_DATE" -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
-            else -> true
-        }
-                        
-        priorityMatch && statusMatch && tagMatch && dateMatch
-      }
+      showAbsoluteEmptyState()
+      return
+    }
 
-      if (filteredTasks.isEmpty()) {
-          tasksContainer.removeAll()
-          taskComponents.clear()
-          noMatchPane.text = buildNoMatchHtml()
-          cardLayout.show(centerContainer, CARD_NO_MATCH)
-          return
-      }
+    val filteredTasks = getFilteredTasks(allTasks)
+    if (filteredTasks.isEmpty()) {
+      showNoMatchState()
+      return
+    }
 
-      val sortedTasks = applySorting(filteredTasks, currentSortOption)
-      
-      val newComponents = mutableListOf<TodosoItemComponent>()
-      var isOrderChanged = sortedTasks.size != taskComponents.size
-      
-      if (!isOrderChanged) {
-          for (i in sortedTasks.indices) {
-              if (sortedTasks[i].lineNumber != taskComponents[i].task.lineNumber) {
-                  isOrderChanged = true
-                  break
-              }
-          }
-      }
+    val sortedTasks = applySorting(filteredTasks, currentSortOption)
+    syncUI(sortedTasks)
+    
+    cardLayout.show(centerContainer, CARD_TASK_LIST)
+    SwingUtilities.invokeLater { scrollToSelected() }
+  }
 
-      if (isOrderChanged) {
-          tasksContainer.removeAll()
-          sortedTasks.forEach { task ->
-              val component = TodosoItemComponent(
-                  task, 
-                  settings.state.visualEnabled,
-                  onSelect = { t -> handleTaskSelection(t) },
-                  onEdit = { /* ... */ }
-              )
-              if (task.lineNumber == selectedTask?.lineNumber || (task.id.isNotBlank() && task.id == selectedTask?.id)) {
-                  component.setSelected(true)
-              }
-              tasksContainer.add(component)
-              newComponents.add(component)
-          }
-          taskComponents.clear()
-          taskComponents.addAll(newComponents)
-      } else {
-          val currentVisualEnabled = settings.state.visualEnabled
-          sortedTasks.forEachIndexed { index, task ->
-              val comp = taskComponents[index]
-              comp.updateData(task, currentVisualEnabled)
-              val isSelected = task.lineNumber == selectedTask?.lineNumber || (task.id.isNotBlank() && task.id == selectedTask?.id)
-              comp.setSelected(isSelected)
-          }
+  private fun showAbsoluteEmptyState() {
+    tasksContainer.removeAll()
+    taskComponents.clear()
+    cardLayout.show(centerContainer, CARD_INSTRUCTION)
+  }
+
+  private fun showNoMatchState() {
+    tasksContainer.removeAll()
+    taskComponents.clear()
+    noMatchPane.text = buildNoMatchHtml()
+    cardLayout.show(centerContainer, CARD_NO_MATCH)
+  }
+
+  private fun getFilteredTasks(allTasks: List<TodoTask>): List<TodoTask> {
+    return allTasks.filter { task ->
+      val priorityMatch = filterState.priority == null || task.priority == filterState.priority
+      val statusMatch = filterState.status == null || task.status == filterState.status
+      
+      val activeTag = filterState.tag ?: currentTagFilter
+      val tagMatch = activeTag == null || task.tags.contains(activeTag)
+      
+      val dateMatch = when (filterState.date) {
+          TodosoToolbar.DateFilter.TODAY -> isTaskMatchingDate(task) { it == LocalDate.now() }
+          TodosoToolbar.DateFilter.THIS_WEEK -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
+          TodosoToolbar.DateFilter.WITH_DATE -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
+          else -> true
       }
-      
-      tasksContainer.revalidate()
-      tasksContainer.repaint()
-      cardLayout.show(centerContainer, CARD_TASK_LIST)
-      
-      SwingUtilities.invokeLater { scrollToSelected() }
+                      
+      priorityMatch && statusMatch && tagMatch && dateMatch
     }
   }
 
+  private fun syncUI(sortedTasks: List<TodoTask>) {
+    var isOrderChanged = sortedTasks.size != taskComponents.size
+    if (!isOrderChanged) {
+      for (i in sortedTasks.indices) {
+        if (sortedTasks[i].lineNumber != taskComponents[i].task.lineNumber) {
+          isOrderChanged = true
+          break
+        }
+      }
+    }
+
+    if (isOrderChanged) {
+      rebuildTaskComponents(sortedTasks)
+    } else {
+      updateExistingTaskComponents(sortedTasks)
+    }
+    
+    tasksContainer.revalidate()
+    tasksContainer.repaint()
+  }
+
+  private fun rebuildTaskComponents(tasks: List<TodoTask>) {
+    tasksContainer.removeAll()
+    taskComponents.clear()
+    tasks.forEach { task ->
+      val component = TodosoItemComponent(
+        service,
+        task, 
+        settings.state.visualEnabled,
+        onSelect = { t -> handleTaskSelection(t) },
+        onEdit = { /* ... */ }
+      )
+      if (isTaskSelected(task)) {
+        component.setSelected(true)
+      }
+      tasksContainer.add(component)
+      taskComponents.add(component)
+    }
+  }
+
+  private fun updateExistingTaskComponents(tasks: List<TodoTask>) {
+    val currentVisualEnabled = settings.state.visualEnabled
+    tasks.forEachIndexed { index, task ->
+      val comp = taskComponents[index]
+      comp.updateData(task, currentVisualEnabled)
+      comp.setSelected(isTaskSelected(task))
+    }
+  }
+
+  private fun isTaskSelected(task: TodoTask): Boolean {
+    return task.lineNumber == selectedTask?.lineNumber || 
+           (task.id.isNotBlank() && task.id == selectedTask?.id)
+  }
+
   private fun scrollToSelected() {
-      val target = selectedTask ?: return
-      val component = taskComponents.find { it.task.id == target.id } ?: return
-      tasksContainer.scrollRectToVisible(component.bounds)
+    val target = selectedTask ?: return
+    val component = taskComponents.find { it.task.id == target.id } ?: return
+    tasksContainer.scrollRectToVisible(component.bounds)
   }
 
   private fun buildNoMatchHtml(): String {
-      return """
-          <html>
-          <body style="font-family: sans-serif; padding: 20px; text-align: center; color: #BBBBBB;">
-              <h2 style="color: #FFFFFF;">No Tasks Found</h2>
-              <p>No tasks match your active filters.</p>
-              <p style="margin-top: 10px;">
-                  Try adjusting your <b>Priority</b>, <b>Status</b>, or <b>Tag</b> filters in the toolbar above.
-              </p>
-          </body>
-          </html>
-      """.trimIndent()
+    return """
+        <html>
+        <body style="font-family: sans-serif; padding: 12px;">
+            <h2 style="margin-top: 0;">${TodosoBundle.message("todo.filter.no_match.title")}</h2>
+            <p>${TodosoBundle.message("todo.filter.no_match.desc")}</p>
+            <p style="margin-top: 10px;">
+                ${TodosoBundle.message("todo.filter.no_match.hint")}
+            </p>
+        </body>
+        </html>
+    """.trimIndent()
   }
 
   private fun handleTaskSelection(task: TodoTask) {
-      if (selectedTask?.id == task.id) {
-          selectedTask = null
-          taskComponents.forEach { it.setSelected(false) }
-      } else {
-          selectedTask = task
-          taskComponents.forEach { it.setSelected(it.task.id == task.id) }
-      }
-      requestUnfocus()
-      updateButtonStates()
+    if (selectedTask?.id == task.id) {
+      selectedTask = null
+      taskComponents.forEach { it.setSelected(false) }
+    } else {
+      selectedTask = task
+      taskComponents.forEach { it.setSelected(it.task.id == task.id) }
+    }
+    requestUnfocus()
+    updateButtonStates()
   }
 
   private fun applySorting(tasks: List<TodoTask>, options: Set<TodosoToolbar.SortOption>): List<TodoTask> {
@@ -380,7 +405,9 @@ class TodosoMainPanel(
     refreshUiState()
   }
   override fun setDateFilter(filter: String?) {
-    filterState.date = filter
+    filterState.date = filter?.let { 
+        try { TodosoToolbar.DateFilter.valueOf(it) } catch(_: Exception) { null }
+    }
     refreshUiState()
   }
   override fun updateButtonStates() { /* ... */ }

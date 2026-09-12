@@ -175,6 +175,10 @@ class TodosoService(private val project: Project) {
     return cachedTasks
   }
 
+  fun findTaskById(id: String): TodoTask? {
+      return loadTask().find { it.id == id }
+  }
+
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
     modifyTaskLine(task) { currentTask ->
       val updatedMeta =

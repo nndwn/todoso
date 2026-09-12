@@ -1,9 +1,12 @@
 package com.github.nndwn.todoso.toolWindow.itemTodoList
 
+import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.DateParser
+import com.github.nndwn.todoso.domain.parser.TaskIdParser
+import com.github.nndwn.todoso.services.TodosoService
 import com.intellij.ide.HelpTooltip
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
@@ -26,6 +29,7 @@ import javax.swing.text.DefaultCaret
 import javax.swing.text.html.HTMLEditorKit
 
 class TodosoItemComponent(
+    private val service: TodosoService,
     var task: TodoTask,
     private var isVisualEnabled: Boolean,
     private val onSelect: (TodoTask) -> Unit,
@@ -171,7 +175,11 @@ class TodosoItemComponent(
         
         val ht = HelpTooltip()
 
-        val title = if (task.isPersistentId) "Task ID: ${task.id}" else "Task details"
+        val title = if (task.isPersistentId) {
+            TodosoBundle.message("todo.tooltip.task.id", task.id)
+        } else {
+            TodosoBundle.message("todo.tooltip.task.details")
+        }
         ht.setTitle(title)
 
         val meta = task.metadata
@@ -189,13 +197,47 @@ class TodosoItemComponent(
             if (task.status == TaskStatus.DONE) {
                 DateParser.calculateDuration(meta)?.let { duration ->
                     if (isNotEmpty()) append("\n")
-                    append("Duration: $duration")
+                    append(TodosoBundle.message("todo.tooltip.duration", duration))
                 }
             }
             
             if (meta.notes.isNotBlank()) {
-                if (isNotEmpty()) append("\n\nNote:\n")
+                if (isNotEmpty()) append("\n\n")
+                append(TodosoBundle.message("todo.tooltip.note"))
+                append("\n")
                 append(processMarkdownLinksForTooltip(meta.notes))
+            }
+
+            // Tambahkan rujukan ID jika ada di dalam deskripsi
+            val referencedIds = TaskIdParser.TASK_ID_REGEX.findAll(task.description)
+                .map { it.groupValues[1] }
+                .distinct()
+                .filter { it != task.id } // Jangan merujuk diri sendiri
+            
+            referencedIds.forEach { refId ->
+                service.findTaskById(refId)?.let { refTask ->
+                    append("\n\n---\n")
+                    append("Reference 🆔 $refId:\n")
+                    append(refTask.description)
+                    
+                    val refMeta = refTask.metadata
+                    val refDates = listOfNotNull(
+                        refMeta.startDate?.let { "Start: $it" },
+                        refMeta.dueDate?.let { "Due: $it" },
+                        refMeta.endDate?.let { "Done: $it" },
+                        refMeta.cancelDate?.let { "Cancelled: $it" },
+                    )
+                    
+                    if (refDates.isNotEmpty()) {
+                        append("\n")
+                        append(refDates.joinToString("\n"))
+                    }
+                    
+                    if (refMeta.notes.isNotBlank()) {
+                        append("\nNote: ")
+                        append(processMarkdownLinksForTooltip(refMeta.notes))
+                    }
+                }
             }
         }
         

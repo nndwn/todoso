@@ -32,9 +32,11 @@ class TodosoToolbar(
   data class FilterState(
     var priority: Priority? = null,
     var status: TaskStatus? = null,
-    var date: String? = null,
+    var date: DateFilter? = null,
     var tag: String? = null
   )
+
+  enum class DateFilter { TODAY, THIS_WEEK, WITH_DATE }
 
   enum class FilterType { PRIORITY, STATUS, DATE, TAG, RESET_ALL }
 
@@ -135,7 +137,7 @@ class TodosoToolbar(
   }
 
   private fun createFilterActionGroup(): ActionGroup {
-    return object : DefaultActionGroup("Filters", true) {
+    return object : DefaultActionGroup(TodosoBundle.message("todo.filter.title"), true) {
       init {
         templatePresentation.icon = AllIcons.General.Filter
       }
@@ -162,13 +164,13 @@ class TodosoToolbar(
         }
 
         // 1. Priority
-        dynamicGroup.addSeparator(TodosoBundle.message("todo.view.group.priority"))
+        dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.group.priority"))
         Priority.entries
           .filter { it != Priority.NONE }
           .forEach { dynamicGroup.add(createPriorityFilterAction(it)) }
 
         // 2. Status
-        dynamicGroup.addSeparator(TodosoBundle.message("todo.view.group.status"))
+        dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.group.status"))
         TaskStatus.entries.forEach { dynamicGroup.add(createStatusFilterAction(it)) }
 
         // 3. Date (Only show if at least one task has a date)
@@ -179,10 +181,10 @@ class TodosoToolbar(
               it.metadata.createdDate != null
           }
         if (hasAnyDate) {
-          dynamicGroup.addSeparator(TodosoBundle.message("todo.sort.by.date"))
-          dynamicGroup.add(createDateFilterAction("TODAY"))
-          dynamicGroup.add(createDateFilterAction("THIS_WEEK"))
-          dynamicGroup.add(createDateFilterAction("WITH_DATE"))
+          dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.date.title"))
+          dynamicGroup.add(createDateFilterAction(DateFilter.TODAY))
+          dynamicGroup.add(createDateFilterAction(DateFilter.THIS_WEEK))
+          dynamicGroup.add(createDateFilterAction(DateFilter.WITH_DATE))
         }
 
         return dynamicGroup.getChildren(e)
@@ -193,7 +195,7 @@ class TodosoToolbar(
   }
 
   private fun createTagsFilterActionGroup(): ActionGroup {
-    return object : DefaultActionGroup("Tags", true) {
+    return object : DefaultActionGroup(TodosoBundle.message("todo.filter.group.tags_title"), true) {
       init {
         templatePresentation.icon = AllIcons.Nodes.Tag
       }
@@ -222,7 +224,7 @@ class TodosoToolbar(
         
         val recentVersions = TagParser.getRecentVersions(tasks = tasks)
         if (recentVersions.isNotEmpty()) {
-          dynamicGroup.addSeparator("Versions")
+          dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.group.versions"))
           recentVersions.forEach { tag ->
             val count = tasks.count { it.tags.contains(tag) }
             dynamicGroup.add(createTagFilterAction(tag, count))
@@ -237,7 +239,11 @@ class TodosoToolbar(
   }
 
   private fun createClearAllAction(): AnAction =
-    object : AnAction("Clear All Filters", "Reset all active filters", AllIcons.Actions.GC) {
+    object : AnAction(
+        TodosoBundle.message("todo.filter.clear.all"), 
+        TodosoBundle.message("todo.filter.clear.all.desc"), 
+        AllIcons.Actions.GC
+    ) {
       override fun actionPerformed(e: AnActionEvent) = onFilterChanged(FilterType.RESET_ALL, null)
     }
 
@@ -263,12 +269,11 @@ class TodosoToolbar(
     }
   }
 
-  private fun createDateFilterAction(filter: String): ToggleAction {
+  private fun createDateFilterAction(filter: DateFilter): ToggleAction {
     val text = when(filter) {
-        "TODAY" -> "Today"
-        "THIS_WEEK" -> "This Week"
-        "WITH_DATE" -> "Has Date"
-        else -> filter
+        DateFilter.TODAY -> TodosoBundle.message("todo.filter.date.today")
+        DateFilter.THIS_WEEK -> TodosoBundle.message("todo.filter.date.this_week")
+        DateFilter.WITH_DATE -> TodosoBundle.message("todo.filter.date.has_date")
     }
     return object : ToggleAction(text) {
       override fun isSelected(e: AnActionEvent): Boolean = filterState.date == filter
@@ -280,7 +285,8 @@ class TodosoToolbar(
   }
 
   private fun createTagFilterAction(tag: String, count: Int): ToggleAction {
-    val text = "#$tag ($count)"
+    val displayTag = if (tag.length > 20) tag.take(17) + "..." else tag
+    val text = "#$displayTag ($count)"
     return object : ToggleAction(text) {
       override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == tag
       override fun setSelected(e: AnActionEvent, state: Boolean) {
