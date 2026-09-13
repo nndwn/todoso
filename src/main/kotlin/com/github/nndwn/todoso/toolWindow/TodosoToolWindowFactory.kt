@@ -53,7 +53,7 @@ class TodosoToolWindowFactory : ToolWindowFactory, DumbAware {
                     },
                     onCreateNote = { note -> 
                         panel.hideSearchPanel()
-                        panel.handler.handleConfirmCancel(note) 
+                        panel.handler.handleUpdateNote(note) 
                     },
                     onCancelEdit = { panel.handler.handleCancelEdit() },
                     fontInput = panel.uiFont,

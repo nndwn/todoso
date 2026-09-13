@@ -154,12 +154,8 @@ class TodosoToolbar(
         val dynamicGroup = DefaultActionGroup()
 
         // 0. Global Reset
-        val hasActiveFilter = filterState.priority != null || filterState.status != null || 
-                             filterState.date != null || filterState.tag != null
-        if (hasActiveFilter) {
-          dynamicGroup.add(createClearAllAction())
-          dynamicGroup.addSeparator()
-        }
+        dynamicGroup.add(createClearAllAction())
+        dynamicGroup.addSeparator()
 
         // 1. Priority
         dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.group.priority"))
@@ -210,6 +206,16 @@ class TodosoToolbar(
         val tasks = service.loadTask()
         
         val dynamicGroup = DefaultActionGroup()
+
+        // 0. Reset Tag Filter
+        dynamicGroup.add(object : ToggleAction(TodosoBundle.message("todo.common.all"), null, AllIcons.Actions.GC) {
+            override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == null
+            override fun setSelected(e: AnActionEvent, state: Boolean) {
+                if (state) onFilterChanged(FilterType.TAG, null)
+            }
+            override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+        })
+        dynamicGroup.addSeparator()
         
         val popularTags = TagParser.getPopularTags(tasks)
         if (popularTags.isNotEmpty()) {
@@ -243,6 +249,15 @@ class TodosoToolbar(
         AllIcons.Actions.GC
     ) {
       override fun actionPerformed(e: AnActionEvent) = onFilterChanged(FilterType.RESET_ALL, null)
+
+      override fun update(e: AnActionEvent) {
+        val hasActiveFilter = filterState.priority != null || filterState.status != null || 
+                             filterState.date != null || filterState.tag != null ||
+                             !filterState.query.isNullOrBlank()
+        e.presentation.isEnabled = hasActiveFilter
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
     }
 
   private fun createPriorityFilterAction(priority: Priority): ToggleAction {

@@ -6,6 +6,7 @@ import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
@@ -17,6 +18,7 @@ import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBTextArea
+import com.intellij.ui.components.TextComponentEmptyText
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.Cursor
@@ -27,7 +29,11 @@ import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.JButton
+import javax.swing.JMenuItem
+import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
@@ -66,6 +72,7 @@ class TodosoInputPanel(
     JBTextArea().apply {
       font = fontInput.deriveFont(12f)
       emptyText.text = TodosoBundle.message("todo.input.placeholder")
+      TextComponentEmptyText.setupPlaceholderVisibility(this)
       lineWrap = true
       wrapStyleWord = true
       rows = 3
@@ -109,7 +116,28 @@ class TodosoInputPanel(
     isFocusable = true
     setupUI()
     setupListeners()
+    setupContextMenu()
     updateActionButtons()
+  }
+
+  private fun setupContextMenu() {
+    inputTextArea.addMouseListener(object : MouseAdapter() {
+      override fun mousePressed(e: MouseEvent) {
+        if (e.isPopupTrigger) showMenu(e)
+      }
+
+      override fun mouseReleased(e: MouseEvent) {
+        if (e.isPopupTrigger) showMenu(e)
+      }
+
+      private fun showMenu(e: MouseEvent) {
+        val menu = JPopupMenu()
+        val pasteAction = JMenuItem(TodosoBundle.message("todo.menu.paste"), AllIcons.Actions.Attach)
+        pasteAction.addActionListener { inputTextArea.paste() }
+        menu.add(pasteAction)
+        menu.show(e.component, e.x, e.y)
+      }
+    })
   }
 
   private fun setupUI() {

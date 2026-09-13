@@ -1,8 +1,11 @@
 package com.github.nndwn.todoso.toolWindow.contextMenu
 
 import com.github.nndwn.todoso.TodosoBundle
+import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
+import com.github.nndwn.todoso.domain.model.TodoTask
+import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.TodosoActionHandler
@@ -15,9 +18,13 @@ class TodosoContextMenu(
     private val handler : TodosoActionHandler,
 ) {
     fun build() : List<TodosoMenuElement> {
-        return  buildTodosoMenu {
-            editorTask()
-            separator()
+        val selected = handler.getSelectedTask()
+        
+        return buildTodosoMenu {
+            if (selected != null) {
+                editorTask(selected)
+                separator()
+            }
             toolTask()
             separator()
             visualTask()
@@ -26,13 +33,23 @@ class TodosoContextMenu(
         }
     }
 
-    private fun TodoMenuBuilder.editorTask() {
-        val selected = handler.getSelectedTask() ?: return
+    private fun TodoMenuBuilder.editorTask(initialTask: TodoTask) {
+        val taskId = initialTask.id
 
         item(
             text = TodosoBundle.message("todo.menu.edit.task"),
             icon = AllIcons.Actions.Edit,
-            onAction = { handler.setEditMode(true, selected.description) }
+            onAction = { 
+                service.findTaskById(taskId)?.let { handler.setEditMode(true, it.description) }
+            }
+        )
+
+        item(
+            text = TodosoBundle.message("todo.menu.add.note"),
+            icon = AllIcons.Actions.EditSource,
+            onAction = {
+                service.findTaskById(taskId)?.let { handler.setNoteMode(true, it.metadata.notes) }
+            }
         )
 
         subMenu(TodosoBundle.message("todo.menu.change.status"), AllIcons.Actions.Diff){
@@ -40,9 +57,11 @@ class TodosoContextMenu(
                 item(
                     text = status.displayName,
                     icon = status.icon,
-                    isEnabled = { handler.canTransitionTo(selected, status) }
+                    isEnabled = { 
+                        service.findTaskById(taskId)?.let { handler.canTransitionTo(it, status) } ?: false
+                    }
                 ) {
-                    handler.updateTaskStatus(selected, status)
+                    service.findTaskById(taskId)?.let { handler.updateTaskStatus(it, status) }
                 }
             }
         }
@@ -52,9 +71,73 @@ class TodosoContextMenu(
                 item(
                     text = priority.displayName,
                     icon = priority.icon,
-                    isEnabled = { selected.priority != priority },
-                    onAction = { handler.handleUpdatePriority(selected, priority) }
+                    isEnabled = { 
+                        service.findTaskById(taskId)?.priority != priority 
+                    },
+                    onAction = { 
+                        service.findTaskById(taskId)?.let { handler.handleUpdatePriority(it, priority) }
+                    }
                 )
+            }
+        }
+
+        subMenu(TodosoBundle.message("todo.menu.manage.tags"), AllIcons.Nodes.Tag) {
+            val cachedTasks = service.getCachedTasks()
+            val exclusiveRelations = TodosoConstants.EXCLUSIVE_RELATIONS
+            val exclusiveTags = exclusiveRelations.flatten()
+
+            // 1. Exclusive Tag Groups
+            exclusiveRelations.forEach { group ->
+                group.forEach { tag ->
+                    toggle(
+                        text = "#$tag",
+                        isSelected = { 
+                            service.findTaskById(taskId)?.tags?.contains(tag) ?: false 
+                        },
+                        onToggle = { 
+                            service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+                        }
+                    )
+                }
+                separator()
+            }
+
+            // 2. Popular Tags (Excluding Exclusives)
+            val popularTags = TagParser.getPopularTags(cachedTasks)
+                .filter { it !in exclusiveTags }
+
+            if (popularTags.isNotEmpty()) {
+                subMenu(TodosoBundle.message("todo.suggestion.popular.tags")) {
+                    popularTags.forEach { tag ->
+                        toggle(
+                            text = "#$tag",
+                            isSelected = { 
+                                service.findTaskById(taskId)?.tags?.contains(tag) ?: false 
+                            },
+                            onToggle = { 
+                                service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+                            }
+                        )
+                    }
+                }
+            }
+
+            // 3. Recent Versions
+            val recentVersions = TagParser.getRecentVersions(tasks = cachedTasks)
+            if (recentVersions.isNotEmpty()) {
+                subMenu(TodosoBundle.message("todo.filter.group.versions")) {
+                    recentVersions.forEach { tag ->
+                        toggle(
+                            text = "#$tag",
+                            isSelected = { 
+                                service.findTaskById(taskId)?.tags?.contains(tag) ?: false 
+                            },
+                            onToggle = { 
+                                service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+                            }
+                        )
+                    }
+                }
             }
         }
 
@@ -63,13 +146,17 @@ class TodosoContextMenu(
         item(
             text = TodosoBundle.message("todo.menu.copy.context"),
             icon = AllIcons.Actions.Copy,
-            onAction = { handler.handleCopyContext() }
+            onAction = { 
+                service.findTaskById(taskId)?.let { handler.handleCopyContext() }
+            }
         )
 
         item(
             text = TodosoBundle.message("todo.menu.delete"),
             icon = AllIcons.Actions.GC,
-            onAction = { handler.handleDeleteAction() }
+            onAction = { 
+                service.findTaskById(taskId)?.let { handler.handleDeleteAction() }
+            }
         )
     }
     private fun TodoMenuBuilder.toolTask() {

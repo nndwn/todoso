@@ -119,11 +119,7 @@ class TodosoMainPanel(
             }
         })
 
-        addHierarchyListener { event ->
-            if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
-                refreshTasks()
-            }
-        }
+        refreshTasks()
     }
 
     private fun subsChange() {
@@ -161,6 +157,7 @@ class TodosoMainPanel(
     }
 
     override fun setEditMode(enabled: Boolean, text: String) = inputPanel.setEditMode(enabled, text)
+    override fun setNoteMode(enabled: Boolean, text: String) = inputPanel.setNoteMode(enabled, text)
     override fun setCancelMode(enabled: Boolean) = inputPanel.setCancelMode(enabled)
     override fun getSelectedTask(): TodoTask? = taskListView.getSelectedTask()
     override fun getInputText(): String = inputPanel.inputTextArea.text

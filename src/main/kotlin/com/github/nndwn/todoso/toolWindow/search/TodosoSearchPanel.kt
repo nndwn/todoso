@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow.search
 
+import com.github.nndwn.todoso.TodosoBundle
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.SearchTextField
 import com.intellij.util.ui.JBUI
@@ -12,6 +13,7 @@ class TodosoSearchPanel(
 ) : JPanel(BorderLayout()) {
 
     private val searchField = SearchTextField().apply {
+        textEditor.emptyText.text = TodosoBundle.message("todo.filter.search")
         addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 onQueryChanged(text)

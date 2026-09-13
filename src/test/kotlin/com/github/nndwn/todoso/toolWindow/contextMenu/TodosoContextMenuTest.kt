@@ -27,6 +27,7 @@ class TodosoContextMenuTest : BasePlatformTestCase() {
             override fun setDateFilter(filter: String?) {}
             override fun setTagFilter(tag: String?) {}
             override fun setCancelMode(enabled: Boolean) {}
+            override fun setNoteMode(enabled: Boolean, text: String) {}
             override fun getInputText(): String = ""
             override fun clearInputText() {}
             override fun requestUnfocus() {}

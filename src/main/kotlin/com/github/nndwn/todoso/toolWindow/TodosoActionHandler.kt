@@ -39,6 +39,8 @@ class TodosoActionHandler(
 
     fun setCancelMode(enabled: Boolean)
 
+    fun setNoteMode(enabled: Boolean, text: String = "")
+
     fun getInputText(): String
 
     fun clearInputText()
@@ -55,6 +57,8 @@ class TodosoActionHandler(
   fun getSelectedTask() = view.getSelectedTask()
 
   fun setEditMode(enabled: Boolean, text: String = "") = view.setEditMode(enabled, text)
+
+  fun setNoteMode(enabled: Boolean, text: String = "") = view.setNoteMode(enabled, text)
 
   fun refreshTasks() = view.refreshTasks()
 
@@ -79,9 +83,18 @@ class TodosoActionHandler(
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 
+  fun handleUpdateNote(note: String) {
+    val selected = view.getSelectedTask() ?: return
+    service.updateTaskNote(selected, note)
+    view.setNoteMode(false)
+    view.updateButtonStates()
+    ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+  }
+
   fun handleCancelEdit() {
     view.setEditMode(false)
     view.setCancelMode(false)
+    view.setNoteMode(false)
     pendingCancelTask = null
     view.updateButtonStates()
   }

@@ -27,8 +27,7 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
     ```
   
 > [!IMPORTANT]
-> **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues. we highly recommend adding todo.md (or your custom path) to your `.gitignore` file.
-kata 
+> **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues, we highly recommend adding `todo.md` (or your custom path) to your `.gitignore` file.
 
 #### Modern Component-Based UI
 Todoso moves away from traditional, rigid list views to a modern, dynamic component architecture inspired by modern productivity tools:
@@ -55,7 +54,7 @@ A smart single-input field that intelligently processes plain text, Markdown syn
         *   **Normal**: Default state for creating new tasks.
         *   **Edit**: Triggered when modifying existing tasks (Blue background).
         *   **Cancel**: Triggered when marking a task as `CANCELLED` without a note. It features a **Pink/Red background** and requires a mandatory justification note before the status is updated.
-        *   **Note**: Specifically for adding or appending metadata notes (`//`).
+        *   **Note**: Specifically for adding or appending metadata notes (`//`). It features a **Blue background** and an **Update** button. The `//` prefix is managed automatically.
 *    **Input Styles**:
         * **Plain Text**: Type a description like `Update layout navbar`.
         * **Quick Syntax**: Use shortcodes like `[H] Fix bug #ui` to assign priority and tags instantly.
@@ -85,10 +84,25 @@ Todoso provides an interactive toolbar with dynamic view options and multi-crite
           2. Enable **Priority** (while Status is active) → Inside each status group, tasks are now sorted by urgency.
           3. Enable **Date** (third) → Tasks with the *same status* AND *same priority* will then be ordered by date.
       * **Pro Tip**: To change the hierarchy, simply click "Default" to clear the chain and re-enable them in your preferred order!
-      * **RecommendedMe ** choose `Status first and Priority`.
+      * **Recommended**: Choose `Status` first, then `Priority`.
 *   **Persistent Sort State**: Your custom sorting chain is automatically saved and restored across IDE restarts.
 *   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
 *   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
+
+
+
+#### Enhanced Context Menu
+A comprehensive right-click menu for lightning-fast task management:
+*   **Smart Status & Priority**: Only valid transitions are enabled, with icons matching the UI.
+*   **Edit Task**: Instantly load the task description into the input panel for modification.
+*   **Add Note**: Open the input panel in **Note Mode** to add or update metadata notes (after the `//` separator) specifically for the selected task.
+*   **Manage Tags (Intelligent Sub-Menu)**:
+    *   **Exclusive Groups**: Automatically handles mutually exclusive tags (e.g., toggling `#feature` will remove `#issue`).
+    *   **Popular Tags**: Suggests your 10 most used tags from the current file for quick access.
+    *   **Version Tracking**: Dedicated sub-menu for version-related tags (`v*`).
+    *   **Inline Integrity**: Adding tags via the menu preserves your existing "inline" tags within the description, appending new ones only if they don't already exist.
+*   **Copy Context**: Copies the task description and its relevant metadata to the clipboard for sharing.
+*   **Navigate to Source**: Instantly jumps to the exact line in your Markdown file.
 
 ####  Comprehensive Filtering & Search System
 Manage large task lists with precision using the new integrated filtering engine:

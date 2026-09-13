@@ -11,7 +11,7 @@ object TodosoConstants {
   const val CARD_NO_MATCH = "NO_MATCH"
   const val MIME_HTML = "text/html"
 
-  private val EXCLUSIVE_RELATIONS = listOf(
+  val EXCLUSIVE_RELATIONS = listOf(
     listOf("feature", "issue"),
     listOf("development", "production")
   )

@@ -9,9 +9,11 @@ import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtil
@@ -175,8 +177,7 @@ class TodosoService(private val project: Project) {
     tasksById = tasks.associateBy { it.id }
     isCacheDirty = false
     lastLoadedPath = currentPath
-    
-    // UX: Jika ada task tanpa ID permanen, buatkan ID permanen secara otomatis
+
     if (tasks.any { !it.isPersistentId }) {
         ApplicationManager.getApplication().invokeLater {
             persistMissingIds(todoFile, tasks)
@@ -209,19 +210,24 @@ class TodosoService(private val project: Project) {
   }
 
   fun findTaskById(id: String): TodoTask? {
-      loadTask() // Pastikan cache sudah terisi
+      loadTask()
       return tasksById[id]
   }
 
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
-    // 1. Update Memory Cache Segera (Optimistic Update)
     val updatedMeta = if (!note.isNullOrBlank()) task.metadata.copy(notes = note) else task.metadata
     val updatedTask = task.copy(status = newStatus, metadata = updatedMeta, isPersistentId = true)
-    
     updateTaskInMemory(updatedTask)
-
-    // 2. Tulis ke Disk di Latar Belakang
     modifyTaskLine(task) { updatedTask.let { TodoTaskBuilder.rebuildTaskLine(it) } }
+  }
+
+  fun updateTaskNote(task: TodoTask, note: String) {
+    val updatedTask = task.copy(
+      metadata = task.metadata.copy(notes = note.removePrefix("//").trim()),
+      isPersistentId = true
+    )
+    updateTaskInMemory(updatedTask)
+    modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }
   }
 
   private fun updateTaskInMemory(updatedTask: TodoTask) {
@@ -396,8 +402,9 @@ class TodosoService(private val project: Project) {
 
   fun isWritingInternal(): Boolean = isInternalWriting
 
+
   fun deleteTask(task: TodoTask) {
-    modifyTaskLine(task) { null }
+    modifyTaskLine(task) { "<!-- ${task.rawText} -->" }
   }
 
   fun updateTaskPriority(task: TodoTask, newPriority: Priority) {
@@ -413,23 +420,33 @@ class TodosoService(private val project: Project) {
 
   fun applyTaskTag(task: TodoTask, tag: String, exclusiveWith: List<String> = emptyList()) {
     val cleanTargetTag = tag.trim().removePrefix("#")
-    val effectiveExclusives = exclusiveWith.ifEmpty {
-        TodosoConstants.EXCLUSIVE_TAG_GROUPS[cleanTargetTag.lowercase()] ?: emptyList()
-    }
-    val cleanExclusiveTags = effectiveExclusives.map { it.trim().removePrefix("#") }
+    val hasTag = task.tags.contains(cleanTargetTag)
 
-    val hasTag = task.tags.any { it.equals(cleanTargetTag, ignoreCase = true) }
-    val updatedTags = if (hasTag) {
-      task.tags.filterNot { it.equals(cleanTargetTag, ignoreCase = true) }
+    var newDescription = task.description
+    val newTags = task.tags.toMutableList()
+
+    if (hasTag) {
+      newDescription = newDescription.replace(Regex("""\s*#$cleanTargetTag\b"""), "").trim()
+      newTags.remove(cleanTargetTag)
     } else {
-      val filteredTags = task.tags.filterNot { existingTag ->
-        cleanExclusiveTags.any { ex -> existingTag.equals(ex, ignoreCase = true) }
+      val exclusives = exclusiveWith.ifEmpty {
+        TodosoConstants.EXCLUSIVE_TAG_GROUPS[cleanTargetTag.lowercase()] ?: emptyList()
       }
-      filteredTags + cleanTargetTag
+      exclusives.forEach { ex ->
+        val cleanEx = ex.removePrefix("#")
+        newDescription = newDescription.replace(Regex("""\s*#$cleanEx\b"""), "").trim()
+        newTags.remove(cleanEx)
+      }
+      newDescription = "$newDescription #$cleanTargetTag"
+      newTags.add(cleanTargetTag)
     }
-    
-    val updatedTask = task.copy(tags = updatedTags.distinct(), isPersistentId = true)
-    
+
+    val updatedTask = task.copy(
+      description = newDescription,
+      tags = newTags.distinct(),
+      isPersistentId = true
+    )
+
     updateTaskInMemory(updatedTask)
     modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }
   }

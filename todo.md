@@ -25,7 +25,7 @@
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
 - [x] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya 🆔 Pjxkcd 🛫 2026-09-09 17:38 ✅ 2026-09-09 18:04
 - [x] 🔼 jadi sanitazi itu untuk apa ? 🆔 qfocgi 🛫 2026-09-09 18:19 ✅ 2026-09-09 18:19
-- [/] 🔺 sepertinya untuk penanganan delete jangan main langsung hapus lebih baik jadi comment di lane , tapi bagaimana nasib lane berdasarkan baris lainnya ? #issue 🛫 2026-09-13 14:04 🆔 K0CGIt
+- [x] 🔺 sepertinya untuk penanganan delete jangan main langsung hapus lebih baik jadi comment di lane , tapi bagaimana nasib lane berdasarkan baris lainnya ? #issue 🛫 2026-09-13 14:04 🆔 K0CGIt ✅ 2026-09-14 01:50
 - [x] 🔼 ada beberapa issue di tag ketika user memilih tag langsung enter tag langsung di spasi jadi tidak dapat menampilkan related tag , solusi mungkin jangan berikan spasi pada saat enter 🆔 U9AcPT 🛫 2026-09-09 08:04 ✅ 2026-09-09 09:18
 - [x] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF 🛫 2026-09-09 16:51 ✅ 2026-09-09 17:03
 - [x] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13 ✅ 2026-09-09 21:39
@@ -47,7 +47,7 @@
 - [x] 🔼 terkadang membingungkan ketika lihat task yang sudah di short , tiba -tiba ketik task baru task tidak tampak sama sekali di pilihan #issue 🛫 2026-09-11 17:32 🆔 q9YqEa ✅ 2026-09-11 18:10
 - [x] taks tidak bewarna hijau ketia doing #issue 🆔 diZ97U 🛫 2026-09-11 17:35 ✅ 2026-09-11 18:09
 - [x] 🔼 No Match Panel kurang rapi selalu tengah coba ambil teknik yang sama ketika no list task #Issue 🆔 iuBekw 🛫 2026-09-12 14:55 ✅ 2026-09-12 17:32
-- [ ] ⏬ Item component ketika di klik id dan descripsi akan menuju ke line file line nya  🆔 dfeotS
+- [-] ⏬ Item component ketika di klik id dan descripsi akan menuju ke line file line nya  🆔 dfeotS ❌ 2026-09-14 01:52 // noted: bagusnya di letakan di klik kanan saja
 - [x] ⏫ membuat sistem tooltip yang lebih informatif jika seandai nya di descripsi memiliki id yang terhubung maka tampikan detail descripsi task di tooltip 🛫 2026-09-12 18:05 🆔 t954Ej ✅ 2026-09-13 00:13
 - [x] 🔺 posible buat search ? 🆔 gDcVlJ 🛫 2026-09-12 23:00 ✅ 2026-09-13 01:31
 - [/] 🔼 untuk tool task context menu refres task , random task, go line number, search, copy task 🆔 rQNGh5 🛫 2026-09-13 14:04
@@ -56,12 +56,18 @@
 - [x] ⏫ priority sekaran memiliki iconnya sendiri terapkan ke pada klik kanan #feature 🆔 phJ6Fe 🛫 2026-09-13 14:32 ✅ 2026-09-13 15:08
 - [x] [H] harusnya todosoContextMenu tidak perlu tahu mengenai isi TodosoToolbar #issue 🆔 S5Cdbo 🛫 2026-09-13 14:20 ✅ 2026-09-13 15:07
 - [x] [H]rename edit dan tags menjadi edit task #issue 🆔 5dzxA2 🛫 2026-09-13 14:31 ✅ 2026-09-13 14:31
-- [ ] [H] pada klik kanan perlu ada add tag berupa berupa tag populer dan tag eklusif lalu filter tag populer jika ada memiliki tag eklusif #feature 🆔 9TRrqs
+- [x] [H] pada klik kanan perlu ada add tag berupa berupa tag populer dan tag eklusif lalu filter tag populer jika ada memiliki tag eklusif #feature 🆔 9TRrqs 🛫 2026-09-13 23:23 ✅ 2026-09-14 00:18
 - [ ] [H] untuk di klik kanan apa perlu ada filter ? #feature 🆔 LjXZqK
-- [ ] ⏫ issue untuk placeholder input jangan terhapus pada saat inputan kosong #issue 🆔 yeBXUB
+- [x] ⏫ issue untuk placeholder input jangan terhapus pada saat inputan kosong #issue 🆔 yeBXUB 🛫 2026-09-13 22:35 ✅ 2026-09-13 23:03
 - [x] [H] pada priority jika sudah diberikan priority jangan di berikan priority yang sama #issue 🆔 le419q 🛫 2026-09-13 14:51 ✅ 2026-09-13 15:06
 - [x] ⏫ #issue di auto scroll tidak efektif untuk sistem order list ini karena setiap perubahan perlu jeda sync 🆔 KjTPl7 🛫 2026-09-13 15:16 ✅ 2026-09-13 15:26
 - [x] #Issue TodosoMainPanel sudah mencapai 500 baris lebiha lakukan refactring pemisahan 🆔 KT2gWL 🛫 2026-09-13 15:26 ✅ 2026-09-13 17:46
-- [ ] [H] untuk filter di awal tidak perlu hide clear all filter nya #issue 🆔 M2IFhn
+- [x] [H] untuk filter di awal tidak perlu hide clear all filter nya #issue 🆔 M2IFhn 🛫 2026-09-13 22:34 ✅ 2026-09-13 22:45
 - [x] 🔺 masalah perubahan data list task ketika melakukan perubahan data, ini akibat invalide cache setiap perubahan data sehingga daftar task perlu mengatur ulang #issue 🆔 r8IyVY 🛫 2026-09-13 19:39 ✅ 2026-09-13 19:39
-- [ ] [H] pada filter tag perlu tambahkan clear all #issue 🆔 SflUM6
+- [x] [H] pada filter tag perlu tambahkan clear all #issue 🆔 SflUM6 🛫 2026-09-13 22:35 ✅ 2026-09-13 22:44
+- [x] ⏫ penambahan add note #feature di context menu 🆔 T07Urq 🛫 2026-09-14 00:23 ✅ 2026-09-14 00:39
+- [x] ⏫ #issue ternyata di input tidak ada klik kanan paste 🆔 5g4k69 🛫 2026-09-14 00:58 ✅ 2026-09-14 02:02
+- [/] 🔼 tambahkan comment waktu dan versi setiap user lakukan update perubahan secara io di todo.md, nanti nya ini berguna untuk trigger sesuatu #feature 🆔 UFnfdo 🛫 2026-09-14 00:57
+- [/] 🔺 #issue ganti icon priority 🆔 RhHFLt 🛫 2026-09-14 01:51
+- [/] di context menu perlu ada informasi shorcut #issue 🆔 dnJLY0 🛫 2026-09-14 02:02
+- [ ] ⏫ context menu perlu di ganti bentuk icon dan informasi shortcut 🆔 N4xsEr
