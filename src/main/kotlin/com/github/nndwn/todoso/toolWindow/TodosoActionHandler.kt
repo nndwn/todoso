@@ -9,6 +9,7 @@ import com.github.nndwn.todoso.services.TodosoService
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -45,6 +46,8 @@ class TodosoActionHandler(
     fun requestUnfocus()
 
     fun setSelectedTask(task: TodoTask?)
+
+    fun toggleSearch()
   }
 
   private var pendingCancelTask: TodoTask? = null
@@ -163,12 +166,23 @@ class TodosoActionHandler(
           NotificationType.INFORMATION,
         )
         .notify(project)
+      return
     }
 
     val randomTask = todoTasks.random()
     service.updateTaskStatus(randomTask, TaskStatus.DOING)
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
+
+  fun handleNavigateToTask(task: TodoTask) {
+    val file = service.getTodoFile() ?: return
+    val descriptor = OpenFileDescriptor(project, file, task.lineNumber - 1, 0)
+    if (descriptor.canNavigate()) {
+      descriptor.navigate(true)
+    }
+  }
+
+  fun handleToggleSearch() = view.toggleSearch()
 
   fun canTransitionTo(task: TodoTask?, newStatus: TaskStatus): Boolean {
     if (task == null) return false

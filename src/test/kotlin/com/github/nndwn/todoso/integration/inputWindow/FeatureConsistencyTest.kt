@@ -5,6 +5,7 @@ import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.services.TodosoService
+import com.github.nndwn.todoso.toolWindow.SortOption
 import com.github.nndwn.todoso.toolWindow.TodosoMainPanel
 import com.github.nndwn.todoso.toolWindow.TodosoToolbar
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
@@ -29,7 +30,7 @@ class FeatureConsistencyTest : BasePlatformTestCase() {
       )
 
     val panel = TodosoMainPanel(project)
-    val sortOptions = setOf(TodosoToolbar.SortOption.DATE, TodosoToolbar.SortOption.PRIORITY)
+    val sortOptions = setOf(SortOption.DATE, SortOption.PRIORITY)
 
     val method = panel.javaClass.getDeclaredMethod("applySorting", List::class.java, Set::class.java)
     method.isAccessible = true

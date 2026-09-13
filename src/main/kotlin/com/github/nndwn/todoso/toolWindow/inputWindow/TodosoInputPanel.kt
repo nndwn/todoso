@@ -246,6 +246,7 @@ class TodosoInputPanel(
     when (mode) {
       is InputMode.Normal -> {
         inputTextArea.text = ""
+        inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
         inputTextArea.background =
           JBColor.namedColor(BACKGROUND_COLOR_NORMAL, JBColor(0xF2F2F2, 0x1E1F22))
         actionButton.text = TodosoBundle.message(NEW_TASK_BUTTON)
@@ -253,6 +254,7 @@ class TodosoInputPanel(
       }
       is InputMode.Edit -> {
         inputTextArea.text = initialText
+        inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
         inputTextArea.background =
           JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
         actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
@@ -260,13 +262,15 @@ class TodosoInputPanel(
       }
       is InputMode.Cancel -> {
         inputTextArea.text = initialText
+        inputTextArea.emptyText.text = TodosoBundle.message("todo.action.cancel.noted.required")
         inputTextArea.background =
           JBColor.namedColor(BACKGROUND_COLOR_CANCEL, JBColor(0xFFE6E6, 0x482D2D))
-        actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
+        actionButton.text = TodosoBundle.message("todo.button.cancel.task")
         cancelButton.isVisible = true
       }
       is InputMode.Note -> {
         inputTextArea.text = if (initialText.isBlank()) "// " else ensureNotePrefix(initialText)
+        inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
         inputTextArea.background =
           JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
         actionButton.text = TodosoBundle.message(UPDATE_BUTTON)

@@ -25,7 +25,7 @@
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
 - [x] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya 🆔 Pjxkcd 🛫 2026-09-09 17:38 ✅ 2026-09-09 18:04
 - [x] 🔼 jadi sanitazi itu untuk apa ? 🆔 qfocgi 🛫 2026-09-09 18:19 ✅ 2026-09-09 18:19
-- [ ] 🔺 sepertinya untuk penanganan delete jangan main langsung hapus lebih baik jadi comment di lane , tapi bagaimana nasib lane berdasarkan baris lainnya ? 🆔 K0CGIt
+- [/] 🔺 sepertinya untuk penanganan delete jangan main langsung hapus lebih baik jadi comment di lane , tapi bagaimana nasib lane berdasarkan baris lainnya ? #issue 🛫 2026-09-13 14:04 🆔 K0CGIt
 - [x] 🔼 ada beberapa issue di tag ketika user memilih tag langsung enter tag langsung di spasi jadi tidak dapat menampilkan related tag , solusi mungkin jangan berikan spasi pada saat enter 🆔 U9AcPT 🛫 2026-09-09 08:04 ✅ 2026-09-09 09:18
 - [x] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF 🛫 2026-09-09 16:51 ✅ 2026-09-09 17:03
 - [x] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13 ✅ 2026-09-09 21:39
@@ -42,7 +42,7 @@
 - [x] tooltip di todoItem 🆔 ZBXy14 🛫 2026-09-11 11:06 ✅ 2026-09-11 11:24
 - [-] rewrite icon with icon-collection repository 🆔 oQ1Frv ❌ 2026-09-12 12:28 // noted: lebih nyesuaikan template icon ide yang sudah ada, tapi tetap tambahkan icon yang pada dasarnya tidak ada di ide
 - [x] ⏫ ada issue di showSuggestion ketika muncul ui bertabrakan dengan ui component item #issue 🆔 ETF4bH 🛫 2026-09-11 14:36 ✅ 2026-09-11 14:57
-- [/] 🔺 buat klik kanan untuk ubah status 🆔 ZshZWF 🛫 2026-09-12 15:42
+- [x] 🔺 buat klik kanan untuk ubah status 🆔 ZshZWF 🛫 2026-09-12 15:42 ✅ 2026-09-13 13:58
 - [x] ⏫ mmebuat hide visual berdasarkan status, prioriy , latest , berdasarkan 10 tah populer , bersarkan 4 tag version paling atas #feature 🛫 2026-09-11 18:16 🆔 xdNreu ✅ 2026-09-12 14:54
 - [x] 🔼 terkadang membingungkan ketika lihat task yang sudah di short , tiba -tiba ketik task baru task tidak tampak sama sekali di pilihan #issue 🛫 2026-09-11 17:32 🆔 q9YqEa ✅ 2026-09-11 18:10
 - [x] taks tidak bewarna hijau ketia doing #issue 🆔 diZ97U 🛫 2026-09-11 17:35 ✅ 2026-09-11 18:09
@@ -50,3 +50,15 @@
 - [ ] ⏬ Item component ketika di klik id dan descripsi akan menuju ke line file line nya  🆔 dfeotS
 - [x] ⏫ membuat sistem tooltip yang lebih informatif jika seandai nya di descripsi memiliki id yang terhubung maka tampikan detail descripsi task di tooltip 🛫 2026-09-12 18:05 🆔 t954Ej ✅ 2026-09-13 00:13
 - [x] 🔺 posible buat search ? 🆔 gDcVlJ 🛫 2026-09-12 23:00 ✅ 2026-09-13 01:31
+- [/] 🔼 untuk tool task context menu refres task , random task, go line number, search, copy task 🆔 rQNGh5 🛫 2026-09-13 14:04
+- [-] lalu bagaimana jika seandainya user lakukan doing lalu ingin pause kan lalu contionue task sehingga start waktu tidak menghilang 🆔 5g78qS ❌ 2026-09-13 04:03 // noted: hanya memperumit kalkulasi waktu penyelesaian
+- [x] ⏫ kenapa ketika di klik select item task lalu di klik kanan , yang di select menjadi unselect ? #Issue 🆔 MfVeDz 🛫 2026-09-13 14:05 ✅ 2026-09-13 14:19
+- [x] ⏫ priority sekaran memiliki iconnya sendiri terapkan ke pada klik kanan #feature 🆔 phJ6Fe 🛫 2026-09-13 14:32 ✅ 2026-09-13 15:08
+- [x] [H] harusnya todosoContextMenu tidak perlu tahu mengenai isi TodosoToolbar #issue 🆔 S5Cdbo 🛫 2026-09-13 14:20 ✅ 2026-09-13 15:07
+- [x] [H]rename edit dan tags menjadi edit task #issue 🆔 5dzxA2 🛫 2026-09-13 14:31 ✅ 2026-09-13 14:31
+- [ ] [H] pada klik kanan perlu ada add tag berupa berupa tag populer dan tag eklusif lalu filter tag populer jika ada memiliki tag eklusif #feature 🆔 9TRrqs
+- [ ] [H] untuk di klik kanan apa perlu ada filter ? #feature 🆔 LjXZqK
+- [ ] ⏫ issue untuk placeholder input jangan terhapus pada saat inputan kosong #issue 🆔 yeBXUB
+- [x] [H] pada priority jika sudah diberikan priority jangan di berikan priority yang sama #issue 🆔 le419q 🛫 2026-09-13 14:51 ✅ 2026-09-13 15:06
+- [x] ⏫ #issue di auto scroll tidak efektif untuk sistem order list ini karena setiap perubahan perlu jeda sync 🆔 KjTPl7 🛫 2026-09-13 15:16 ✅ 2026-09-13 15:26
+- [/] #Issue TodosoMainPanel sudah mencapai 500 baris lebiha lakukan refactring pemisahan 🆔 KT2gWL 🛫 2026-09-13 15:26

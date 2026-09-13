@@ -31,7 +31,8 @@ class TodosoItemComponent(
     var task: TodoTask,
     private var isVisualEnabled: Boolean,
     private val onSelect: (TodoTask) -> Unit,
-    private val onEdit: (TodoTask) -> Unit
+    private val onEdit: (TodoTask) -> Unit,
+    private val onContextMenu: (TodoTask, MouseEvent) -> Unit
 ) : JPanel(BorderLayout()), Scrollable {
 
     private var isSelected = false
@@ -112,10 +113,20 @@ class TodosoItemComponent(
             }
 
             override fun mousePressed(e: MouseEvent) {
-                if (e.clickCount == 2) {
-                    onEdit(task)
+                if (e.isPopupTrigger) {
+                    onContextMenu(task, e)
                 } else {
-                    onSelect(task)
+                    if (e.clickCount == 2) {
+                        onEdit(task)
+                    } else {
+                        onSelect(task)
+                    }
+                }
+            }
+
+            override fun mouseReleased(e: MouseEvent) {
+                if (e.isPopupTrigger) {
+                    onContextMenu(task, e)
                 }
             }
         }
@@ -144,12 +155,7 @@ class TodosoItemComponent(
     }
 
     private fun updateIcon(label: JBLabel, task: TodoTask, visualEnabled: Boolean) {
-        val baseIcon = when (task.status) {
-            TaskStatus.DOING -> TodosoIcons.TaskDoing
-            TaskStatus.DONE -> TodosoIcons.TaskDone
-            TaskStatus.CANCELLED -> TodosoIcons.TaskCancelled
-            else -> TodosoIcons.TaskTodo
-        }
+        val baseIcon = task.status.icon
 
         label.icon = if (visualEnabled) {
             IconUtil.colorize(baseIcon, task.priority.color)

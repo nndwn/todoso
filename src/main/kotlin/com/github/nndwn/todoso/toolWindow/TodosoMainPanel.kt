@@ -10,11 +10,15 @@ import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.itemTodoList.TodosoItemComponent
+import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoContextMenu
+import com.github.nndwn.todoso.toolWindow.contextMenu.toActionGroup
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonShortcuts
 import com.intellij.openapi.actionSystem.CustomShortcutSet
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.DumbAwareAction
@@ -28,6 +32,7 @@ import java.awt.*
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.HierarchyEvent
+import java.awt.event.MouseEvent
 import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.Locale
@@ -50,11 +55,11 @@ class TodosoMainPanel(
   val uiFont: Font = JBUI.Fonts.label()
   private val handler = TodosoActionHandler(project, service, this)
 
-  private val filterState = TodosoToolbar.FilterState()
+  private val filterState = FilterState()
   private var currentTagFilter: String? = null
 
-  private var currentSortOption: Set<TodosoToolbar.SortOption> =
-    settings.state.sortOption.split(",").mapNotNull { TodosoToolbar.SortOption.fromKey(it.trim()) }.toSet()
+  private var currentSortOption: Set<SortOption> =
+    settings.state.sortOption.split(",").mapNotNull { SortOption.fromKey(it.trim()) }.toSet()
 
   private val cardLayout = CardLayout()
   private val centerContainer = JPanel(cardLayout)
@@ -105,11 +110,11 @@ class TodosoMainPanel(
       filterState = filterState,
       onFilterChanged = { type, value ->
         when (type) {
-          TodosoToolbar.FilterType.PRIORITY -> filterState.priority = value as Priority?
-          TodosoToolbar.FilterType.STATUS -> filterState.status = value as TaskStatus?
-          TodosoToolbar.FilterType.DATE -> filterState.date = value as TodosoToolbar.DateFilter?
-          TodosoToolbar.FilterType.TAG -> filterState.tag = value as String?
-          TodosoToolbar.FilterType.SEARCH -> {
+          FilterType.PRIORITY -> filterState.priority = value as Priority?
+          FilterType.STATUS -> filterState.status = value as TaskStatus?
+          FilterType.DATE -> filterState.date = value as DateFilter?
+          FilterType.TAG -> filterState.tag = value as String?
+          FilterType.SEARCH -> {
             if (value == "TOGGLE") {
               if (searchPanel.isVisible) hideSearchPanel() else showSearchPanel()
             } else {
@@ -117,7 +122,7 @@ class TodosoMainPanel(
               refreshUiState()
             }
           }
-          TodosoToolbar.FilterType.RESET_ALL -> {
+          FilterType.RESET_ALL -> {
             filterState.priority = null
             filterState.status = null
             filterState.date = null
@@ -293,7 +298,6 @@ class TodosoMainPanel(
     syncUI(sortedTasks)
     
     cardLayout.show(centerContainer, CARD_TASK_LIST)
-    SwingUtilities.invokeLater { scrollToSelected() }
   }
 
   private fun showAbsoluteEmptyState() {
@@ -318,9 +322,9 @@ class TodosoMainPanel(
       val tagMatch = activeTag == null || task.tags.contains(activeTag)
       
       val dateMatch = when (filterState.date) {
-          TodosoToolbar.DateFilter.TODAY -> isTaskMatchingDate(task) { it == LocalDate.now() }
-          TodosoToolbar.DateFilter.THIS_WEEK -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
-          TodosoToolbar.DateFilter.WITH_DATE -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
+          DateFilter.TODAY -> isTaskMatchingDate(task) { it == LocalDate.now() }
+          DateFilter.THIS_WEEK -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
+          DateFilter.WITH_DATE -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
           else -> true
       }
 
@@ -356,6 +360,8 @@ class TodosoMainPanel(
     tasksContainer.repaint()
   }
 
+
+
   private fun rebuildTaskComponents(tasks: List<TodoTask>) {
     tasksContainer.removeAll()
     taskComponents.clear()
@@ -365,7 +371,8 @@ class TodosoMainPanel(
         task, 
         settings.state.visualEnabled,
         onSelect = { t -> handleTaskSelection(t) },
-        onEdit = { /* ... */ }
+        onEdit = { t -> handler.setEditMode(true, t.description) },
+        onContextMenu = { t, e -> showContextMenu(t, e) }
       )
       if (isTaskSelected(task)) {
         component.setSelected(true)
@@ -408,8 +415,8 @@ class TodosoMainPanel(
     """.trimIndent()
   }
 
-  private fun handleTaskSelection(task: TodoTask) {
-    if (selectedTask?.id == task.id) {
+  private fun handleTaskSelection(task: TodoTask, forceSelect: Boolean = false) {
+    if (!forceSelect && selectedTask?.id == task.id) {
       selectedTask = null
       taskComponents.forEach { it.setSelected(false) }
     } else {
@@ -432,15 +439,15 @@ class TodosoMainPanel(
     refreshUiState()
   }
 
-  private fun applySorting(tasks: List<TodoTask>, options: Set<TodosoToolbar.SortOption>): List<TodoTask> {
+  private fun applySorting(tasks: List<TodoTask>, options: Set<SortOption>): List<TodoTask> {
     if (options.isEmpty()) return tasks
     val comparators = mutableListOf<Comparator<TodoTask>>()
     for (option in options) {
       when (option) {
-        TodosoToolbar.SortOption.STATUS -> comparators.add(compareBy { it.status })
-        TodosoToolbar.SortOption.DATE ->
+        SortOption.STATUS -> comparators.add(compareBy { it.status })
+        SortOption.DATE ->
           comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: it.metadata.createdDate ?: "9999-99-99" })
-        TodosoToolbar.SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
+        SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
       }
     }
     if (comparators.isEmpty()) return tasks
@@ -469,6 +476,19 @@ class TodosoMainPanel(
   override fun clearInputText() { inputPanel.clearInputText() }
   override fun requestUnfocus() { inputPanel.requestUnfocus() }
   override fun setSelectedTask(task: TodoTask?) { this.selectedTask = task }
+
+  override fun toggleSearch() {
+    if (searchPanel.isVisible) hideSearchPanel() else showSearchPanel()
+  }
+
+  private fun showContextMenu(task: TodoTask, e: MouseEvent) {
+    handleTaskSelection(task, forceSelect = true)
+    val menuElements = TodosoContextMenu(service, settings, handler).build()
+    val actionGroup = menuElements.toActionGroup(this)
+    val popupMenu = ActionManager.getInstance()
+      .createActionPopupMenu("TodosoContextMenu", actionGroup)
+    popupMenu.component.show(e.component, e.x, e.y)
+  }
   override fun setTagFilter(tag: String?) {
     currentTagFilter = tag
     refreshUiState()
@@ -484,7 +504,7 @@ class TodosoMainPanel(
   }
   override fun setDateFilter(filter: String?) {
     filterState.date = filter?.let { 
-        try { TodosoToolbar.DateFilter.valueOf(it) } catch(_: Exception) { null }
+        try { DateFilter.valueOf(it) } catch(_: Exception) { null }
     }
     refreshUiState()
   }

@@ -58,6 +58,11 @@ A smart single-input field that intelligently processes plain text, Markdown syn
             * **New User Experience**: If a project has no tags yet, Todoso suggests **Quick Tags** (`#feature`, `#issue`, `#production`, `#development`, `#urgent`) to help you get started.
             * **Deep Search**: Typing after `#` searches through *all* tags ever used in the project, not just the top 10.
             * Selecting a task from the suggestions instantly inserts its unique `🆔 ID` for easy cross-referencing.
+*    **Input Modes**:
+        *   **Normal**: Default state for creating new tasks.
+        *   **Edit**: Triggered when modifying existing tasks (Blue background).
+        *   **Cancel**: Triggered when marking a task as `CANCELLED` without a note. It features a **Pink/Red background** and requires a mandatory justification note before the status is updated.
+        *   **Note**: Specifically for adding or appending metadata notes (`//`).
 *    **Input Styles**:
         * **Plain Text**: Type a description like `Update layout navbar`.
         * **Quick Syntax**: Use shortcodes like `[H] Fix bug #ui` to assign priority and tags instantly.
@@ -196,7 +201,7 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
    * 🛫 **Start Date** (`startDate`): Recorded when a task transitions to `DOING`.
    * 📅 **Due Date** (`dueDate`): Optional deadline date for the task.
    * ✅ **Completion Date** (`endDate`): Recorded when a task is marked `DONE`.
-   * ❌ **Cancelled Date** (`cancelDate`): Recorded when a task is marked `CANCELLED`.
+   * ❌ **Cancelled Date** (`cancelDate`): Recorded when a task is marked `CANCELLED`. **Note Protection**: Cancellation via the context menu requires a mandatory note. If no note is provided in the input field, the plugin enters **Cancel Mode** to prompt the user for a reason.
    * ➕ **Created Date** (`createdDate`): Optional task creation timestamp.
 
 2. **Flexible DateTime Format**:
@@ -213,6 +218,13 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
 
 4. **Execution Duration Calculation**:
    * Automatically calculates execution duration between Start Date (🛫) and Completion Date (✅) upon completion (e.g., `1h 45m` or `30m`).
+
+#### Intelligent Status Transitions
+To maintain logical workflow integrity, Todoso enforces strict business rules for changing task status:
+*   **Sequential Workflow**: A task can only be marked as **Done** (`[x]`) if its current status is **Doing** (`[/]`). This encourages a proper "Start before Finish" habit.
+*   **Irreversibility of Completion**: Tasks that are already **Done** cannot be marked as **Cancelled** (`[-]`).
+*   **Smart Context Menu**: The right-click menu automatically disables invalid transition options based on these rules, preventing accidental data inconsistency.
+*   **Note Integrity**: Transitioning to **Cancelled** requires a mandatory note, ensuring every abandoned task has a documented reason.
 
 #### Strict Content Integrity & Validation
 To keep your `todo.md` clean and professional, Todoso enforces a **Strict Validator** across both the UI and Service layers:
