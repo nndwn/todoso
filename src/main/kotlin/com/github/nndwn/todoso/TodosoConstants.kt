@@ -5,6 +5,11 @@ object TodosoConstants {
   const val PLUGIN_ID = "com.github.nndwn.todoso"
   const val PLUGIN_NAME = "Todoso: Markdown Todo List"
   const val FILENAME = "TODO.md"
+  
+  const val CARD_INSTRUCTION = "EMPTY_STATE"
+  const val CARD_TASK_LIST = "TASK_LIST"
+  const val CARD_NO_MATCH = "NO_MATCH"
+  const val MIME_HTML = "text/html"
 
   private val EXCLUSIVE_RELATIONS = listOf(
     listOf("feature", "issue"),
@@ -38,4 +43,17 @@ object TodosoConstants {
         </html>
     """
       .trimIndent()
+
+  fun getNoMatchHtml(): String =
+    """
+        <html>
+        <body style="font-family: sans-serif; padding: 12px;">
+            <h2 style="margin-top: 0;">${TodosoBundle.message("todo.filter.no_match.title")}</h2>
+            <p>${TodosoBundle.message("todo.filter.no_match.desc")}</p>
+            <p style="margin-top: 10px;">
+                ${TodosoBundle.message("todo.filter.no_match.hint")}
+            </p>
+        </body>
+        </html>
+    """.trimIndent()
 }

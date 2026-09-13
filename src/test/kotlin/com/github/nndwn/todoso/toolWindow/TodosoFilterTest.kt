@@ -25,7 +25,7 @@ class TodosoFilterTest : BasePlatformTestCase() {
             - [-] ⏬ Task 5 #issue
         """.trimIndent()
         myFixture.addFileToProject(TodosoConstants.FILENAME, content)
-        mainPanel = TodosoMainPanel(project)
+        mainPanel = TodosoTestHelper.createMainPanel(project)
         mainPanel.refreshTasks()
         UIUtil.dispatchAllInvocationEvents()
     }
@@ -33,43 +33,43 @@ class TodosoFilterTest : BasePlatformTestCase() {
     fun testPriorityFilter() {
         mainPanel.setPriorityFilter(Priority.HIGH)
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show 1 task for High priority", 1, mainPanel.taskComponents.size)
-        assertTrue(mainPanel.taskComponents[0].task.description.contains("Task 2"))
+        assertEquals("Should show 1 task for High priority", 1, mainPanel.taskListView.taskComponents.size)
+        assertTrue(mainPanel.taskListView.taskComponents[0].task.description.contains("Task 2"))
 
         mainPanel.setPriorityFilter(null)
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show all 5 tasks after reset", 5, mainPanel.taskComponents.size)
+        assertEquals("Should show all 5 tasks after reset", 5, mainPanel.taskListView.taskComponents.size)
     }
 
     fun testStatusFilter() {
         mainPanel.setStatusFilter(TaskStatus.DONE)
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show 1 task for Done status", 1, mainPanel.taskComponents.size)
-        assertTrue(mainPanel.taskComponents[0].task.description.contains("Task 3"))
+        assertEquals("Should show 1 task for Done status", 1, mainPanel.taskListView.taskComponents.size)
+        assertTrue(mainPanel.taskListView.taskComponents[0].task.description.contains("Task 3"))
 
         mainPanel.setStatusFilter(TaskStatus.TODO)
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show 2 tasks for Todo status", 2, mainPanel.taskComponents.size)
+        assertEquals("Should show 2 tasks for Todo status", 2, mainPanel.taskListView.taskComponents.size)
     }
 
     fun testDateFilter() {
         mainPanel.setDateFilter("WITH_DATE")
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show 2 tasks with dates", 2, mainPanel.taskComponents.size)
+        assertEquals("Should show 2 tasks with dates", 2, mainPanel.taskListView.taskComponents.size)
         
         mainPanel.setDateFilter(null)
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show all 5 tasks after reset", 5, mainPanel.taskComponents.size)
+        assertEquals("Should show all 5 tasks after reset", 5, mainPanel.taskListView.taskComponents.size)
     }
 
     fun testTagFilter() {
         mainPanel.setTagFilter("issue")
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show 2 tasks with tag #issue", 2, mainPanel.taskComponents.size)
+        assertEquals("Should show 2 tasks with tag #issue", 2, mainPanel.taskListView.taskComponents.size)
         
         mainPanel.setTagFilter(null)
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show all 5 tasks after reset", 5, mainPanel.taskComponents.size)
+        assertEquals("Should show all 5 tasks after reset", 5, mainPanel.taskListView.taskComponents.size)
     }
 
     fun testCombinedFilters() {
@@ -77,12 +77,12 @@ class TodosoFilterTest : BasePlatformTestCase() {
         mainPanel.setTagFilter("feature")
         UIUtil.dispatchAllInvocationEvents()
         
-        assertEquals("Should show only 1 task matching both criteria", 1, mainPanel.taskComponents.size)
-        assertTrue(mainPanel.taskComponents[0].task.description.contains("Task 1"))
+        assertEquals("Should show only 1 task matching both criteria", 1, mainPanel.taskListView.taskComponents.size)
+        assertTrue(mainPanel.taskListView.taskComponents[0].task.description.contains("Task 1"))
         
         mainPanel.setPriorityFilter(Priority.LOW)
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show 0 tasks when combination doesn't match", 0, mainPanel.taskComponents.size)
+        assertEquals("Should show 0 tasks when combination doesn't match", 0, mainPanel.taskListView.taskComponents.size)
     }
 
     fun testTodayAndWeekFilters() {
@@ -103,12 +103,12 @@ class TodosoFilterTest : BasePlatformTestCase() {
 
         mainPanel.setDateFilter("TODAY")
         UIUtil.dispatchAllInvocationEvents()
-        assertEquals("Should show 1 task for today", 1, mainPanel.taskComponents.size)
-        assertTrue(mainPanel.taskComponents[0].task.description.contains("Task Today"))
+        assertEquals("Should show 1 task for today", 1, mainPanel.taskListView.taskComponents.size)
+        assertTrue(mainPanel.taskListView.taskComponents[0].task.description.contains("Task Today"))
 
         mainPanel.setDateFilter("THIS_WEEK")
         UIUtil.dispatchAllInvocationEvents()
         assertTrue("Task Today should also be in This Week", 
-                   mainPanel.taskComponents.any { it.task.description.contains("Task Today") })
+                   mainPanel.taskListView.taskComponents.any { it.task.description.contains("Task Today") })
     }
 }

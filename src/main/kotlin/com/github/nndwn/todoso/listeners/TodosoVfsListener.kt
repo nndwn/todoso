@@ -14,6 +14,8 @@ class TodosoVfsListener(private val project: Project) : BulkFileListener {
     val service = project.service<TodosoService>()
     val targetFile = service.getTodoFile() ?: return
 
+    if (service.isWritingInternal()) return
+
     val isTargetFileContentChanged = events.any { event ->
       event is VFileContentChangeEvent && event.file.path == targetFile.path
     }

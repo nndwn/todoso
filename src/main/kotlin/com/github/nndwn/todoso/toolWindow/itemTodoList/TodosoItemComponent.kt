@@ -1,21 +1,23 @@
 package com.github.nndwn.todoso.toolWindow.itemTodoList
 
 import com.github.nndwn.todoso.TodosoBundle
-import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.services.TodosoService
 import com.intellij.ide.HelpTooltip
-import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.IconUtil
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import java.awt.*
+import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.Cursor
+import java.awt.Dimension
+import java.awt.Rectangle
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JPanel
@@ -144,13 +146,18 @@ class TodosoItemComponent(
 
     fun updateData(newTask: TodoTask, newVisualEnabled: Boolean) {
         val visualChanged = isVisualEnabled != newVisualEnabled
-        val dataChanged = this.task.rawText != newTask.rawText || this.task.status != newTask.status || this.task.priority != newTask.priority
+        val statusChanged = this.task.status != newTask.status
+        val priorityChanged = this.task.priority != newTask.priority
+        val textChanged = this.task.description != newTask.description || this.task.metadata.notes != newTask.metadata.notes
 
-        if (dataChanged || visualChanged) {
+        if (statusChanged || priorityChanged || textChanged || visualChanged) {
             this.task = newTask
             this.isVisualEnabled = newVisualEnabled
             updateIcon(iconLabel, task, isVisualEnabled)
             updateContent()
+        } else {
+            // Walau konten sama, mungkin line number berubah (tetap simpan referensi terbaru)
+            this.task = newTask
         }
     }
 
@@ -166,7 +173,12 @@ class TodosoItemComponent(
 
     private fun updateContent() {
         val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
-        textPane.text = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
+        val newHtml = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
+        
+        // Optimasi: Jangan ganti teks jika HTML-nya sama persis untuk mencegah flicker
+        if (textPane.text != newHtml) {
+            textPane.text = newHtml
+        }
 
         this.toolTipText = null
         textPane.toolTipText = null

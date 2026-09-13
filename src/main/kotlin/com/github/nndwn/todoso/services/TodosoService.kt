@@ -42,6 +42,7 @@ class TodosoService(private val project: Project) {
   private var cachedTasks: List<TodoTask> = emptyList()
   private var tasksById: Map<String, TodoTask> = emptyMap()
   private var isCacheDirty = true
+  private var isInternalWriting = false
 
   private var lastLoadedPath: String? = null
 
@@ -141,7 +142,7 @@ class TodosoService(private val project: Project) {
         }
 
     todoFile.refresh(false, false)
-
+    if (!isCacheDirty && currentPath == lastLoadedPath) return cachedTasks
     val content =
       try {
         VfsUtil.loadText(todoFile)
@@ -213,22 +214,25 @@ class TodosoService(private val project: Project) {
   }
 
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
-    modifyTaskLine(task) { currentTask ->
-      val updatedMeta =
-        if (!note.isNullOrBlank()) {
-          currentTask.metadata.copy(notes = note)
-        } else {
-          currentTask.metadata
-        }
+    // 1. Update Memory Cache Segera (Optimistic Update)
+    val updatedMeta = if (!note.isNullOrBlank()) task.metadata.copy(notes = note) else task.metadata
+    val updatedTask = task.copy(status = newStatus, metadata = updatedMeta, isPersistentId = true)
+    
+    updateTaskInMemory(updatedTask)
 
-      val updatedTask =
-        currentTask.copy(
-          status = newStatus,
-          metadata = updatedMeta,
-          isPersistentId = true,
-        )
+    // 2. Tulis ke Disk di Latar Belakang
+    modifyTaskLine(task) { updatedTask.let { TodoTaskBuilder.rebuildTaskLine(it) } }
+  }
 
-      TodoTaskBuilder.rebuildTaskLine(updatedTask)
+  private fun updateTaskInMemory(updatedTask: TodoTask) {
+    val index = cachedTasks.indexOfFirst { it.id == updatedTask.id }
+    if (index != -1) {
+        val newTasks = cachedTasks.toMutableList()
+        newTasks[index] = updatedTask
+        cachedTasks = newTasks
+        tasksById = cachedTasks.associateBy { it.id }
+        // Beritahu UI tanpa menandai cache dirty
+        project.messageBus.syncPublisher(TodosoDataChangeListener.TOPIC).onDataChanged()
     }
   }
 
@@ -297,33 +301,27 @@ class TodosoService(private val project: Project) {
     val cleanInput = sanitizeInputText(rawInputText)
     if (cleanInput.isBlank()) return
 
-    modifyTaskLine(task) { currentTask ->
-      val dummyLine = "- [${currentTask.status.code}] $cleanInput"
-
-      val parsedTask =
-        TodoTaskParser.parseLine(
-          rawLine = dummyLine,
-          lineNumber = currentTask.lineNumber,
-        )
-
-      val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-      val updatedTask =
-        if (parsedTask != null) {
-          currentTask.copy(
-            description = parsedTask.description,
-            tags = parsedTask.tags,
-            isPersistentId = true,
-            metadata = currentTask.metadata.copy(editedDate = nowFormatted),
-          )
-        } else {
-          currentTask.copy(
-            description = cleanInput,
-            isPersistentId = true,
-            metadata = currentTask.metadata.copy(editedDate = nowFormatted),
-          )
-        }
-      TodoTaskBuilder.rebuildTaskLine(updatedTask)
+    val dummyLine = "- [${task.status.code}] $cleanInput"
+    val parsedTask = TodoTaskParser.parseLine(dummyLine, task.lineNumber)
+    
+    val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+    val updatedTask = if (parsedTask != null) {
+      task.copy(
+        description = parsedTask.description,
+        tags = parsedTask.tags,
+        isPersistentId = true,
+        metadata = task.metadata.copy(editedDate = nowFormatted, notes = parsedTask.metadata.notes),
+      )
+    } else {
+      task.copy(
+        description = cleanInput,
+        isPersistentId = true,
+        metadata = task.metadata.copy(editedDate = nowFormatted),
+      )
     }
+
+    updateTaskInMemory(updatedTask)
+    modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }
   }
 
   private fun modifyTaskLine(task: TodoTask, action: (TodoTask) -> String?) {
@@ -383,9 +381,20 @@ class TodosoService(private val project: Project) {
         ""
       }
 
-    VfsUtil.saveText(file, newContent)
-    VfsUtil.markDirtyAndRefresh(false, true, true, file)
+    isInternalWriting = true
+    try {
+        VfsUtil.saveText(file, newContent)
+        VfsUtil.markDirtyAndRefresh(false, true, true, file)
+    } finally {
+        // Berikan sedikit jeda agar event VFS selesai diproses
+        ApplicationManager.getApplication().executeOnPooledThread {
+            Thread.sleep(500)
+            isInternalWriting = false
+        }
+    }
   }
+
+  fun isWritingInternal(): Boolean = isInternalWriting
 
   fun deleteTask(task: TodoTask) {
     modifyTaskLine(task) { null }
@@ -403,33 +412,25 @@ class TodosoService(private val project: Project) {
   }
 
   fun applyTaskTag(task: TodoTask, tag: String, exclusiveWith: List<String> = emptyList()) {
-    modifyTaskLine(task) { currentTask ->
-      val cleanTargetTag = tag.trim().removePrefix("#")
-
-      val effectiveExclusives = exclusiveWith.ifEmpty {
+    val cleanTargetTag = tag.trim().removePrefix("#")
+    val effectiveExclusives = exclusiveWith.ifEmpty {
         TodosoConstants.EXCLUSIVE_TAG_GROUPS[cleanTargetTag.lowercase()] ?: emptyList()
-      }
-
-      val cleanExclusiveTags = effectiveExclusives.map { it.trim().removePrefix("#") }
-
-
-      val hasTag = currentTask.tags.any { it.equals(cleanTargetTag, ignoreCase = true) }
-      val updatedTags =
-        if (hasTag) {
-          currentTask.tags.filterNot { it.equals(cleanTargetTag, ignoreCase = true) }
-        } else {
-          val filteredTags =
-            currentTask.tags.filterNot { existingTag ->
-              cleanExclusiveTags.any { ex -> existingTag.equals(ex, ignoreCase = true) }
-            }
-          filteredTags + cleanTargetTag
-        }
-      val updatedTask =
-        currentTask.copy(
-          tags = updatedTags.distinct(),
-          isPersistentId = true,
-        )
-      TodoTaskBuilder.rebuildTaskLine(updatedTask)
     }
+    val cleanExclusiveTags = effectiveExclusives.map { it.trim().removePrefix("#") }
+
+    val hasTag = task.tags.any { it.equals(cleanTargetTag, ignoreCase = true) }
+    val updatedTags = if (hasTag) {
+      task.tags.filterNot { it.equals(cleanTargetTag, ignoreCase = true) }
+    } else {
+      val filteredTags = task.tags.filterNot { existingTag ->
+        cleanExclusiveTags.any { ex -> existingTag.equals(ex, ignoreCase = true) }
+      }
+      filteredTags + cleanTargetTag
+    }
+    
+    val updatedTask = task.copy(tags = updatedTags.distinct(), isPersistentId = true)
+    
+    updateTaskInMemory(updatedTask)
+    modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }
   }
 }

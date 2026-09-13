@@ -61,4 +61,7 @@
 - [ ] ⏫ issue untuk placeholder input jangan terhapus pada saat inputan kosong #issue 🆔 yeBXUB
 - [x] [H] pada priority jika sudah diberikan priority jangan di berikan priority yang sama #issue 🆔 le419q 🛫 2026-09-13 14:51 ✅ 2026-09-13 15:06
 - [x] ⏫ #issue di auto scroll tidak efektif untuk sistem order list ini karena setiap perubahan perlu jeda sync 🆔 KjTPl7 🛫 2026-09-13 15:16 ✅ 2026-09-13 15:26
-- [/] #Issue TodosoMainPanel sudah mencapai 500 baris lebiha lakukan refactring pemisahan 🆔 KT2gWL 🛫 2026-09-13 15:26
+- [x] #Issue TodosoMainPanel sudah mencapai 500 baris lebiha lakukan refactring pemisahan 🆔 KT2gWL 🛫 2026-09-13 15:26 ✅ 2026-09-13 17:46
+- [ ] [H] untuk filter di awal tidak perlu hide clear all filter nya #issue 🆔 M2IFhn
+- [x] 🔺 masalah perubahan data list task ketika melakukan perubahan data, ini akibat invalide cache setiap perubahan data sehingga daftar task perlu mengatur ulang #issue 🆔 r8IyVY 🛫 2026-09-13 19:39 ✅ 2026-09-13 19:39
+- [ ] [H] pada filter tag perlu tambahkan clear all #issue 🆔 SflUM6

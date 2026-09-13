@@ -10,7 +10,7 @@ just type task in field and click right select priority and select tags or if yo
 [H] task description #feature #development #v0.0.1 
 ```
 
-I’m not good at typing in English but this AI agent typing is more pathetic than me
+I’m not good at typing in English but this AI agent typing is more pathetic than me, this ReadMe actually for my notes.
 
 
 
@@ -28,14 +28,7 @@ I’m not good at typing in English but this AI agent typing is more pathetic th
   
 > [!IMPORTANT]
 > **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues. we highly recommend adding todo.md (or your custom path) to your `.gitignore` file.
-
-#### Data Synchronization & Performance
-To ensure a seamless experience when working with external Markdown editors (like Obsidian) and large task lists, Todoso uses a specialized synchronization engine:
-* **High-Speed Task Lookup (O(1))**: Task searches (like ID references) are optimized using a internal `HashMap`. This ensures that even with thousands of tasks, looking up a specific ID feels instantaneous.
-* **Why Caching?** Parsing Markdown with regex is resource-intensive. We cache tasks in memory so that switching tags or sorting feels instant, tanpa repot *re-parsing* setiap saat.
-* **Smart Component Re-use**: Unlike standard lists that redraw everything, Todoso re-uses existing UI components when data updates. This prevents screen flickering and significantly reduces CPU usage during background file syncs.
-* **Why Path Awareness?** Switching between different todo files or clearing settings triggers an immediate cache invalidation. This ensures you never see "ghost tasks" from a previously selected file.
-* **Why a Refresh Button?** While we auto-sync via IntelliJ's VFS, external file changes can sometimes lag. The Refresh button acts as a "hard reset" that bypasses the cache to read directly from the disk.
+kata 
 
 #### Modern Component-Based UI
 Todoso moves away from traditional, rigid list views to a modern, dynamic component architecture inspired by modern productivity tools:

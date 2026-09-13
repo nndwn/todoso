@@ -1,553 +1,246 @@
 package com.github.nndwn.todoso.toolWindow
 
-import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
-import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
-import com.github.nndwn.todoso.toolWindow.itemTodoList.TodosoItemComponent
 import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoContextMenu
 import com.github.nndwn.todoso.toolWindow.contextMenu.toActionGroup
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
+import com.github.nndwn.todoso.toolWindow.logic.TodoTaskFilterer
+import com.github.nndwn.todoso.toolWindow.search.TodosoSearchPanel
+import com.github.nndwn.todoso.toolWindow.taskList.TodosoTaskListView
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonShortcuts
-import com.intellij.openapi.actionSystem.CustomShortcutSet
-import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
-import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.SearchTextField
-import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
-import java.awt.*
+import java.awt.BorderLayout
+import java.awt.CardLayout
+import java.awt.Font
+import java.awt.Rectangle
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import java.awt.event.HierarchyEvent
 import java.awt.event.MouseEvent
-import java.time.LocalDate
-import java.time.temporal.WeekFields
-import java.util.Locale
-import javax.swing.*
-import javax.swing.event.DocumentEvent
+import javax.swing.BorderFactory
+import javax.swing.JEditorPane
+import javax.swing.JLayeredPane
+import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 class TodosoMainPanel(
-  private val project: Project,
-  private val service: TodosoService = project.service(),
-  private val settings: TodosoSettingsService = TodosoSettingsService.getInstance(project),
+    private val project: Project,
+    private val service: TodosoService,
+    private val settings: TodosoSettingsService,
+    private val toolbarProvider: (TodosoMainPanel) -> TodosoToolbar,
+    private val inputPanelProvider: (TodosoMainPanel) -> TodosoInputPanel,
+    private val taskListViewProvider: (TodosoMainPanel) -> TodosoTaskListView,
+    private val searchPanelProvider: (TodosoMainPanel) -> TodosoSearchPanel,
+    private val suggestionOverlayProvider: (TodosoMainPanel) -> SuggestionOverlayPanel
 ) : JPanel(BorderLayout()), TodosoActionHandler.TodoViewActions {
 
-  companion object {
-    private const val CARD_INSTRUCTION = "EMPTY_STATE"
-    private const val CARD_TASK_LIST = "TASK_LIST"
-    private const val CARD_NO_MATCH = "NO_MATCH"
-    private const val HTML = "text/html"
-  }
+    val uiFont: Font = JBUI.Fonts.label()
+    internal val handler = TodosoActionHandler(project, service, this)
+    private val filterState = FilterState()
+    private var currentTagFilter: String? = null
+    private var currentSortOption: Set<SortOption> =
+        settings.state.sortOption.split(",").mapNotNull { SortOption.fromKey(it.trim()) }.toSet()
 
-  val uiFont: Font = JBUI.Fonts.label()
-  private val handler = TodosoActionHandler(project, service, this)
-
-  private val filterState = FilterState()
-  private var currentTagFilter: String? = null
-
-  private var currentSortOption: Set<SortOption> =
-    settings.state.sortOption.split(",").mapNotNull { SortOption.fromKey(it.trim()) }.toSet()
-
-  private val cardLayout = CardLayout()
-  private val centerContainer = JPanel(cardLayout)
-  private val instructionPane =
-    JEditorPane(HTML, TodosoConstants.getInstructionHtml()).apply {
-      isEditable = false
-      isOpaque = false
-      isFocusable = false
-      highlighter = null
-      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
+    private val cardLayout = CardLayout()
+    private val centerContainer = JPanel(cardLayout)
+    
+    private val instructionPane = JEditorPane(TodosoConstants.MIME_HTML, TodosoConstants.getInstructionHtml()).apply {
+        isEditable = false; isOpaque = false; isFocusable = false; highlighter = null
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
+    }
+    
+    private val noMatchPane = JEditorPane(TodosoConstants.MIME_HTML, "").apply {
+        isEditable = false; isOpaque = false; isFocusable = false; highlighter = null
+        putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
     }
 
-  private val instructionScrollPane =
-    JBScrollPane(instructionPane).apply {
-      border = BorderFactory.createEmptyBorder()
-      isFocusable = false
-    }
+    // Components initialized via providers
+    internal val toolbarPanel = toolbarProvider(this)
+    internal val inputPanel = inputPanelProvider(this)
+    internal val taskListView = taskListViewProvider(this)
+    internal val searchPanel = searchPanelProvider(this)
+    internal val suggestionOverlay = suggestionOverlayProvider(this)
 
-  private val tasksContainer = object : JBPanel<JBPanel<*>>(null), Scrollable {
+    private val layeredPane = JLayeredPane()
+    private val mainContent = JPanel(BorderLayout())
+
     init {
-      layout = BoxLayout(this, BoxLayout.Y_AXIS)
-      isOpaque = false
+        setupLayout()
+        setupShortcuts()
+        setupListeners()
+        service.injectInstructionsIfNeeded()
+        subsChange()
     }
-    override fun getPreferredScrollableViewportSize(): Dimension = preferredSize
-    override fun getScrollableUnitIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 20
-    override fun getScrollableBlockIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 100
-    override fun getScrollableTracksViewportWidth(): Boolean = true
-    override fun getScrollableTracksViewportHeight(): Boolean = false
-  }
 
-  private var selectedTask: TodoTask? = null
-  internal val taskComponents = mutableListOf<TodosoItemComponent>()
+    private fun setupLayout() {
+        val northPanel = JPanel(BorderLayout()).apply {
+            add(toolbarPanel.createComponent(), BorderLayout.NORTH)
+            add(searchPanel, BorderLayout.SOUTH)
+        }
 
-  private val toolbarPanel by lazy {
-    TodosoToolbar(
-      settings = settings,
-      targetComponent = this,
-      onRefreshUI = { refreshUiState() },
-      onRandomTask = { handler.handleRandomTask() },
-      onErrorHandler = { errorMessage ->
-        handler.handleErrorNotification(errorMessage)
-      },
-      onRefreshTasks = { handler.refreshTasks() },
-      onSortChanged = { sortOptions ->
-        currentSortOption = sortOptions
-        refreshTasks()
-      },
-      filterState = filterState,
-      onFilterChanged = { type, value ->
-        when (type) {
-          FilterType.PRIORITY -> filterState.priority = value as Priority?
-          FilterType.STATUS -> filterState.status = value as TaskStatus?
-          FilterType.DATE -> filterState.date = value as DateFilter?
-          FilterType.TAG -> filterState.tag = value as String?
-          FilterType.SEARCH -> {
-            if (value == "TOGGLE") {
-              if (searchPanel.isVisible) hideSearchPanel() else showSearchPanel()
-            } else {
-              filterState.query = value as String?
-              refreshUiState()
+        centerContainer.add(JBScrollPane(instructionPane).apply { border = BorderFactory.createEmptyBorder() }, TodosoConstants.CARD_INSTRUCTION)
+        centerContainer.add(taskListView, TodosoConstants.CARD_TASK_LIST)
+        centerContainer.add(JBScrollPane(noMatchPane).apply { border = BorderFactory.createEmptyBorder() }, TodosoConstants.CARD_NO_MATCH)
+
+        mainContent.add(northPanel, BorderLayout.NORTH)
+        mainContent.add(centerContainer, BorderLayout.CENTER)
+        mainContent.add(inputPanel, BorderLayout.SOUTH)
+
+        layeredPane.add(mainContent, JLayeredPane.DEFAULT_LAYER as Any)
+        layeredPane.add(suggestionOverlay, JLayeredPane.POPUP_LAYER as Any)
+        add(layeredPane, BorderLayout.CENTER)
+    }
+
+    private fun setupShortcuts() {
+        val searchAction = object : DumbAwareAction() {
+            override fun actionPerformed(e: AnActionEvent) = toggleSearch()
+        }
+        searchAction.registerCustomShortcutSet(CommonShortcuts.getFind(), this)
+    }
+
+    private fun setupListeners() {
+        layeredPane.addComponentListener(object : ComponentAdapter() {
+            override fun componentResized(e: ComponentEvent?) {
+                mainContent.bounds = layeredPane.bounds
+                updateOverlayPosition()
             }
-          }
-          FilterType.RESET_ALL -> {
-            filterState.priority = null
-            filterState.status = null
-            filterState.date = null
-            filterState.tag = null
-            filterState.query = null
-          }
+        })
+
+        addHierarchyListener { event ->
+            if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
+                refreshTasks()
+            }
         }
-        refreshUiState()
-      }
-    )
-  }
-
-  private val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
-    inputPanel.insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask)
-  }
-
-  private val searchField = SearchTextField().apply {
-    addDocumentListener(object : DocumentAdapter() {
-      override fun textChanged(e: DocumentEvent) {
-        filterState.query = text
-        refreshUiState()
-      }
-    })
-  }
-
-  private val searchPanel = JPanel(BorderLayout()).apply {
-    add(searchField, BorderLayout.CENTER)
-    border = JBUI.Borders.empty(2, 5)
-    isVisible = false
-  }
-
-  private val noMatchPane = JEditorPane(HTML, "").apply {
-      isEditable = false
-      isOpaque = false
-      isFocusable = false
-      highlighter = null
-      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
-  }
-
-  private val noMatchScrollPane = JBScrollPane(noMatchPane).apply {
-      border = BorderFactory.createEmptyBorder()
-      isFocusable = false
-  }
-
-  private val inputPanel by lazy {
-    TodosoInputPanel(
-      project = project,
-      onNewTask = { text -> 
-        hideSearchPanel()
-        handler.handleAddTask(text) 
-      },
-      onUpdateTask = { text -> 
-        hideSearchPanel()
-        handler.handleUpdateTask(text) 
-      },
-      onConfirmCancel = { note -> 
-        hideSearchPanel()
-        handler.handleConfirmCancel(note) 
-      },
-      onCreateNote = { note -> 
-        hideSearchPanel()
-        handler.handleConfirmCancel(note) 
-      },
-      onCancelEdit = { handler.handleCancelEdit() },
-      fontInput = uiFont,
-      getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
-      getAllTasks = { service.loadTask() },
-      onSuggestionRequest = { items ->
-        if (items != null) {
-          suggestionOverlay.updateItems(items)
-          updateOverlayPosition()
-        } else {
-          suggestionOverlay.hideOverlay()
-        }
-      },
-      onNavigationRequest = { direction ->
-        when (direction) {
-          "UP" -> suggestionOverlay.moveUp()
-          "DOWN" -> suggestionOverlay.moveDown()
-          "ENTER" -> suggestionOverlay.confirmSelection()
-          "ESCAPE" -> suggestionOverlay.hideOverlay()
-        }
-      },
-    )
-  }
-
-  private val layeredPane = JLayeredPane()
-  private val mainContent = JPanel(BorderLayout())
-
-  init {
-    val toolbarComponent = toolbarPanel.createComponent()
-    
-    val northPanel = JPanel(BorderLayout())
-    northPanel.add(toolbarComponent, BorderLayout.NORTH)
-    northPanel.add(searchPanel, BorderLayout.SOUTH)
-    
-    mainContent.add(northPanel, BorderLayout.NORTH)
-
-    // Shortcut for Search (Ctrl+F or Cmd+F)
-    val searchAction = object : DumbAwareAction() {
-      override fun actionPerformed(e: AnActionEvent) {
-        if (searchPanel.isVisible) {
-          hideSearchPanel()
-        } else {
-          showSearchPanel()
-        }
-      }
     }
-    searchAction.registerCustomShortcutSet(CommonShortcuts.getFind(), this)
 
-    centerContainer.add(instructionScrollPane, CARD_INSTRUCTION)
-    centerContainer.add(JBScrollPane(tasksContainer, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER).apply {
-        border = BorderFactory.createEmptyBorder()
-        viewport.isOpaque = false
-        isOpaque = false
-    }, CARD_TASK_LIST)
-    
-    centerContainer.add(noMatchScrollPane, CARD_NO_MATCH)
+    private fun subsChange() {
+        project.messageBus.connect().subscribe(TodosoDataChangeListener.TOPIC, TodosoDataChangeListener {
+            ApplicationManager.getApplication().invokeLater { refreshUiState() }
+        })
+    }
 
-    mainContent.add(centerContainer, BorderLayout.CENTER)
-    mainContent.add(inputPanel, BorderLayout.SOUTH)
-
-    layeredPane.add(mainContent, JLayeredPane.DEFAULT_LAYER as Any)
-    layeredPane.add(suggestionOverlay, JLayeredPane.POPUP_LAYER as Any)
-
-    add(layeredPane, BorderLayout.CENTER)
-
-    layeredPane.addComponentListener(
-      object : ComponentAdapter() {
-        override fun componentResized(e: ComponentEvent?) {
-          mainContent.bounds = layeredPane.bounds
-          updateOverlayPosition()
+    fun refreshUiState() {
+        val allTasks = service.loadTask()
+        if (allTasks.isEmpty()) {
+            taskListView.clear()
+            cardLayout.show(centerContainer, TodosoConstants.CARD_INSTRUCTION)
+            return
         }
-      }
-    )
 
-    addHierarchyListener { event ->
-      if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && isShowing) {
+        val filteredAndSorted = TodoTaskFilterer.filterAndSort(allTasks, filterState, currentTagFilter, currentSortOption)
+
+        if (filteredAndSorted.isEmpty()) {
+            taskListView.clear()
+            noMatchPane.text = TodosoConstants.getNoMatchHtml()
+            cardLayout.show(centerContainer, TodosoConstants.CARD_NO_MATCH)
+            return
+        }
+
+        taskListView.updateTasks(filteredAndSorted)
+        cardLayout.show(centerContainer, TodosoConstants.CARD_TASK_LIST)
+    }
+
+    // --- Action Handlers & View Actions ---
+
+    override fun refreshTasks() {
+        service.markCacheDirty()
+        refreshUiState()
+    }
+
+    override fun setEditMode(enabled: Boolean, text: String) = inputPanel.setEditMode(enabled, text)
+    override fun setCancelMode(enabled: Boolean) = inputPanel.setCancelMode(enabled)
+    override fun getSelectedTask(): TodoTask? = taskListView.getSelectedTask()
+    override fun getInputText(): String = inputPanel.inputTextArea.text
+    override fun clearInputText() = inputPanel.clearInputText()
+    override fun requestUnfocus() = inputPanel.requestUnfocus()
+    override fun setSelectedTask(task: TodoTask?) = taskListView.setSelectedTask(task)
+    override fun toggleSearch() = searchPanel.toggle()
+    
+    fun onSearchQueryChanged(query: String) {
+        filterState.query = query
+        refreshUiState()
+    }
+
+    fun onFilterChanged(type: FilterType, value: Any?) {
+        when (type) {
+            FilterType.PRIORITY -> filterState.priority = value as Priority?
+            FilterType.STATUS -> filterState.status = value as TaskStatus?
+            FilterType.DATE -> filterState.date = value as DateFilter?
+            FilterType.TAG -> filterState.tag = value as String?
+            FilterType.SEARCH -> {
+                if (value == "TOGGLE") toggleSearch()
+                else onSearchQueryChanged(value as String)
+                return
+            }
+            FilterType.RESET_ALL -> {
+                filterState.priority = null; filterState.status = null; filterState.date = null; filterState.tag = null; filterState.query = null
+                searchPanel.clear()
+            }
+        }
+        refreshUiState()
+    }
+
+    fun handleTaskSelection(task: TodoTask, forceSelect: Boolean = false) {
+        if (!forceSelect && taskListView.getSelectedTask()?.id == task.id) {
+            taskListView.setSelectedTask(null)
+        } else {
+            taskListView.setSelectedTask(task)
+        }
+        requestUnfocus()
+        updateButtonStates()
+    }
+
+    fun showContextMenu(task: TodoTask, e: MouseEvent) {
+        handleTaskSelection(task, forceSelect = true)
+        val menuElements = TodosoContextMenu(service, settings, handler).build()
+        val actionGroup = menuElements.toActionGroup(this)
+        ActionManager.getInstance().createActionPopupMenu("TodosoContextMenu", actionGroup).component.show(e.component, e.x, e.y)
+    }
+
+    override fun setTagFilter(tag: String?) { currentTagFilter = tag; refreshUiState() }
+    override fun setPriorityFilter(priority: Priority?) { filterState.priority = priority; refreshUiState() }
+    override fun setStatusFilter(status: TaskStatus?) { filterState.status = status; refreshUiState() }
+    override fun setDateFilter(filter: String?) {
+        filterState.date = filter?.let { try { DateFilter.valueOf(it) } catch(_: Exception) { null } }
+        refreshUiState()
+    }
+
+    override fun updateButtonStates() {}
+
+    fun updateOverlayPosition() {
+        if (!suggestionOverlay.isVisible) return
+        val relativeBounds = SwingUtilities.convertRectangle(inputPanel.parent, inputPanel.bounds, layeredPane)
+        val overlayWidth = relativeBounds.width - JBUI.scale(30)
+        val overlayHeight = suggestionOverlay.preferredSize.height.coerceAtMost(JBUI.scale(400))
+        val x = relativeBounds.x + JBUI.scale(15)
+        val y = relativeBounds.y - overlayHeight - JBUI.scale(8)
+        suggestionOverlay.bounds = Rectangle(x, y, overlayWidth, overlayHeight)
+        layeredPane.moveToFront(suggestionOverlay)
+        suggestionOverlay.revalidate(); suggestionOverlay.repaint()
+    }
+    
+    fun hideSearchPanel() = searchPanel.hidePanel()
+    
+    fun getFilterState() = filterState
+    fun getCurrentSortOption() = currentSortOption
+    fun setCurrentSortOption(options: Set<SortOption>) {
+        currentSortOption = options
         refreshTasks()
-      }
-    }
-    service.injectInstructionsIfNeeded()
-    subsChange()
-  }
-
-  private fun subsChange() {
-    project.messageBus
-      .connect()
-      .subscribe(
-        TodosoDataChangeListener.TOPIC,
-        TodosoDataChangeListener {
-          ApplicationManager.getApplication().invokeLater {
-            refreshUiState()
-          }
-        },
-      )
-  }
-
-  fun refreshUiState() {
-    val allTasks = service.loadTask()
-    if (allTasks.isEmpty()) {
-      showAbsoluteEmptyState()
-      return
-    }
-
-    val filteredTasks = getFilteredTasks(allTasks)
-    if (filteredTasks.isEmpty()) {
-      showNoMatchState()
-      return
-    }
-
-    val sortedTasks = applySorting(filteredTasks, currentSortOption)
-    syncUI(sortedTasks)
-    
-    cardLayout.show(centerContainer, CARD_TASK_LIST)
-  }
-
-  private fun showAbsoluteEmptyState() {
-    tasksContainer.removeAll()
-    taskComponents.clear()
-    cardLayout.show(centerContainer, CARD_INSTRUCTION)
-  }
-
-  private fun showNoMatchState() {
-    tasksContainer.removeAll()
-    taskComponents.clear()
-    noMatchPane.text = buildNoMatchHtml()
-    cardLayout.show(centerContainer, CARD_NO_MATCH)
-  }
-
-  private fun getFilteredTasks(allTasks: List<TodoTask>): List<TodoTask> {
-    return allTasks.filter { task ->
-      val priorityMatch = filterState.priority == null || task.priority == filterState.priority
-      val statusMatch = filterState.status == null || task.status == filterState.status
-      
-      val activeTag = filterState.tag ?: currentTagFilter
-      val tagMatch = activeTag == null || task.tags.contains(activeTag)
-      
-      val dateMatch = when (filterState.date) {
-          DateFilter.TODAY -> isTaskMatchingDate(task) { it == LocalDate.now() }
-          DateFilter.THIS_WEEK -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
-          DateFilter.WITH_DATE -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
-          else -> true
-      }
-
-      val queryMatch = if (filterState.query.isNullOrBlank()) true else {
-          val query = filterState.query!!.lowercase()
-          task.description.lowercase().contains(query) ||
-                  task.metadata.notes.lowercase().contains(query) ||
-                  task.id.lowercase().contains(query)
-      }
-
-      priorityMatch && statusMatch && tagMatch && dateMatch && queryMatch
-    }
-  }
-
-  private fun syncUI(sortedTasks: List<TodoTask>) {
-    var isOrderChanged = sortedTasks.size != taskComponents.size
-    if (!isOrderChanged) {
-      for (i in sortedTasks.indices) {
-        if (sortedTasks[i].id != taskComponents[i].task.id) {
-          isOrderChanged = true
-          break
-        }
-      }
-    }
-
-    if (isOrderChanged) {
-      rebuildTaskComponents(sortedTasks)
-    } else {
-      updateExistingTaskComponents(sortedTasks)
     }
     
-    tasksContainer.revalidate()
-    tasksContainer.repaint()
-  }
-
-
-
-  private fun rebuildTaskComponents(tasks: List<TodoTask>) {
-    tasksContainer.removeAll()
-    taskComponents.clear()
-    tasks.forEach { task ->
-      val component = TodosoItemComponent(
-        service,
-        task, 
-        settings.state.visualEnabled,
-        onSelect = { t -> handleTaskSelection(t) },
-        onEdit = { t -> handler.setEditMode(true, t.description) },
-        onContextMenu = { t, e -> showContextMenu(t, e) }
-      )
-      if (isTaskSelected(task)) {
-        component.setSelected(true)
-      }
-      tasksContainer.add(component)
-      taskComponents.add(component)
-    }
-  }
-
-  private fun updateExistingTaskComponents(tasks: List<TodoTask>) {
-    val currentVisualEnabled = settings.state.visualEnabled
-    tasks.forEachIndexed { index, task ->
-      val comp = taskComponents[index]
-      comp.updateData(task, currentVisualEnabled)
-      comp.setSelected(isTaskSelected(task))
-    }
-  }
-
-  private fun isTaskSelected(task: TodoTask): Boolean {
-    return task.id.isNotBlank() && task.id == selectedTask?.id
-  }
-
-  private fun scrollToSelected() {
-    val target = selectedTask ?: return
-    val component = taskComponents.find { it.task.id == target.id } ?: return
-    tasksContainer.scrollRectToVisible(component.bounds)
-  }
-
-  private fun buildNoMatchHtml(): String {
-    return """
-        <html>
-        <body style="font-family: sans-serif; padding: 12px;">
-            <h2 style="margin-top: 0;">${TodosoBundle.message("todo.filter.no_match.title")}</h2>
-            <p>${TodosoBundle.message("todo.filter.no_match.desc")}</p>
-            <p style="margin-top: 10px;">
-                ${TodosoBundle.message("todo.filter.no_match.hint")}
-            </p>
-        </body>
-        </html>
-    """.trimIndent()
-  }
-
-  private fun handleTaskSelection(task: TodoTask, forceSelect: Boolean = false) {
-    if (!forceSelect && selectedTask?.id == task.id) {
-      selectedTask = null
-      taskComponents.forEach { it.setSelected(false) }
-    } else {
-      selectedTask = task
-      taskComponents.forEach { it.setSelected(it.task.id == task.id) }
-    }
-    requestUnfocus()
-    updateButtonStates()
-  }
-
-  private fun showSearchPanel() {
-    searchPanel.isVisible = true
-    searchField.requestFocusInWindow()
-  }
-
-  private fun hideSearchPanel() {
-    searchPanel.isVisible = false
-    searchField.text = ""
-    filterState.query = null
-    refreshUiState()
-  }
-
-  private fun applySorting(tasks: List<TodoTask>, options: Set<SortOption>): List<TodoTask> {
-    if (options.isEmpty()) return tasks
-    val comparators = mutableListOf<Comparator<TodoTask>>()
-    for (option in options) {
-      when (option) {
-        SortOption.STATUS -> comparators.add(compareBy { it.status })
-        SortOption.DATE ->
-          comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: it.metadata.createdDate ?: "9999-99-99" })
-        SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
-      }
-    }
-    if (comparators.isEmpty()) return tasks
-    var finalComparator = comparators[0]
-    for (i in 1 until comparators.size) {
-      finalComparator = finalComparator.then(comparators[i])
-    }
-    return tasks.sortedWith(finalComparator)
-  }
-
-  override fun refreshTasks() {
-    service.markCacheDirty()
-    refreshUiState()
-  }
-
-  override fun setEditMode(enabled: Boolean, text: String) {
-    inputPanel.setEditMode(enabled, text)
-  }
-
-  override fun setCancelMode(enabled: Boolean) {
-    inputPanel.setCancelMode(enabled)
-  }
-
-  override fun getSelectedTask(): TodoTask? = selectedTask
-  override fun getInputText(): String = inputPanel.inputTextArea.text
-  override fun clearInputText() { inputPanel.clearInputText() }
-  override fun requestUnfocus() { inputPanel.requestUnfocus() }
-  override fun setSelectedTask(task: TodoTask?) { this.selectedTask = task }
-
-  override fun toggleSearch() {
-    if (searchPanel.isVisible) hideSearchPanel() else showSearchPanel()
-  }
-
-  private fun showContextMenu(task: TodoTask, e: MouseEvent) {
-    handleTaskSelection(task, forceSelect = true)
-    val menuElements = TodosoContextMenu(service, settings, handler).build()
-    val actionGroup = menuElements.toActionGroup(this)
-    val popupMenu = ActionManager.getInstance()
-      .createActionPopupMenu("TodosoContextMenu", actionGroup)
-    popupMenu.component.show(e.component, e.x, e.y)
-  }
-  override fun setTagFilter(tag: String?) {
-    currentTagFilter = tag
-    refreshUiState()
-  }
-  override fun setPriorityFilter(priority: Priority?) {
-    filterState.priority = priority
-    refreshUiState()
-  }
-
-  override fun setStatusFilter(status: TaskStatus?) {
-    filterState.status = status
-    refreshUiState()
-  }
-  override fun setDateFilter(filter: String?) {
-    filterState.date = filter?.let { 
-        try { DateFilter.valueOf(it) } catch(_: Exception) { null }
-    }
-    refreshUiState()
-  }
-  override fun updateButtonStates() { /* ... */ }
-
-  private fun updateOverlayPosition() {
-    if (!suggestionOverlay.isVisible) return
-    val relativeBounds = SwingUtilities.convertRectangle(inputPanel.parent, inputPanel.bounds, layeredPane)
-    val overlayWidth = relativeBounds.width - JBUI.scale(30)
-    val overlayHeight = suggestionOverlay.preferredSize.height.coerceAtMost(JBUI.scale(400))
-    val x = relativeBounds.x + JBUI.scale(15)
-    val y = relativeBounds.y - overlayHeight - JBUI.scale(8)
-    suggestionOverlay.bounds = Rectangle(x, y, overlayWidth, overlayHeight)
-    layeredPane.moveToFront(suggestionOverlay)
-    suggestionOverlay.revalidate()
-    suggestionOverlay.repaint()
-  }
-
-  private fun isTaskMatchingDate(task: TodoTask, predicate: (LocalDate) -> Boolean): Boolean {
-    val dates = listOfNotNull(
-      task.metadata.dueDate,
-      task.metadata.startDate,
-      task.metadata.createdDate
-    )
-    return dates.any { dateStr ->
-      try {
-        val date = LocalDate.parse(dateStr.take(10))
-        predicate(date)
-      } catch (_: Exception) {
-        false
-      }
-    }
-  }
-
-  private fun isDateInCurrentWeek(date: LocalDate): Boolean {
-    val now = LocalDate.now()
-    val weekFields = WeekFields.of(Locale.getDefault())
-    val currentWeek = now.get(weekFields.weekOfWeekBasedYear())
-    val currentYear = now.get(weekFields.weekBasedYear())
-    
-    return date.get(weekFields.weekOfWeekBasedYear()) == currentWeek && 
-           date.get(weekBasedYear()) == currentYear
-  }
-
-  private fun weekBasedYear() = WeekFields.of(Locale.getDefault()).weekBasedYear()
+    fun getSuggestionOverlay() = suggestionOverlay
+    fun getInputPanel() = inputPanel
 }

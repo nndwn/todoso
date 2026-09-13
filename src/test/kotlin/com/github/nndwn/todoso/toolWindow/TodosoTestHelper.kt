@@ -8,18 +8,14 @@ import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverl
 import com.github.nndwn.todoso.toolWindow.search.TodosoSearchPanel
 import com.github.nndwn.todoso.toolWindow.taskList.TodosoTaskListView
 import com.intellij.openapi.components.service
-import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.ToolWindow
-import com.intellij.openapi.wm.ToolWindowFactory
-import com.intellij.ui.content.ContentFactory
 
-class TodosoToolWindowFactory : ToolWindowFactory, DumbAware {
-    override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+object TodosoTestHelper {
+    fun createMainPanel(project: Project): TodosoMainPanel {
         val service = project.service<TodosoService>()
         val settings = TodosoSettingsService.getInstance(project)
 
-        val mainPanel = TodosoMainPanel(
+        return TodosoMainPanel(
             project = project,
             service = service,
             settings = settings,
@@ -39,22 +35,10 @@ class TodosoToolWindowFactory : ToolWindowFactory, DumbAware {
             inputPanelProvider = { panel ->
                 TodosoInputPanel(
                     project = project,
-                    onNewTask = { text -> 
-                        panel.hideSearchPanel()
-                        panel.handler.handleAddTask(text) 
-                    },
-                    onUpdateTask = { text -> 
-                        panel.hideSearchPanel()
-                        panel.handler.handleUpdateTask(text) 
-                    },
-                    onConfirmCancel = { note -> 
-                        panel.hideSearchPanel()
-                        panel.handler.handleConfirmCancel(note) 
-                    },
-                    onCreateNote = { note -> 
-                        panel.hideSearchPanel()
-                        panel.handler.handleConfirmCancel(note) 
-                    },
+                    onNewTask = { panel.hideSearchPanel(); panel.handler.handleAddTask(it) },
+                    onUpdateTask = { panel.hideSearchPanel(); panel.handler.handleUpdateTask(it) },
+                    onConfirmCancel = { panel.hideSearchPanel(); panel.handler.handleConfirmCancel(it) },
+                    onCreateNote = { panel.hideSearchPanel(); panel.handler.handleConfirmCancel(it) },
                     onCancelEdit = { panel.handler.handleCancelEdit() },
                     fontInput = panel.uiFont,
                     getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
@@ -97,8 +81,5 @@ class TodosoToolWindowFactory : ToolWindowFactory, DumbAware {
                 }
             }
         )
-
-        val content = ContentFactory.getInstance().createContent(mainPanel, "", false)
-        toolWindow.contentManager.addContent(content)
     }
 }

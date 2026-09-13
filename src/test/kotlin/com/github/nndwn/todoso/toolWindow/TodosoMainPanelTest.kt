@@ -9,7 +9,7 @@ class TodosoMainPanelTest : BasePlatformTestCase() {
 
   fun testInjectInstructionsOnInitialization() {
     val todoFile = myFixture.addFileToProject(TodosoConstants.FILENAME, "Task 1\nTask 2")
-    TodosoMainPanel(project)
+    TodosoTestHelper.createMainPanel(project)
     val content = VfsUtil.loadText(todoFile.virtualFile)
     val expectedHeader = TodosoBundle.message("todo.instruction.inject", TodosoConstants.GITHUB_REPO_URL)
 
@@ -27,7 +27,7 @@ class TodosoMainPanelTest : BasePlatformTestCase() {
     val header = TodosoBundle.message("todo.instruction.inject", TodosoConstants.GITHUB_REPO_URL)
     val originalContent = "$header\n\nTask 1"
     val todoFile = myFixture.addFileToProject(TodosoConstants.FILENAME, originalContent)
-    TodosoMainPanel(project)
+    TodosoTestHelper.createMainPanel(project)
     val content = VfsUtil.loadText(todoFile.virtualFile)
     assertEquals("Content should not change if the header is already present.", originalContent, content)
   }

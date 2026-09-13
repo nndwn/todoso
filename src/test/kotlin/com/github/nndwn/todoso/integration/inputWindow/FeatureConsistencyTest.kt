@@ -6,9 +6,8 @@ import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.toolWindow.SortOption
-import com.github.nndwn.todoso.toolWindow.TodosoMainPanel
-import com.github.nndwn.todoso.toolWindow.TodosoToolbar
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
+import com.github.nndwn.todoso.toolWindow.logic.TodoTaskFilterer
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import java.awt.Font
 
@@ -29,13 +28,8 @@ class FeatureConsistencyTest : BasePlatformTestCase() {
         createTask("Task C", Priority.MEDIUM, "2023-12-31"),
       )
 
-    val panel = TodosoMainPanel(project)
     val sortOptions = setOf(SortOption.DATE, SortOption.PRIORITY)
-
-    val method = panel.javaClass.getDeclaredMethod("applySorting", List::class.java, Set::class.java)
-    method.isAccessible = true
-
-    @Suppress("UNCHECKED_CAST") val sorted = method.invoke(panel, tasks, sortOptions) as List<TodoTask>
+    val sorted = TodoTaskFilterer.applySorting(tasks, sortOptions)
 
     assertEquals("Task C", sorted[0].description)
     assertEquals("Task B", sorted[1].description)

@@ -3,6 +3,7 @@ package com.github.nndwn.todoso
 import com.intellij.openapi.util.IconLoader
 
 object TodosoIcons {
+  @Suppress("unused")
   @JvmField val Logo = IconLoader.getIcon("/icons/todo.svg", TodosoIcons::class.java)
   @JvmField val TaskTodo = IconLoader.getIcon("/icons/taskTodo.svg", TodosoIcons::class.java)
   @JvmField val TaskDoing = IconLoader.getIcon("/icons/taskDoing.svg", TodosoIcons::class.java)

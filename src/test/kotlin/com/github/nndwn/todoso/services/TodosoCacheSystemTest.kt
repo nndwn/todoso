@@ -1,7 +1,7 @@
 package com.github.nndwn.todoso.services
 
 import com.github.nndwn.todoso.TodosoConstants
-import com.github.nndwn.todoso.toolWindow.TodosoMainPanel
+import com.github.nndwn.todoso.toolWindow.TodosoTestHelper
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -47,7 +47,7 @@ class TodosoCacheSystemTest : BasePlatformTestCase() {
 
   fun testManualRefreshForcesReload() {
     val file = myFixture.addFileToProject(TodosoConstants.FILENAME, "- [ ] Task A").virtualFile
-    val panel = TodosoMainPanel(project)
+    val panel = TodosoTestHelper.createMainPanel(project)
 
     assertEquals(1, service.loadTask().size)
 
