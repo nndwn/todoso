@@ -22,6 +22,7 @@ import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.JComponent
+import com.intellij.openapi.actionSystem.Separator
 
 class TodosoToolbar(
   private val settings: TodosoSettingsService,
@@ -148,36 +149,38 @@ class TodosoToolbar(
       }
 
       override fun getChildren(e: AnActionEvent?): Array<AnAction> {
-        val project = e?.project ?: return emptyArray()
+        val project = e?.project ?: return AnAction.EMPTY_ARRAY
         val service = project.service<TodosoService>()
         val tasks = service.loadTask()
 
-        val dynamicGroup = DefaultActionGroup()
+        val actions = mutableListOf<AnAction>()
 
         // 0. Global Reset
-        dynamicGroup.add(createClearAllAction())
-        dynamicGroup.addSeparator()
+        actions.add(createClearAllAction())
+        actions.add(Separator.getInstance()) // Pemisah Garis Polos
 
-        // 1. Priority
-        dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.group.priority"))
-        Priority.entries.filter { it != Priority.NONE }.forEach { dynamicGroup.add(createPriorityFilterAction(it)) }
+        // 1. Priority Header & Items
+        actions.add(Separator(TodosoBundle.message("todo.filter.group.priority"))) // Pemisah Ber-Header
+        Priority.entries
+          .filter { it != Priority.NONE }
+          .forEach { actions.add(createPriorityFilterAction(it)) }
 
-        // 2. Status
-        dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.group.status"))
-        TaskStatus.entries.forEach { dynamicGroup.add(createStatusFilterAction(it)) }
+        // 2. Status Header & Items
+        actions.add(Separator(TodosoBundle.message("todo.filter.group.status")))
+        TaskStatus.entries.forEach { actions.add(createStatusFilterAction(it)) }
 
-        // 3. Date (Only show if at least one task has a date)
+        // 3. Date Header & Items
         val hasAnyDate = tasks.any {
           it.metadata.dueDate != null || it.metadata.startDate != null || it.metadata.createdDate != null
         }
         if (hasAnyDate) {
-          dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.date.title"))
-          dynamicGroup.add(createDateFilterAction(DateFilter.TODAY))
-          dynamicGroup.add(createDateFilterAction(DateFilter.THIS_WEEK))
-          dynamicGroup.add(createDateFilterAction(DateFilter.WITH_DATE))
+          actions.add(Separator(TodosoBundle.message("todo.filter.date.title")))
+          actions.add(createDateFilterAction(DateFilter.TODAY))
+          actions.add(createDateFilterAction(DateFilter.THIS_WEEK))
+          actions.add(createDateFilterAction(DateFilter.WITH_DATE))
         }
 
-        return dynamicGroup.getChildren(e)
+        return actions.toTypedArray()
       }
 
       override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
@@ -197,14 +200,14 @@ class TodosoToolbar(
       }
 
       override fun getChildren(e: AnActionEvent?): Array<AnAction> {
-        val project = e?.project ?: return emptyArray()
+        val project = e?.project ?: return AnAction.EMPTY_ARRAY
         val service = project.service<TodosoService>()
         val tasks = service.loadTask()
 
-        val dynamicGroup = DefaultActionGroup()
+        val actions = mutableListOf<AnAction>()
 
         // 0. Reset Tag Filter
-        dynamicGroup.add(
+        actions.add(
           object : ToggleAction(TodosoBundle.message("todo.common.all"), null, AllIcons.Actions.GC) {
             override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == null
 
@@ -215,27 +218,27 @@ class TodosoToolbar(
             override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
           }
         )
-        dynamicGroup.addSeparator()
+        actions.add(Separator.getInstance()) // Garis Pemisah Polos
 
         val popularTags = TagParser.getPopularTags(tasks)
         if (popularTags.isNotEmpty()) {
-          dynamicGroup.addSeparator(TodosoBundle.message("todo.suggestion.popular.tags"))
+          actions.add(Separator(TodosoBundle.message("todo.suggestion.popular.tags")))
           popularTags.forEach { tag ->
             val count = tasks.count { it.tags.contains(tag) }
-            dynamicGroup.add(createTagFilterAction(tag, count))
+            actions.add(createTagFilterAction(tag, count))
           }
         }
 
         val recentVersions = TagParser.getRecentVersions(tasks = tasks)
         if (recentVersions.isNotEmpty()) {
-          dynamicGroup.addSeparator(TodosoBundle.message("todo.filter.group.versions"))
+          actions.add(Separator(TodosoBundle.message("todo.filter.group.versions")))
           recentVersions.forEach { tag ->
             val count = tasks.count { it.tags.contains(tag) }
-            dynamicGroup.add(createTagFilterAction(tag, count))
+            actions.add(createTagFilterAction(tag, count))
           }
         }
 
-        return dynamicGroup.getChildren(e)
+        return actions.toTypedArray()
       }
 
       override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
