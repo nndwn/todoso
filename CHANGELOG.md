@@ -3,6 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.0.1] - 2026-09-14
+
 - a complete overhaul of the previous rewrite, typed by an AI agent, it was really sad, now I'm trying to rewrite it, it's even sadder.
 - a complete overhaul of the parsing, previously found many parsing bugs, now there might be even more.
 - a complete overhaul of the UI/UX, previously looked plain, now it's full of colors, making it look absolutely tacky.
@@ -97,7 +100,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags and deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/nndwn/todoso/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/nndwn/todoso/compare/v1.0.7...v2.0.0
 [1.0.7]: https://github.com/nndwn/todoso/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/nndwn/todoso/compare/v1.0.5...v1.0.6
