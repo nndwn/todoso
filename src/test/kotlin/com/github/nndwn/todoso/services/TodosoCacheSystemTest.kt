@@ -30,20 +30,20 @@ class TodosoCacheSystemTest : BasePlatformTestCase() {
     assertEquals("Harusnya memuat ulang karena path berubah", "Task in File 2", service.loadTask()[0].description)
   }
 
-//  fun testVfsListenerUpdatesCache() {
-//    val file = myFixture.addFileToProject(TodosoConstants.FILENAME, "- [ ] Initial Task").virtualFile
-//
-//    assertEquals(1, service.loadTask().size)
-//
-//    // Simulasikan edit file (memicu VfsListener)
-//    WriteCommandAction.runWriteCommandAction(project) {
-//      VfsUtil.saveText(file, "- [ ] Task 1\n- [ ] Task 2")
-//    }
-//
-//    // VfsListener seharusnya memanggil markCacheDirty()
-//    val tasks = service.loadTask()
-//    assertEquals("VfsListener harusnya sudah memicu invalidasi cache", 2, tasks.size)
-//  }
+  //  fun testVfsListenerUpdatesCache() {
+  //    val file = myFixture.addFileToProject(TodosoConstants.FILENAME, "- [ ] Initial Task").virtualFile
+  //
+  //    assertEquals(1, service.loadTask().size)
+  //
+  //    // Simulasikan edit file (memicu VfsListener)
+  //    WriteCommandAction.runWriteCommandAction(project) {
+  //      VfsUtil.saveText(file, "- [ ] Task 1\n- [ ] Task 2")
+  //    }
+  //
+  //    // VfsListener seharusnya memanggil markCacheDirty()
+  //    val tasks = service.loadTask()
+  //    assertEquals("VfsListener harusnya sudah memicu invalidasi cache", 2, tasks.size)
+  //  }
 
   fun testManualRefreshForcesReload() {
     val file = myFixture.addFileToProject(TodosoConstants.FILENAME, "- [ ] Task A").virtualFile
