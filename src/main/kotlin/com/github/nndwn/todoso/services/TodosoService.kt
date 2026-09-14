@@ -131,36 +131,41 @@ class TodosoService(private val project: Project) {
     val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
     val metadataLine = "<!-- Plugin Version: $version | Last Updated: $now -->"
 
-    runWriteCommandAction(project, "Inject Metadata", null, {
-      val content = try {
-        VfsUtil.loadText(todoFile)
-      } catch (_: Exception) {
-        ""
-      }
-      val lines = content.lines().toMutableList()
+    runWriteCommandAction(
+      project,
+      "Inject Metadata",
+      null,
+      {
+        val content =
+          try {
+            VfsUtil.loadText(todoFile)
+          } catch (_: Exception) {
+            ""
+          }
+        val lines = content.lines().toMutableList()
 
-      val existingIndex = lines.indexOfFirst { it.startsWith("<!-- Plugin Version:") }
-      if (existingIndex != -1) {
-        lines[existingIndex] = metadataLine
-      } else {
-        val headerIndex = lines.indexOfFirst { it.contains(TodosoConstants.GITHUB_REPO_URL) }
-        if (headerIndex != -1) {
-          lines.add(headerIndex + 1, metadataLine)
+        val existingIndex = lines.indexOfFirst { it.startsWith("<!-- Plugin Version:") }
+        if (existingIndex != -1) {
+          lines[existingIndex] = metadataLine
         } else {
-          lines.add(0, metadataLine)
+          val headerIndex = lines.indexOfFirst { it.contains(TodosoConstants.GITHUB_REPO_URL) }
+          if (headerIndex != -1) {
+            lines.add(headerIndex + 1, metadataLine)
+          } else {
+            lines.add(0, metadataLine)
+          }
         }
-      }
 
-      val newContent = lines.joinToString("\n")
-      VfsUtil.saveText(todoFile, newContent)
-      VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
-    })
+        val newContent = lines.joinToString("\n")
+        VfsUtil.saveText(todoFile, newContent)
+        VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+      },
+    )
   }
 
   fun markCacheDirty() {
     isCacheDirty = true
   }
-
 
   fun loadTask(): List<TodoTask> {
     val currentPath = settings.state.todoFilePath
@@ -211,39 +216,46 @@ class TodosoService(private val project: Project) {
     lastLoadedPath = currentPath
 
     if (tasks.any { !it.isPersistentId }) {
-        ApplicationManager.getApplication().invokeLater {
-            persistMissingIds(todoFile, tasks)
-        }
+      ApplicationManager.getApplication().invokeLater {
+        persistMissingIds(todoFile, tasks)
+      }
     }
-    
+
     return cachedTasks
   }
 
   private fun persistMissingIds(file: VirtualFile, tasks: List<TodoTask>) {
-    runWriteCommandAction(project, "Persist Missing Task IDs", null, {
-      val content = VfsUtil.loadText(file)
-      val lines = content.lines().toMutableList()
-      var modified = false
+    runWriteCommandAction(
+      project,
+      "Persist Missing Task IDs",
+      null,
+      {
+        val content = VfsUtil.loadText(file)
+        val lines = content.lines().toMutableList()
+        var modified = false
 
-      tasks.filter { !it.isPersistentId }.forEach { task ->
-        val index = findTaskIndex(lines, task)
-        if (index != null) {
-          val updatedTask = task.copy(isPersistentId = true)
-          lines[index] = TodoTaskBuilder.rebuildTaskLine(updatedTask)
-          modified = true
+        tasks
+          .filter { !it.isPersistentId }
+          .forEach { task ->
+            val index = findTaskIndex(lines, task)
+            if (index != null) {
+              val updatedTask = task.copy(isPersistentId = true)
+              lines[index] = TodoTaskBuilder.rebuildTaskLine(updatedTask)
+              modified = true
+            }
+          }
+
+        if (modified) {
+          saveContent(file, lines)
+          markCacheDirty()
         }
-      }
-
-      if (modified) {
-        saveContent(file, lines)
-        markCacheDirty()
-      }
-    })
+      },
+    )
   }
 
   fun findTaskById(id: String): TodoTask? {
-      loadTask()
-      return tasksById[id]
+    loadTask()
+    return tasksById[id]
   }
 
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
@@ -254,10 +266,11 @@ class TodosoService(private val project: Project) {
   }
 
   fun updateTaskNote(task: TodoTask, note: String) {
-    val updatedTask = task.copy(
-      metadata = task.metadata.copy(notes = note.removePrefix("//").trim()),
-      isPersistentId = true
-    )
+    val updatedTask =
+      task.copy(
+        metadata = task.metadata.copy(notes = note.removePrefix("//").trim()),
+        isPersistentId = true,
+      )
     updateTaskInMemory(updatedTask)
     modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }
   }
@@ -265,12 +278,12 @@ class TodosoService(private val project: Project) {
   private fun updateTaskInMemory(updatedTask: TodoTask) {
     val index = cachedTasks.indexOfFirst { it.id == updatedTask.id }
     if (index != -1) {
-        val newTasks = cachedTasks.toMutableList()
-        newTasks[index] = updatedTask
-        cachedTasks = newTasks
-        tasksById = cachedTasks.associateBy { it.id }
-        // Beritahu UI tanpa menandai cache dirty
-        project.messageBus.syncPublisher(TodosoDataChangeListener.TOPIC).onDataChanged()
+      val newTasks = cachedTasks.toMutableList()
+      newTasks[index] = updatedTask
+      cachedTasks = newTasks
+      tasksById = cachedTasks.associateBy { it.id }
+      // Beritahu UI tanpa menandai cache dirty
+      project.messageBus.syncPublisher(TodosoDataChangeListener.TOPIC).onDataChanged()
     }
   }
 
@@ -341,22 +354,23 @@ class TodosoService(private val project: Project) {
 
     val dummyLine = "- [${task.status.code}] $cleanInput"
     val parsedTask = TodoTaskParser.parseLine(dummyLine, task.lineNumber)
-    
+
     val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-    val updatedTask = if (parsedTask != null) {
-      task.copy(
-        description = parsedTask.description,
-        tags = parsedTask.tags,
-        isPersistentId = true,
-        metadata = task.metadata.copy(editedDate = nowFormatted, notes = parsedTask.metadata.notes),
-      )
-    } else {
-      task.copy(
-        description = cleanInput,
-        isPersistentId = true,
-        metadata = task.metadata.copy(editedDate = nowFormatted),
-      )
-    }
+    val updatedTask =
+      if (parsedTask != null) {
+        task.copy(
+          description = parsedTask.description,
+          tags = parsedTask.tags,
+          isPersistentId = true,
+          metadata = task.metadata.copy(editedDate = nowFormatted, notes = parsedTask.metadata.notes),
+        )
+      } else {
+        task.copy(
+          description = cleanInput,
+          isPersistentId = true,
+          metadata = task.metadata.copy(editedDate = nowFormatted),
+        )
+      }
 
     updateTaskInMemory(updatedTask)
     modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }
@@ -421,19 +435,18 @@ class TodosoService(private val project: Project) {
 
     isInternalWriting = true
     try {
-        VfsUtil.saveText(file, newContent)
-        VfsUtil.markDirtyAndRefresh(false, true, true, file)
+      VfsUtil.saveText(file, newContent)
+      VfsUtil.markDirtyAndRefresh(false, true, true, file)
     } finally {
-        // Berikan sedikit jeda agar event VFS selesai diproses
-        ApplicationManager.getApplication().executeOnPooledThread {
-            Thread.sleep(500)
-            isInternalWriting = false
-        }
+      // Berikan sedikit jeda agar event VFS selesai diproses
+      ApplicationManager.getApplication().executeOnPooledThread {
+        Thread.sleep(500)
+        isInternalWriting = false
+      }
     }
   }
 
   fun isWritingInternal(): Boolean = isInternalWriting
-
 
   fun deleteTask(task: TodoTask) {
     modifyTaskLine(task) { "<!-- ${task.rawText} -->" }
@@ -473,11 +486,12 @@ class TodosoService(private val project: Project) {
       newTags.add(cleanTargetTag)
     }
 
-    val updatedTask = task.copy(
-      description = newDescription,
-      tags = newTags.distinct(),
-      isPersistentId = true
-    )
+    val updatedTask =
+      task.copy(
+        description = newDescription,
+        tags = newTags.distinct(),
+        isPersistentId = true,
+      )
 
     updateTaskInMemory(updatedTask)
     modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }

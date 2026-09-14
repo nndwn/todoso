@@ -103,8 +103,8 @@ private fun fillActionGroup(
 
             override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
           }
-        element.shortcut?.let { 
-            action.registerCustomShortcutSet(it, targetComponent) 
+        element.shortcut?.let {
+          action.registerCustomShortcutSet(it, targetComponent)
         }
         group.add(action)
       }

@@ -5,24 +5,28 @@ object TodosoConstants {
   const val PLUGIN_ID = "com.github.nndwn.todoso"
   const val PLUGIN_NAME = "Todoso: Markdown Todo List"
   const val FILENAME = "TODO.md"
-  
+
   const val CARD_INSTRUCTION = "EMPTY_STATE"
   const val CARD_TASK_LIST = "TASK_LIST"
   const val CARD_NO_MATCH = "NO_MATCH"
   const val MIME_HTML = "text/html"
 
-  val EXCLUSIVE_RELATIONS = listOf(
-    listOf("feature", "issue"),
-    listOf("development", "production")
-  )
+  val EXCLUSIVE_RELATIONS =
+    listOf(
+      listOf("feature", "issue"),
+      listOf("development", "production"),
+    )
 
   private val STANDALONE_TAGS = listOf("urgent")
 
   val DEFAULT_QUICK_TAGS = EXCLUSIVE_RELATIONS.flatten() + STANDALONE_TAGS
 
-  val EXCLUSIVE_TAG_GROUPS: Map<String, List<String>> = EXCLUSIVE_RELATIONS.flatMap { group ->
-    group.map { tag -> tag to group.filter { it != tag } }
-  }.toMap()
+  val EXCLUSIVE_TAG_GROUPS: Map<String, List<String>> =
+    EXCLUSIVE_RELATIONS.flatMap { group ->
+        group.map { tag -> tag to group.filter { it != tag } }
+      }
+      .toMap()
+
   fun getInstructionHtml(): String =
     """
         <html>
@@ -55,5 +59,6 @@ object TodosoConstants {
             </p>
         </body>
         </html>
-    """.trimIndent()
+    """
+      .trimIndent()
 }

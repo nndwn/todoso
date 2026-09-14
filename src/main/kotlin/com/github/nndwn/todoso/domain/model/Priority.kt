@@ -11,7 +11,7 @@ enum class Priority(
   val code: String,
   val label: String,
   val color: Color,
-  val icon: Icon? = null
+  val icon: Icon? = null,
 ) {
   HIGHEST("🔺", "HH", "Highest", JBColor(0xA626A4, 0xDA70D6), TodosoIcons.Highest),
   HIGH("⏫", "H", "High", JBColor(0xE45649, 0xFF6B68), TodosoIcons.High),

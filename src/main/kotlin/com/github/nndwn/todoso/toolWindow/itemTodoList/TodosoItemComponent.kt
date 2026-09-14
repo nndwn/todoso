@@ -31,26 +31,29 @@ import javax.swing.text.DefaultCaret
 import javax.swing.text.html.HTMLEditorKit
 
 class TodosoItemComponent(
-    private val service: TodosoService,
-    var task: TodoTask,
-    private var isVisualEnabled: Boolean,
-    private val onSelect: (TodoTask) -> Unit,
-    private val onEdit: (TodoTask) -> Unit,
-    private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
-    private val onDelete: (TodoTask) -> Unit
+  private val service: TodosoService,
+  var task: TodoTask,
+  private var isVisualEnabled: Boolean,
+  private val onSelect: (TodoTask) -> Unit,
+  private val onEdit: (TodoTask) -> Unit,
+  private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
+  private val onDelete: (TodoTask) -> Unit,
 ) : JPanel(BorderLayout()), Scrollable {
 
-    private var isSelected = false
+  private var isSelected = false
 
-    private val iconLabel = JBLabel().apply {
-        verticalAlignment = SwingConstants.TOP
-        border = JBUI.Borders.empty(10, 10, 0, 0)
-        updateIcon(this, task, isVisualEnabled)
+  private val iconLabel =
+    JBLabel().apply {
+      verticalAlignment = SwingConstants.TOP
+      border = JBUI.Borders.empty(10, 10, 0, 0)
+      updateIcon(this, task, isVisualEnabled)
     }
 
-    private val textPane = object : JTextPane() {
+  private val textPane =
+    object : JTextPane() {
         override fun getScrollableTracksViewportWidth(): Boolean = true
-    }.apply {
+      }
+      .apply {
         contentType = "text/html"
         editorKit = HTMLEditorKit()
         isEditable = false
@@ -59,231 +62,251 @@ class TodosoItemComponent(
 
         highlighter = null
         (caret as? DefaultCaret)?.apply {
-            updatePolicy = DefaultCaret.NEVER_UPDATE
+          updatePolicy = DefaultCaret.NEVER_UPDATE
         }
-        
+
         border = JBUI.Borders.empty(8, 10)
 
-        addMouseListener(object : MouseAdapter() {
+        addMouseListener(
+          object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) = dispatchToParent(e)
+
             override fun mouseReleased(e: MouseEvent) = dispatchToParent(e)
+
             override fun mouseClicked(e: MouseEvent) = dispatchToParent(e)
+
             override fun mouseEntered(e: MouseEvent) = dispatchToParent(e)
+
             override fun mouseExited(e: MouseEvent) = dispatchToParent(e)
-        })
-    }
-
-    init {
-        isOpaque = true
-        isFocusable = true
-        background = UIUtil.getListBackground()
-        cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-        
-        add(iconLabel, BorderLayout.WEST)
-        add(textPane, BorderLayout.CENTER)
-        
-        border = JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 0, 0, 0, 0)
-        
-        updateContent()
-        setupEvents()
-    }
-
-    private fun dispatchToParent(e: MouseEvent) {
-        val parentEvent = MouseEvent(
-            this, e.id, e.`when`, e.modifiersEx,
-            e.x + textPane.x, e.y + textPane.y,
-            e.clickCount, e.isPopupTrigger, e.button
+          }
         )
-        processMouseEvent(parentEvent)
-    }
+      }
 
-    private fun setupEvents() {
-        val hoverListener = object : MouseAdapter() {
-            override fun mouseEntered(e: MouseEvent) {
-                if (!isSelected) {
-                    background = JBColor.namedColor("List.hoverBackground", Color(0xEDF6FF))
-                    repaint()
-                }
+  init {
+    isOpaque = true
+    isFocusable = true
+    background = UIUtil.getListBackground()
+    cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+
+    add(iconLabel, BorderLayout.WEST)
+    add(textPane, BorderLayout.CENTER)
+
+    border = JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 0, 0, 0, 0)
+
+    updateContent()
+    setupEvents()
+  }
+
+  private fun dispatchToParent(e: MouseEvent) {
+    val parentEvent =
+      MouseEvent(
+        this,
+        e.id,
+        e.`when`,
+        e.modifiersEx,
+        e.x + textPane.x,
+        e.y + textPane.y,
+        e.clickCount,
+        e.isPopupTrigger,
+        e.button,
+      )
+    processMouseEvent(parentEvent)
+  }
+
+  private fun setupEvents() {
+    val hoverListener =
+      object : MouseAdapter() {
+        override fun mouseEntered(e: MouseEvent) {
+          if (!isSelected) {
+            background = JBColor.namedColor("List.hoverBackground", Color(0xEDF6FF))
+            repaint()
+          }
+        }
+
+        override fun mouseExited(e: MouseEvent) {
+          if (!isSelected && isShowing) {
+            val point = e.point
+            SwingUtilities.convertPointToScreen(point, e.component)
+            val bounds = Rectangle(locationOnScreen, size)
+            if (!bounds.contains(point)) {
+              background = UIUtil.getListBackground()
+              repaint()
             }
+          }
+        }
 
-            override fun mouseExited(e: MouseEvent) {
-                if (!isSelected && isShowing) {
-                    val point = e.point
-                    SwingUtilities.convertPointToScreen(point, e.component)
-                    val bounds = Rectangle(locationOnScreen, size)
-                    if (!bounds.contains(point)) {
-                        background = UIUtil.getListBackground()
-                        repaint()
-                    }
-                }
+        override fun mousePressed(e: MouseEvent) {
+          requestFocusInWindow()
+          if (e.isPopupTrigger) {
+            onContextMenu(task, e)
+          } else {
+            if (e.clickCount == 2) {
+              onEdit(task)
+            } else {
+              onSelect(task)
             }
-
-            override fun mousePressed(e: MouseEvent) {
-                requestFocusInWindow()
-                if (e.isPopupTrigger) {
-                    onContextMenu(task, e)
-                } else {
-                    if (e.clickCount == 2) {
-                        onEdit(task)
-                    } else {
-                        onSelect(task)
-                    }
-                }
-            }
-
-            override fun mouseReleased(e: MouseEvent) {
-                if (e.isPopupTrigger) {
-                    onContextMenu(task, e)
-                }
-            }
+          }
         }
-        
-        addMouseListener(hoverListener)
-        iconLabel.addMouseListener(hoverListener)
 
-        addKeyListener(object : KeyAdapter() {
-            override fun keyPressed(e: KeyEvent) {
-                if (e.keyCode == KeyEvent.VK_DELETE) {
-                    onDelete(task)
-                }
-            }
-        })
+        override fun mouseReleased(e: MouseEvent) {
+          if (e.isPopupTrigger) {
+            onContextMenu(task, e)
+          }
+        }
+      }
+
+    addMouseListener(hoverListener)
+    iconLabel.addMouseListener(hoverListener)
+
+    addKeyListener(
+      object : KeyAdapter() {
+        override fun keyPressed(e: KeyEvent) {
+          if (e.keyCode == KeyEvent.VK_DELETE) {
+            onDelete(task)
+          }
+        }
+      }
+    )
+  }
+
+  fun setSelected(selected: Boolean) {
+    this.isSelected = selected
+    background = if (selected) UIUtil.getListSelectionBackground(true) else UIUtil.getListBackground()
+    updateContent()
+  }
+
+  fun updateData(newTask: TodoTask, newVisualEnabled: Boolean) {
+    val visualChanged = isVisualEnabled != newVisualEnabled
+    val statusChanged = this.task.status != newTask.status
+    val priorityChanged = this.task.priority != newTask.priority
+    val textChanged = this.task.description != newTask.description || this.task.metadata.notes != newTask.metadata.notes
+
+    if (statusChanged || priorityChanged || textChanged || visualChanged) {
+      this.task = newTask
+      this.isVisualEnabled = newVisualEnabled
+      updateIcon(iconLabel, task, isVisualEnabled)
+      updateContent()
+    } else {
+      // Walau konten sama, mungkin line number berubah (tetap simpan referensi terbaru)
+      this.task = newTask
+    }
+  }
+
+  private fun updateIcon(label: JBLabel, task: TodoTask, visualEnabled: Boolean) {
+    val baseIcon = task.status.icon
+
+    label.icon =
+      if (visualEnabled) {
+        IconUtil.colorize(baseIcon, task.priority.color)
+      } else {
+        baseIcon
+      }
+  }
+
+  private fun updateContent() {
+    val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
+    val newHtml = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
+
+    // Optimasi: Jangan ganti teks jika HTML-nya sama persis untuk mencegah flicker
+    if (textPane.text != newHtml) {
+      textPane.text = newHtml
     }
 
-    fun setSelected(selected: Boolean) {
-        this.isSelected = selected
-        background = if (selected) UIUtil.getListSelectionBackground(true) else UIUtil.getListBackground()
-        updateContent()
+    this.toolTipText = null
+    textPane.toolTipText = null
+
+    tooltip()
+  }
+
+  private fun tooltip() {
+    HelpTooltip.dispose(this)
+    val ht = HelpTooltip()
+
+    val title =
+      if (task.isPersistentId) {
+        TodosoBundle.message("todo.tooltip.task.id", task.id)
+      } else {
+        TodosoBundle.message("todo.tooltip.task.details")
+      }
+    ht.setTitle(title)
+
+    val chunks = mutableListOf<HtmlChunk>()
+
+    // 1. Detail Tugas Utama
+    appendTaskMetadata(chunks, task)
+
+    // 2. Rujukan
+    val referencedIds =
+      TaskIdParser.TASK_ID_REGEX.findAll(task.description).map { it.groupValues[1] }.distinct().filter { it != task.id }
+
+    referencedIds.forEach { refId ->
+      service.findTaskById(refId)?.let { refTask ->
+        chunks.add(HtmlChunk.hr())
+        chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.reference", refId)))
+        chunks.add(HtmlChunk.br())
+        chunks.add(HtmlChunk.text(refTask.description))
+        appendTaskMetadata(chunks, refTask)
+      }
     }
 
-
-    fun updateData(newTask: TodoTask, newVisualEnabled: Boolean) {
-        val visualChanged = isVisualEnabled != newVisualEnabled
-        val statusChanged = this.task.status != newTask.status
-        val priorityChanged = this.task.priority != newTask.priority
-        val textChanged = this.task.description != newTask.description || this.task.metadata.notes != newTask.metadata.notes
-
-        if (statusChanged || priorityChanged || textChanged || visualChanged) {
-            this.task = newTask
-            this.isVisualEnabled = newVisualEnabled
-            updateIcon(iconLabel, task, isVisualEnabled)
-            updateContent()
-        } else {
-            // Walau konten sama, mungkin line number berubah (tetap simpan referensi terbaru)
-            this.task = newTask
-        }
+    if (chunks.isNotEmpty()) {
+      ht.description = HtmlChunk.div().children(*chunks.toTypedArray()).toString()
     }
 
-    private fun updateIcon(label: JBLabel, task: TodoTask, visualEnabled: Boolean) {
-        val baseIcon = task.status.icon
+    ht.installOn(this)
+  }
 
-        label.icon = if (visualEnabled) {
-            IconUtil.colorize(baseIcon, task.priority.color)
-        } else {
-            baseIcon
-        }
+  private fun appendTaskMetadata(chunks: MutableList<HtmlChunk>, task: TodoTask) {
+    val meta = task.metadata
+    val dateLines =
+      listOfNotNull(
+        meta.startDate?.let { TodosoBundle.message("todo.tooltip.date.start", it) },
+        meta.dueDate?.let { TodosoBundle.message("todo.tooltip.date.due", it) },
+        meta.endDate?.let { TodosoBundle.message("todo.tooltip.date.done", it) },
+        meta.cancelDate?.let { TodosoBundle.message("todo.tooltip.date.cancelled", it) },
+        meta.createdDate?.let { TodosoBundle.message("todo.tooltip.date.created", it) },
+        meta.editedDate?.let { TodosoBundle.message("todo.tooltip.date.edited", it) },
+      )
+
+    if (dateLines.isNotEmpty()) {
+      if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
+      chunks.add(HtmlChunk.text(dateLines.joinToString("\n")))
     }
 
-    private fun updateContent() {
-        val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
-        val newHtml = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
-        
-        // Optimasi: Jangan ganti teks jika HTML-nya sama persis untuk mencegah flicker
-        if (textPane.text != newHtml) {
-            textPane.text = newHtml
-        }
-
-        this.toolTipText = null
-        textPane.toolTipText = null
-
-        tooltip()
+    if (task.status == TaskStatus.DONE) {
+      DateParser.calculateDuration(meta)?.let { duration ->
+        if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
+        chunks.add(HtmlChunk.text(TodosoBundle.message("todo.tooltip.duration", duration)))
+      }
     }
 
-    private fun tooltip() {
-        HelpTooltip.dispose(this)
-        val ht = HelpTooltip()
-
-        val title = if (task.isPersistentId) {
-            TodosoBundle.message("todo.tooltip.task.id", task.id)
-        } else {
-            TodosoBundle.message("todo.tooltip.task.details")
-        }
-        ht.setTitle(title)
-
-        val chunks = mutableListOf<HtmlChunk>()
-
-        // 1. Detail Tugas Utama
-        appendTaskMetadata(chunks, task)
-
-        // 2. Rujukan
-        val referencedIds = TaskIdParser.TASK_ID_REGEX.findAll(task.description)
-            .map { it.groupValues[1] }
-            .distinct()
-            .filter { it != task.id }
-
-        referencedIds.forEach { refId ->
-            service.findTaskById(refId)?.let { refTask ->
-                chunks.add(HtmlChunk.hr())
-                chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.reference", refId)))
-                chunks.add(HtmlChunk.br())
-                chunks.add(HtmlChunk.text(refTask.description))
-                appendTaskMetadata(chunks, refTask)
-            }
-        }
-
-        if (chunks.isNotEmpty()) {
-            ht.description = HtmlChunk.div().children(*chunks.toTypedArray()).toString()
-        }
-
-        ht.installOn(this)
+    if (meta.notes.isNotBlank()) {
+      chunks.add(HtmlChunk.br())
+      chunks.add(HtmlChunk.br())
+      chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.note")))
+      chunks.add(HtmlChunk.br())
+      chunks.add(HtmlChunk.text(processMarkdownLinksForTooltip(meta.notes)))
     }
+  }
 
-    private fun appendTaskMetadata(chunks: MutableList<HtmlChunk>, task: TodoTask) {
-        val meta = task.metadata
-        val dateLines = listOfNotNull(
-            meta.startDate?.let { TodosoBundle.message("todo.tooltip.date.start", it) },
-            meta.dueDate?.let { TodosoBundle.message("todo.tooltip.date.due", it) },
-            meta.endDate?.let { TodosoBundle.message("todo.tooltip.date.done", it) },
-            meta.cancelDate?.let { TodosoBundle.message("todo.tooltip.date.cancelled", it) },
-            meta.createdDate?.let { TodosoBundle.message("todo.tooltip.date.created", it) },
-            meta.editedDate?.let { TodosoBundle.message("todo.tooltip.date.edited", it) }
-        )
+  private fun processMarkdownLinksForTooltip(notes: String): String {
+    var result = notes
+    val imageRegex = Regex("""!\[.*?]\((.*?)\)""")
+    result = imageRegex.replace(result) { TodosoBundle.message("todo.tooltip.image", it.groupValues[1]) }
 
-        if (dateLines.isNotEmpty()) {
-            if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
-            chunks.add(HtmlChunk.text(dateLines.joinToString("\n")))
-        }
+    val linkRegex = Regex("""\[(.*?)]\((.*?)\)""")
+    result = linkRegex.replace(result) { TodosoBundle.message("todo.tooltip.file", it.groupValues[2]) }
 
-        if (task.status == TaskStatus.DONE) {
-            DateParser.calculateDuration(meta)?.let { duration ->
-                if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
-                chunks.add(HtmlChunk.text(TodosoBundle.message("todo.tooltip.duration", duration)))
-            }
-        }
+    return result
+  }
 
-        if (meta.notes.isNotBlank()) {
-            chunks.add(HtmlChunk.br())
-            chunks.add(HtmlChunk.br())
-            chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.note")))
-            chunks.add(HtmlChunk.br())
-            chunks.add(HtmlChunk.text(processMarkdownLinksForTooltip(meta.notes)))
-        }
-    }
+  override fun getPreferredScrollableViewportSize(): Dimension = preferredSize
 
-    private fun processMarkdownLinksForTooltip(notes: String): String {
-        var result = notes
-        val imageRegex = Regex("""!\[.*?]\((.*?)\)""")
-        result = imageRegex.replace(result) { TodosoBundle.message("todo.tooltip.image", it.groupValues[1]) }
+  override fun getScrollableUnitIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 20
 
-        val linkRegex = Regex("""\[(.*?)]\((.*?)\)""")
-        result = linkRegex.replace(result) { TodosoBundle.message("todo.tooltip.file", it.groupValues[2]) }
-        
-        return result
-    }
+  override fun getScrollableBlockIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 100
 
-    override fun getPreferredScrollableViewportSize(): Dimension = preferredSize
-    override fun getScrollableUnitIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 20
-    override fun getScrollableBlockIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 100
-    override fun getScrollableTracksViewportWidth(): Boolean = true
-    override fun getScrollableTracksViewportHeight(): Boolean = false
+  override fun getScrollableTracksViewportWidth(): Boolean = true
+
+  override fun getScrollableTracksViewportHeight(): Boolean = false
 }

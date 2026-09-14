@@ -105,7 +105,7 @@ class TodosoActionHandler(
     val result =
       Messages.showYesNoDialog(
         project,
-        TodosoBundle.message("todo.action.delete.confirm.message", desc ),
+        TodosoBundle.message("todo.action.delete.confirm.message", desc),
         TodosoBundle.message("todo.action.delete.confirm.title"),
         Messages.getQuestionIcon(),
       )

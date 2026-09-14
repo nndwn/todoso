@@ -14,17 +14,24 @@ enum class SortOption(val key: String) {
 }
 
 enum class DateFilter {
-    TODAY, THIS_WEEK, WITH_DATE
+  TODAY,
+  THIS_WEEK,
+  WITH_DATE,
 }
 
 enum class FilterType {
-    PRIORITY, STATUS, DATE, TAG, SEARCH, RESET_ALL
+  PRIORITY,
+  STATUS,
+  DATE,
+  TAG,
+  SEARCH,
+  RESET_ALL,
 }
 
 data class FilterState(
-    var priority: Priority? = null,
-    var status: TaskStatus? = null,
-    var date: DateFilter? = null,
-    var tag: String? = null,
-    var query: String? = null
+  var priority: Priority? = null,
+  var status: TaskStatus? = null,
+  var date: DateFilter? = null,
+  var tag: String? = null,
+  var query: String? = null,
 )

@@ -28,7 +28,7 @@ class TodoValidatorTest : BasePlatformTestCase() {
     assertFalse(TodoValidator.isContentValid("🔺"))
     assertFalse(TodoValidator.isContentValid("⏫"))
     assertFalse(TodoValidator.isContentValid("- [ ] 🔼"))
-    
+
     // Bracket style
     assertFalse(TodoValidator.isContentValid("[H]"))
     assertFalse(TodoValidator.isContentValid("[High]"))

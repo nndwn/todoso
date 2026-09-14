@@ -62,7 +62,7 @@ class TodosoInputPanel(
     private const val BACKGROUND_COLOR_CANCEL = "Todo.Input.CancelBackground"
     private const val BACKGROUND_COLOR_NORMAL = "Todo.Input.Background"
 
-    private val LIST_EXTENSION_INSERT =   listOf("jpg", "jpeg", "png", "gif", "svg", "webp")
+    private val LIST_EXTENSION_INSERT = listOf("jpg", "jpeg", "png", "gif", "svg", "webp")
   }
 
   private var isOverlayVisible = false
@@ -83,8 +83,7 @@ class TodosoInputPanel(
       background = JBColor.namedColor(PROPERTY_NAME, JBColor(0xF2F2F2, 0x1E1F22))
     }
 
-  val actionButton =
-    JButton(TodosoBundle.message(NEW_TASK_BUTTON)).apply { addActionListener { handleMainAction() } }
+  val actionButton = JButton(TodosoBundle.message(NEW_TASK_BUTTON)).apply { addActionListener { handleMainAction() } }
 
   val cancelButton =
     JButton(TodosoBundle.message(EDIT_BUTTON)).apply {
@@ -123,26 +122,29 @@ class TodosoInputPanel(
   }
 
   private fun setupContextMenu() {
-    inputTextArea.addMouseListener(object : MouseAdapter() {
-      override fun mousePressed(e: MouseEvent) {
-        if (e.isPopupTrigger) showMenu(e)
-      }
+    inputTextArea.addMouseListener(
+      object : MouseAdapter() {
+        override fun mousePressed(e: MouseEvent) {
+          if (e.isPopupTrigger) showMenu(e)
+        }
 
-      override fun mouseReleased(e: MouseEvent) {
-        if (e.isPopupTrigger) showMenu(e)
-      }
-      private fun showMenu(e: MouseEvent) {
-        val menu = JPopupMenu()
-        val mask = Toolkit.getDefaultToolkit().menuShortcutKeyMaskEx
+        override fun mouseReleased(e: MouseEvent) {
+          if (e.isPopupTrigger) showMenu(e)
+        }
 
-        val pasteAction = JMenuItem(TodosoBundle.message("todo.menu.paste"), AllIcons.Actions.MenuPaste)
-        pasteAction.accelerator = KeyStroke.getKeyStroke(KeyEvent.VK_V, mask)
-        pasteAction.addActionListener { inputTextArea.paste() }
-        menu.add(pasteAction)
+        private fun showMenu(e: MouseEvent) {
+          val menu = JPopupMenu()
+          val mask = Toolkit.getDefaultToolkit().menuShortcutKeyMaskEx
 
-        menu.show(e.component, e.x, e.y)
+          val pasteAction = JMenuItem(TodosoBundle.message("todo.menu.paste"), AllIcons.Actions.MenuPaste)
+          pasteAction.accelerator = KeyStroke.getKeyStroke(KeyEvent.VK_V, mask)
+          pasteAction.addActionListener { inputTextArea.paste() }
+          menu.add(pasteAction)
+
+          menu.show(e.component, e.x, e.y)
+        }
       }
-    })
+    )
   }
 
   private fun setupUI() {
@@ -168,10 +170,11 @@ class TodosoInputPanel(
             add(cancelButton)
           }
 
-        val rightWrapper = JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.RIGHT, 0, 0)).apply {
+        val rightWrapper =
+          JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.RIGHT, 0, 0)).apply {
             isOpaque = false
             add(attachButton)
-        }
+          }
 
         add(leftButtons, BorderLayout.WEST)
         add(rightWrapper, BorderLayout.EAST)
@@ -283,32 +286,28 @@ class TodosoInputPanel(
       is InputMode.Normal -> {
         inputTextArea.text = ""
         inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
-        inputTextArea.background =
-          JBColor.namedColor(BACKGROUND_COLOR_NORMAL, JBColor(0xF2F2F2, 0x1E1F22))
+        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_NORMAL, JBColor(0xF2F2F2, 0x1E1F22))
         actionButton.text = TodosoBundle.message(NEW_TASK_BUTTON)
         cancelButton.isVisible = false
       }
       is InputMode.Edit -> {
         inputTextArea.text = initialText
         inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
-        inputTextArea.background =
-          JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
+        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
         actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
         cancelButton.isVisible = true
       }
       is InputMode.Cancel -> {
         inputTextArea.text = initialText
         inputTextArea.emptyText.text = TodosoBundle.message("todo.action.cancel.noted.required")
-        inputTextArea.background =
-          JBColor.namedColor(BACKGROUND_COLOR_CANCEL, JBColor(0xFFE6E6, 0x482D2D))
+        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_CANCEL, JBColor(0xFFE6E6, 0x482D2D))
         actionButton.text = TodosoBundle.message("todo.button.cancel.task")
         cancelButton.isVisible = true
       }
       is InputMode.Note -> {
         inputTextArea.text = if (initialText.isBlank()) "// " else ensureNotePrefix(initialText)
         inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
-        inputTextArea.background =
-          JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
+        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
         actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
         cancelButton.isVisible = true
       }
@@ -371,10 +370,9 @@ class TodosoInputPanel(
         file.path
       }
 
-    val isImage =
-      LIST_EXTENSION_INSERT.any {
-        file.name.lowercase().endsWith(".$it")
-      }
+    val isImage = LIST_EXTENSION_INSERT.any {
+      file.name.lowercase().endsWith(".$it")
+    }
 
     val markdownSnippet =
       if (isImage) {
@@ -397,9 +395,10 @@ class TodosoInputPanel(
   private fun showSuggestionsPopup(triggerChar: Char) {
     val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) ?: ""
 
-    val items = if (triggerChar == '#') {
-      getSuggestions(prefix, getPopularTags(), getAllTasks())
-    } else emptyList()
+    val items =
+      if (triggerChar == '#') {
+        getSuggestions(prefix, getPopularTags(), getAllTasks())
+      } else emptyList()
 
     if (items.isEmpty()) {
       hideOverlay()
@@ -446,29 +445,40 @@ class TodosoInputPanel(
     val suggestions = mutableListOf<SuggestionItem>()
 
     // 1. Tag Suggestions
-    val tagItems = if (prefix.isEmpty()) {
-      if (popularTags.isEmpty()) {
-        TodosoConstants.DEFAULT_QUICK_TAGS.map {
-          SuggestionItem(it, TodosoBundle.message("todo.suggestion.quick.tags"), IconLoader.getIcon("/general/add.png", javaClass))
+    val tagItems =
+      if (prefix.isEmpty()) {
+        if (popularTags.isEmpty()) {
+          TodosoConstants.DEFAULT_QUICK_TAGS.map {
+            SuggestionItem(
+              it,
+              TodosoBundle.message("todo.suggestion.quick.tags"),
+              IconLoader.getIcon("/general/add.png", javaClass),
+            )
+          }
+        } else {
+          popularTags.map {
+            SuggestionItem(
+              it,
+              TodosoBundle.message("todo.suggestion.popular.tags"),
+              IconLoader.getIcon("/actions/checked.png", javaClass),
+            )
+          }
         }
       } else {
-        popularTags.map {
-          SuggestionItem(it, TodosoBundle.message("todo.suggestion.popular.tags"), IconLoader.getIcon("/actions/checked.png", javaClass))
-        }
+        allTasks
+          .flatMap { it.tags }
+          .distinct()
+          .filter { it.startsWith(prefix, ignoreCase = true) }
+          .map { tag ->
+            val isPopular = popularTags.contains(tag)
+            SuggestionItem(
+              tag,
+              if (isPopular) TodosoBundle.message("todo.suggestion.popular.tags")
+              else TodosoBundle.message("todo.suggestion.all.tags"),
+              IconLoader.getIcon(if (isPopular) "/actions/checked.png" else "/nodes/tag.png", javaClass),
+            )
+          }
       }
-    } else {
-      allTasks.flatMap { it.tags }
-        .distinct()
-        .filter { it.startsWith(prefix, ignoreCase = true) }
-        .map { tag ->
-          val isPopular = popularTags.contains(tag)
-          SuggestionItem(
-            tag,
-            if (isPopular) TodosoBundle.message("todo.suggestion.popular.tags") else TodosoBundle.message("todo.suggestion.all.tags"),
-            IconLoader.getIcon(if (isPopular) "/actions/checked.png" else "/nodes/tag.png", javaClass)
-          )
-        }
-    }
     suggestions.addAll(tagItems)
 
     if (prefix.isNotEmpty()) {

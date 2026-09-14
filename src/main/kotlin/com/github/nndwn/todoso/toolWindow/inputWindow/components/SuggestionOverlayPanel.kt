@@ -122,7 +122,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
       // Gunakan tinggi asli dari list untuk menghindari gap kosong di bawah
       val listHeight = list.preferredSize.height
       val maxHeight = JBUI.scale(400)
-      
+
       // Tambahkan sedikit buffer (10px) untuk border dan internal padding
       preferredSize = Dimension(width, (listHeight + JBUI.scale(10)).coerceAtMost(maxHeight))
     } else {

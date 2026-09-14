@@ -14,7 +14,7 @@ object TodoTaskFilterer {
     allTasks: List<TodoTask>,
     filterState: FilterState,
     currentTagFilter: String?,
-    sortOptions: Set<SortOption>
+    sortOptions: Set<SortOption>,
   ): List<TodoTask> {
     val filtered = getFilteredTasks(allTasks, filterState, currentTagFilter)
     return applySorting(filtered, sortOptions)
@@ -23,7 +23,7 @@ object TodoTaskFilterer {
   private fun getFilteredTasks(
     allTasks: List<TodoTask>,
     filterState: FilterState,
-    currentTagFilter: String?
+    currentTagFilter: String?,
   ): List<TodoTask> {
     return allTasks.filter { task ->
       val priorityMatch = filterState.priority == null || task.priority == filterState.priority
@@ -32,19 +32,23 @@ object TodoTaskFilterer {
       val activeTag = filterState.tag ?: currentTagFilter
       val tagMatch = activeTag == null || task.tags.contains(activeTag)
 
-      val dateMatch = when (filterState.date) {
-        DateFilter.TODAY -> isTaskMatchingDate(task) { it == LocalDate.now() }
-        DateFilter.THIS_WEEK -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
-        DateFilter.WITH_DATE -> task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
-        else -> true
-      }
+      val dateMatch =
+        when (filterState.date) {
+          DateFilter.TODAY -> isTaskMatchingDate(task) { it == LocalDate.now() }
+          DateFilter.THIS_WEEK -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
+          DateFilter.WITH_DATE ->
+            task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
+          else -> true
+        }
 
-      val queryMatch = if (filterState.query.isNullOrBlank()) true else {
-        val query = filterState.query!!.lowercase()
-        task.description.lowercase().contains(query) ||
-                task.metadata.notes.lowercase().contains(query) ||
-                task.id.lowercase().contains(query)
-      }
+      val queryMatch =
+        if (filterState.query.isNullOrBlank()) true
+        else {
+          val query = filterState.query!!.lowercase()
+          task.description.lowercase().contains(query) ||
+            task.metadata.notes.lowercase().contains(query) ||
+            task.id.lowercase().contains(query)
+        }
 
       priorityMatch && statusMatch && tagMatch && dateMatch && queryMatch
     }
@@ -57,7 +61,9 @@ object TodoTaskFilterer {
       when (option) {
         SortOption.STATUS -> comparators.add(compareBy { it.status })
         SortOption.DATE ->
-          comparators.add(compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: it.metadata.createdDate ?: "9999-99-99" })
+          comparators.add(
+            compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: it.metadata.createdDate ?: "9999-99-99" }
+          )
         SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
       }
     }
@@ -70,11 +76,12 @@ object TodoTaskFilterer {
   }
 
   private fun isTaskMatchingDate(task: TodoTask, predicate: (LocalDate) -> Boolean): Boolean {
-    val dates = listOfNotNull(
-      task.metadata.dueDate,
-      task.metadata.startDate,
-      task.metadata.createdDate
-    )
+    val dates =
+      listOfNotNull(
+        task.metadata.dueDate,
+        task.metadata.startDate,
+        task.metadata.createdDate,
+      )
     return dates.any { dateStr ->
       try {
         val date = LocalDate.parse(dateStr.take(10))
@@ -91,8 +98,7 @@ object TodoTaskFilterer {
     val currentWeek = now.get(weekFields.weekOfWeekBasedYear())
     val currentYear = now.get(weekFields.weekBasedYear())
 
-    return date.get(weekFields.weekOfWeekBasedYear()) == currentWeek &&
-            date.get(weekBasedYear()) == currentYear
+    return date.get(weekFields.weekOfWeekBasedYear()) == currentWeek && date.get(weekBasedYear()) == currentYear
   }
 
   private fun weekBasedYear() = WeekFields.of(Locale.getDefault()).weekBasedYear()

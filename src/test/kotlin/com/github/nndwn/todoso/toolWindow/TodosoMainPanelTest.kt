@@ -29,7 +29,7 @@ class TodosoMainPanelTest : BasePlatformTestCase() {
     val todoFile = myFixture.addFileToProject(TodosoConstants.FILENAME, originalContent)
     TodosoTestHelper.createMainPanel(project)
     val content = VfsUtil.loadText(todoFile.virtualFile)
-    
+
     assertTrue("Header should still exist.", content.contains(header))
     assertTrue("Metadata should be injected.", content.contains("<!-- Plugin Version:"))
     assertTrue("Original task should still exist.", content.contains("Task 1"))

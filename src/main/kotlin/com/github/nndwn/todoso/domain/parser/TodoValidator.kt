@@ -6,8 +6,8 @@ import com.github.nndwn.todoso.domain.model.Priority
 object TodoValidator {
 
   /**
-   * Memeriksa apakah sebuah teks (baik raw line atau hanya deskripsi) memiliki konten nyata
-   * setelah semua metadata (tags, priority, dates, id) dibersihkan.
+   * Memeriksa apakah sebuah teks (baik raw line atau hanya deskripsi) memiliki konten nyata setelah semua metadata
+   * (tags, priority, dates, id) dibersihkan.
    */
   fun isContentValid(text: String?): Boolean {
     if (text.isNullOrBlank()) return false
