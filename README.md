@@ -41,17 +41,6 @@ Here is a look at the Todoso interface and features:
 > [!IMPORTANT]
 > **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues, we highly recommend adding `todo.md` (or your custom path) to your `.gitignore` file.
 
-#### Modern Component-Based UI
-Todoso moves away from traditional, rigid list views to a modern, dynamic component architecture inspired by modern productivity tools:
-* **Multi-line Text Wrapping**: Descriptions and tags are no longer truncated. The layout intelligently recalculates row heights to wrap text naturally, ensuring your full task is always visible.
-* **Interactive Hover Effects**: A subtle highlight follows your mouse, providing clear visual feedback on which task you are interacting with.
-* **Smart Selection Logic**: Select tasks with a single click to perform actions (Delete/Move). Focus management is handled automatically, ensuring that clicking a task won't accidentally clear your current input draft.
-* **Refined Metadata Tooltip**: Powered by IntelliJ's `HelpTooltip` API, hovering over a task reveals a structured, rounded overlay containing:
-    * **Task ID**: Persistent unique identifier.
-    * **Lifecycle Dates**: Created, Started, Due, Completion, Edited, and Cancelled timestamps.
-    * **Execution Duration**: Real-time calculation of how long a task took to complete.
-    * **Deep References**: If a task description mentions another Task ID, the tooltip automatically shows the **description, dates, and notes** of the referenced task.
-    * **Sanitized Notes**: Clean presentation of your manual notes and attachments, with support for image/file path detection.
 
 #### Flexible Input Field Behavior
 A smart single-input field that intelligently processes plain text, Markdown syntax, and dynamic suggestions:
