@@ -4,6 +4,7 @@ import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.TodosoIcons
 import com.github.nndwn.todoso.domain.model.TodoTask
+import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
 import com.intellij.icons.AllIcons
@@ -11,7 +12,6 @@ import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.DocumentAdapter
@@ -454,7 +454,7 @@ class TodosoInputPanel(
             SuggestionItem(
               it,
               TodosoBundle.message("todo.suggestion.quick.tags"),
-              IconLoader.getIcon("/general/add.png", javaClass),
+
             )
           }
         } else {
@@ -462,22 +462,20 @@ class TodosoInputPanel(
             SuggestionItem(
               it,
               TodosoBundle.message("todo.suggestion.popular.tags"),
-              IconLoader.getIcon("/actions/checked.png", javaClass),
+              tagDisplay = TagParser.formatTagWithCount(it, popularTags)
             )
           }
         }
       } else {
-        allTasks
-          .flatMap { it.tags }
-          .distinct()
-          .filter { it.startsWith(prefix, ignoreCase = true) }
+        val getAllTags = allTasks.flatMap { it.tags }.distinct().filter { it.startsWith(prefix, ignoreCase = true) }
+        getAllTags
           .map { tag ->
             val isPopular = popularTags.contains(tag)
             SuggestionItem(
               tag,
               if (isPopular) TodosoBundle.message("todo.suggestion.popular.tags")
               else TodosoBundle.message("todo.suggestion.all.tags"),
-              IconLoader.getIcon(if (isPopular) "/actions/checked.png" else "/nodes/tag.png", javaClass),
+              tagDisplay = TagParser.formatTagWithCount(tag, getAllTags)
             )
           }
       }
@@ -492,9 +490,8 @@ class TodosoInputPanel(
       suggestions.addAll(
         relatedTasks.map { task ->
           SuggestionItem(
-            text = task.description.take(40) + (if (task.description.length > 40) "..." else ""),
+            text = task.description.take(80) + (if (task.description.length > 40) "..." else ""),
             category = TodosoBundle.message("todo.suggestion.related.tags"),
-            icon = IconLoader.getIcon("/nodes/variable.png", javaClass),
             isTask = true,
             taskId = task.id,
           )

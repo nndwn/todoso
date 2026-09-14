@@ -91,7 +91,7 @@ class TodosoContextMenu(
       exclusiveRelations.forEach { group ->
         group.forEach { tag ->
           toggle(
-            text = "#$tag",
+            text = TagParser.formatTagWithCount(tag, group),
             isSelected = {
               service.findTaskById(taskId)?.tags?.contains(tag) ?: false
             },
@@ -103,14 +103,18 @@ class TodosoContextMenu(
         separator()
       }
 
-      // 2. Popular Tags (Excluding Exclusives)
-      val popularTags = TagParser.getPopularTags(taskData).filter { it !in exclusiveTags }
+      // 3. Recent Versions
+      val recentVersions = TagParser.getRecentVersions(tasks = taskData)
+
+      // 2. Popular Tags (Excluding Exclusives and Recent Versions)
+      val popularTags = TagParser.getPopularTags(taskData)
+        .filter { it !in exclusiveTags && it !in recentVersions }
 
       if (popularTags.isNotEmpty()) {
         subMenu(TodosoBundle.message("todo.suggestion.popular.tags")) {
           popularTags.forEach { tag ->
             toggle(
-              text = "#${TagParser.truncateTag(tag)}",
+              text = TagParser.formatTagWithCount(tag, popularTags, isTruncated = true),
               isSelected = {
                 service.findTaskById(taskId)?.tags?.contains(tag) ?: false
               },
@@ -122,13 +126,11 @@ class TodosoContextMenu(
         }
       }
 
-      // 3. Recent Versions
-      val recentVersions = TagParser.getRecentVersions(tasks = taskData)
       if (recentVersions.isNotEmpty()) {
         subMenu(TodosoBundle.message("todo.filter.group.versions")) {
           recentVersions.forEach { tag ->
             toggle(
-              text = "#$tag",
+              text = TagParser.formatTagWithCount(tag, recentVersions),
               isSelected = {
                 service.findTaskById(taskId)?.tags?.contains(tag) ?: false
               },

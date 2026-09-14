@@ -26,7 +26,7 @@
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
 - [x] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya 🆔 Pjxkcd 🛫 2026-09-09 17:38 ✅ 2026-09-09 18:04
 - [x] 🔼 jadi sanitazi itu untuk apa ? 🆔 qfocgi 🛫 2026-09-09 18:19 ✅ 2026-09-09 18:19
-- [x] 🔺 sepertinya untuk penanganan delete jangan main langsung hapus lebih baik jadi comment di lane , tapi bagaimana nasib lane berdasarkan baris lainnya ? #issue 🛫 2026-09-13 14:04 🆔 K0CGIt ✅ 2026-09-14 01:50
+- [x] 🔺 perbaikan script depcrapted dan car tahu masalah pengunaan script internal #issue #production 🛫 2026-09-13 14:04 ✅ 2026-09-14 01:50 📝 2026-09-15 00:34 🆔 K0CGIt
 - [x] 🔼 ada beberapa issue di tag ketika user memilih tag langsung enter tag langsung di spasi jadi tidak dapat menampilkan related tag , solusi mungkin jangan berikan spasi pada saat enter 🆔 U9AcPT 🛫 2026-09-09 08:04 ✅ 2026-09-09 09:18
 - [x] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF 🛫 2026-09-09 16:51 ✅ 2026-09-09 17:03
 - [x] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13 ✅ 2026-09-09 21:39
@@ -72,10 +72,15 @@
 - [x] 🔺 #issue ganti icon priority 🆔 RhHFLt 🛫 2026-09-14 01:51 ✅ 2026-09-14 05:16
 - [x] di context menu perlu ada informasi shorcut #issue 🆔 dnJLY0 🛫 2026-09-14 02:02 ✅ 2026-09-14 14:00
 - [x] ⏫ context menu perlu di ganti bentuk icon dan informasi shortcut 🆔 N4xsEr 🛫 2026-09-14 13:41 ✅ 2026-09-14 14:00
-- [ ] 🔼 sepertinya perlu icon hastag #feature 🆔 e63jJq
+- [ ] 🔼 sepertinya perlu icon hastag #feature #development 🆔 e63jJq
 - [x] ⏫ penaganan tags panjang pada context menu #issue 🆔 eFHX7j 🛫 2026-09-14 05:15 ✅ 2026-09-14 05:15
 - [x] ⏫ #issue todosoItem tidak support tombol delete 🆔 EN3Y03 🛫 2026-09-14 05:18 ✅ 2026-09-14 06:08
 - [x] 🔼 TodosoItem support delete tombol 🆔 491Soj 🛫 2026-09-14 06:10 ✅ 2026-09-14 06:10
 - [x] 🔼 dialog delete komfirmasi delete tidak begitu informatif #issue 🆔 JtSdzg 🛫 2026-09-14 13:42 ✅ 2026-09-14 13:49
-- [ ] [H] tag di klik kanan perlu sebuah informasi number jumlah #issue 🆔 H8rMow
-- [ ] hanya sebauh test ➕ 2026-09-14 15:59 🆔 an5FdC
+- [x] ⏫ tag di klik kanan perlu sebuah informasi number jumlah #issue #v2.0.1 🆔 H8rMow
+<!-- - [ ] hanya sebauh test ➕ 2026-09-14 15:59 🆔 an5FdC -->
+- [/] ⏫ perbaikan script depcrapted dan car tahu masalah pengunaan script internal #issue #production #v2.0.1 ➕ 2026-09-14 20:59 📝 2026-09-15 00:34 🆔 DxrMp5
+- [x] ⏫ matikan klik 2x edit , worse banget #issue #production #v2.0.1 ➕ 2026-09-14 22:03 🆔 Ycr6jC
+- [x] 🔺 ternyata belum terintegrasi dengan waktu #production #issue #v2.0.1 ➕ 2026-09-14 22:23 📝 2026-09-14 22:40 🆔 365lZE
+- [x] 🔺 #issue ternyata pada klik kanan terdapat popular tag untuk version juga termasuk #v2.0.1 #production ➕ 2026-09-14 23:20 🆔 ebrLyD
+- [x] 🔼 untuk tag TodosoInput seperti nya perlu count tapi masalah nya tag yang diberikan akan sama dengan yang di input malah hasil jadi issue karena tag yang diberikan hasil nya akan nilai nya #development #v2.0.1 ➕ 2026-09-14 23:25 🆔 MOl0d9 // disana juga perbaikan karena hanya bisa untuk keyboard saja tidak untuk mouse

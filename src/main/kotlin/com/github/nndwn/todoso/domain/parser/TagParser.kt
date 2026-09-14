@@ -51,4 +51,14 @@ object TagParser {
       .take(limit)
       .toList()
   }
+
+  /**
+   * Membuat label ber-format untuk Tag beserta jumlah task-nya (jika jumlah > 0).
+   * Contoh: "feature" -> "#feature (5)", atau "production" -> "#production" jika kosong.
+   */
+  fun formatTagWithCount(tag: String, tasks: List<String>, isTruncated: Boolean = false): String {
+    val count = tasks.count { it.contains(tag) }
+    val cleanTag = if (isTruncated) truncateTag(tag) else tag
+    return if (count > 0) "#$cleanTag ($count)" else "#$cleanTag"
+  }
 }

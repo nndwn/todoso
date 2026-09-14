@@ -276,7 +276,47 @@ class TodosoService(private val project: Project) {
   }
 
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
-    val updatedMeta = if (!note.isNullOrBlank()) task.metadata.copy(notes = note) else task.metadata
+    val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+    
+    // Siapkan metadata dasar dengan penanganan transisi siklus hidup tanggal
+    var baseMetadata = task.metadata
+    if (!note.isNullOrBlank()) {
+      baseMetadata = baseMetadata.copy(notes = note)
+    }
+
+    val updatedMeta = when (newStatus) {
+      TaskStatus.TODO -> {
+        // Kembali ke TODO: Hapus semua tanggal riwayat pengerjaan (Start, End, Cancel)
+        baseMetadata.copy(
+          startDate = null,
+          endDate = null,
+          cancelDate = null
+        )
+      }
+      TaskStatus.DOING -> {
+        // Transisi ke DOING: Catat tanggal mulai baru, hapus riwayat selesai/batal sebelumnya jika ada
+        baseMetadata.copy(
+          startDate = nowFormatted,
+          endDate = null,
+          cancelDate = null
+        )
+      }
+      TaskStatus.DONE -> {
+        // Transisi ke DONE: Catat tanggal penyelesaian
+        baseMetadata.copy(
+          endDate = nowFormatted,
+          cancelDate = null
+        )
+      }
+      TaskStatus.CANCELLED -> {
+        // Transisi ke CANCELLED: Catat tanggal pembatalan
+        baseMetadata.copy(
+          cancelDate = nowFormatted,
+          endDate = null
+        )
+      }
+    }
+
     val updatedTask = task.copy(status = newStatus, metadata = updatedMeta, isPersistentId = true)
     updateTaskInMemory(updatedTask)
     modifyTaskLine(task) { updatedTask.let { TodoTaskBuilder.rebuildTaskLine(it) } }
@@ -299,7 +339,7 @@ class TodosoService(private val project: Project) {
       newTasks[index] = updatedTask
       cachedTasks = newTasks
       tasksById = cachedTasks.associateBy { it.id }
-      // Beritahu UI tanpa menandai cache dirty
+
       project.messageBus.syncPublisher(TodosoDataChangeListener.TOPIC).onDataChanged()
     }
   }

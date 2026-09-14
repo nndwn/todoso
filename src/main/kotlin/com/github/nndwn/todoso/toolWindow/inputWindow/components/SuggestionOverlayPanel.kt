@@ -11,6 +11,9 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
 import javax.swing.*
 
 /**
@@ -63,7 +66,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
             // Text + Subtext
             val textContainer =
               SimpleColoredComponent().apply {
-                val title = if (value.isTask) value.text else "#${value.text}"
+                val title = if (value.isTask) value.text else "${value.tagDisplay}"
                 append(title, SimpleTextAttributes.REGULAR_ATTRIBUTES)
 
                 if (!value.subText.isNullOrBlank()) {
@@ -79,6 +82,29 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
         rootPanel.background = list.background
         rootPanel
       }
+
+      addMouseListener(
+        object : MouseAdapter() {
+          override fun mousePressed(e: MouseEvent) {
+            val index = locationToIndex(e.point)
+            if (index != -1) {
+              selectedIndex = index
+              confirmSelection()
+            }
+          }
+        }
+      )
+
+      addMouseMotionListener(
+        object : MouseMotionAdapter() {
+          override fun mouseMoved(e: MouseEvent) {
+            val index = locationToIndex(e.point)
+            if (index != -1 && index != selectedIndex) {
+              selectedIndex = index
+            }
+          }
+        }
+      )
     }
 
   init {

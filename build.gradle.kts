@@ -16,7 +16,7 @@ dependencies {
     }
 }
 
-/*
+
 tasks {
     verifyPlugin {
         // Abaikan peringatan Internal API usages agar build task tidak gagal (tetap dianggap OK/Lolos)
@@ -27,5 +27,5 @@ tasks {
         )
     }
 }
-*/
+
 

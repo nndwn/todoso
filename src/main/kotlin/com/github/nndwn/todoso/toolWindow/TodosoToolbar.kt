@@ -200,7 +200,7 @@ class TodosoToolbar(
       }
 
       override fun getChildren(e: AnActionEvent?): Array<AnAction> {
-        val project = e?.project ?: return AnAction.EMPTY_ARRAY
+        val project = e?.project ?: return EMPTY_ARRAY
         val service = project.service<TodosoService>()
         val tasks = service.loadTask()
 
@@ -224,8 +224,8 @@ class TodosoToolbar(
         if (popularTags.isNotEmpty()) {
           actions.add(Separator(TodosoBundle.message("todo.suggestion.popular.tags")))
           popularTags.forEach { tag ->
-            val count = tasks.count { it.tags.contains(tag) }
-            actions.add(createTagFilterAction(tag, count))
+            val label = TagParser.formatTagWithCount(tag, popularTags, isTruncated = true)
+            actions.add(createTagFilterAction(tag, label))
           }
         }
 
@@ -233,8 +233,8 @@ class TodosoToolbar(
         if (recentVersions.isNotEmpty()) {
           actions.add(Separator(TodosoBundle.message("todo.filter.group.versions")))
           recentVersions.forEach { tag ->
-            val count = tasks.count { it.tags.contains(tag) }
-            actions.add(createTagFilterAction(tag, count))
+            val label = TagParser.formatTagWithCount(tag, recentVersions)
+            actions.add(createTagFilterAction(tag, label))
           }
         }
 
@@ -311,9 +311,8 @@ class TodosoToolbar(
     }
   }
 
-  private fun createTagFilterAction(tag: String, count: Int): ToggleAction {
-    val text = "#${TagParser.truncateTag(tag)} ($count)"
-    return object : ToggleAction(text) {
+  private fun createTagFilterAction(tag: String, label: String): ToggleAction {
+    return object : ToggleAction(label) {
       override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == tag
 
       override fun setSelected(e: AnActionEvent, state: Boolean) {
