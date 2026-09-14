@@ -10,7 +10,7 @@
 <!-- For instructions, read more here: https://github.com/nndwn/todoso -->
 - [x] ⏫ pertama bagaimana menampilkan list ? pada panel plugin Intellij?  🆔 8XnWwK 🛫 2026-09-08 05:21 ✅ 2026-09-08 17:47
 - [x] ⏫ pertama siapkan data list todo.md #feature 🆔 oLYbLu 🛫 2026-09-08 05:21 ✅ 2026-09-08 05:21
-- [/] 🔺 rewrite context menu #development #issue 🆔 7aGPQD 🛫 2026-09-10 13:30
+- [x] 🔺 rewrite context menu #development #issue 🆔 7aGPQD 🛫 2026-09-10 13:30 ✅ 2026-09-14 13:27
 - [x] pada input apa bisa ketika # langsung muncul sebagian tag berdasarkan waktu baru di bikin dan paling banyak atau bisa di bilang tag yang populer di batasin kemuncunlannya agar tidak memenuhi layar di TodosoInputPanel 🆔 UBpLSS 🛫 2026-09-08 21:05 ✅ 2026-09-08 21:16
 - [x] Di TodosoCell atasi teks panjang 🆔 i26x4X 🛫 2026-09-09 06:55 ✅ 2026-09-09 06:58
 - [x] 🔼 di Navigation tags atasi masalah tags panjang 🛫 2026-09-12 15:59 🆔 QpRyJN ✅ 2026-09-12 17:38
@@ -50,14 +50,14 @@
 - [-] ⏬ Item component ketika di klik id dan descripsi akan menuju ke line file line nya  🆔 dfeotS ❌ 2026-09-14 01:52 // noted: bagusnya di letakan di klik kanan saja
 - [x] ⏫ membuat sistem tooltip yang lebih informatif jika seandai nya di descripsi memiliki id yang terhubung maka tampikan detail descripsi task di tooltip 🛫 2026-09-12 18:05 🆔 t954Ej ✅ 2026-09-13 00:13
 - [x] 🔺 posible buat search ? 🆔 gDcVlJ 🛫 2026-09-12 23:00 ✅ 2026-09-13 01:31
-- [/] 🔼 untuk tool task context menu refres task , random task, go line number, search, copy task 🆔 rQNGh5 🛫 2026-09-13 14:04
+- [x] 🔼 untuk tool task context menu refres task , random task, go line number, search, copy task 🆔 rQNGh5 🛫 2026-09-13 14:04 ✅ 2026-09-14 13:27
 - [-] lalu bagaimana jika seandainya user lakukan doing lalu ingin pause kan lalu contionue task sehingga start waktu tidak menghilang 🆔 5g78qS ❌ 2026-09-13 04:03 // noted: hanya memperumit kalkulasi waktu penyelesaian
 - [x] ⏫ kenapa ketika di klik select item task lalu di klik kanan , yang di select menjadi unselect ? #Issue 🆔 MfVeDz 🛫 2026-09-13 14:05 ✅ 2026-09-13 14:19
 - [x] ⏫ priority sekaran memiliki iconnya sendiri terapkan ke pada klik kanan #feature 🆔 phJ6Fe 🛫 2026-09-13 14:32 ✅ 2026-09-13 15:08
 - [x] [H] harusnya todosoContextMenu tidak perlu tahu mengenai isi TodosoToolbar #issue 🆔 S5Cdbo 🛫 2026-09-13 14:20 ✅ 2026-09-13 15:07
 - [x] [H]rename edit dan tags menjadi edit task #issue 🆔 5dzxA2 🛫 2026-09-13 14:31 ✅ 2026-09-13 14:31
 - [x] [H] pada klik kanan perlu ada add tag berupa berupa tag populer dan tag eklusif lalu filter tag populer jika ada memiliki tag eklusif #feature 🆔 9TRrqs 🛫 2026-09-13 23:23 ✅ 2026-09-14 00:18
-- [ ] [H] untuk di klik kanan apa perlu ada filter ? #feature 🆔 LjXZqK
+- [ ] 🔽 untuk di klik kanan apa perlu ada filter ? #feature 🆔 LjXZqK
 - [x] ⏫ issue untuk placeholder input jangan terhapus pada saat inputan kosong #issue 🆔 yeBXUB 🛫 2026-09-13 22:35 ✅ 2026-09-13 23:03
 - [x] [H] pada priority jika sudah diberikan priority jangan di berikan priority yang sama #issue 🆔 le419q 🛫 2026-09-13 14:51 ✅ 2026-09-13 15:06
 - [x] ⏫ #issue di auto scroll tidak efektif untuk sistem order list ini karena setiap perubahan perlu jeda sync 🆔 KjTPl7 🛫 2026-09-13 15:16 ✅ 2026-09-13 15:26
@@ -67,7 +67,13 @@
 - [x] [H] pada filter tag perlu tambahkan clear all #issue 🆔 SflUM6 🛫 2026-09-13 22:35 ✅ 2026-09-13 22:44
 - [x] ⏫ penambahan add note #feature di context menu 🆔 T07Urq 🛫 2026-09-14 00:23 ✅ 2026-09-14 00:39
 - [x] ⏫ #issue ternyata di input tidak ada klik kanan paste 🆔 5g4k69 🛫 2026-09-14 00:58 ✅ 2026-09-14 02:02
-- [/] 🔼 tambahkan comment waktu dan versi setiap user lakukan update perubahan secara io di todo.md, nanti nya ini berguna untuk trigger sesuatu #feature 🆔 UFnfdo 🛫 2026-09-14 00:57
-- [/] 🔺 #issue ganti icon priority 🆔 RhHFLt 🛫 2026-09-14 01:51
-- [/] di context menu perlu ada informasi shorcut #issue 🆔 dnJLY0 🛫 2026-09-14 02:02
-- [ ] ⏫ context menu perlu di ganti bentuk icon dan informasi shortcut 🆔 N4xsEr
+- [x] 🔼 tambahkan comment waktu dan versi setiap user lakukan update perubahan secara io di todo.md, nanti nya ini berguna untuk trigger sesuatu #feature 🆔 UFnfdo 🛫 2026-09-14 00:57 ✅ 2026-09-14 04:59
+- [x] 🔺 #issue ganti icon priority 🆔 RhHFLt 🛫 2026-09-14 01:51 ✅ 2026-09-14 05:16
+- [x] di context menu perlu ada informasi shorcut #issue 🆔 dnJLY0 🛫 2026-09-14 02:02 ✅ 2026-09-14 14:00
+- [x] ⏫ context menu perlu di ganti bentuk icon dan informasi shortcut 🆔 N4xsEr 🛫 2026-09-14 13:41 ✅ 2026-09-14 14:00
+- [ ] 🔼 sepertinya perlu icon hastag #feature 🆔 e63jJq
+- [x] ⏫ penaganan tags panjang pada context menu #issue 🆔 eFHX7j 🛫 2026-09-14 05:15 ✅ 2026-09-14 05:15
+- [x] ⏫ #issue todosoItem tidak support tombol delete 🆔 EN3Y03 🛫 2026-09-14 05:18 ✅ 2026-09-14 06:08
+- [x] 🔼 TodosoItem support delete tombol 🆔 491Soj 🛫 2026-09-14 06:10 ✅ 2026-09-14 06:10
+- [x] 🔼 dialog delete komfirmasi delete tidak begitu informatif #issue 🆔 JtSdzg 🛫 2026-09-14 13:42 ✅ 2026-09-14 13:49
+- [ ] [H] tag di klik kanan perlu sebuah informasi number jumlah #issue 🆔 H8rMow

@@ -25,6 +25,7 @@ import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
+import java.awt.Toolkit
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
 import java.awt.event.KeyAdapter
@@ -34,6 +35,7 @@ import java.awt.event.MouseEvent
 import javax.swing.JButton
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
+import javax.swing.KeyStroke
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
@@ -129,12 +131,15 @@ class TodosoInputPanel(
       override fun mouseReleased(e: MouseEvent) {
         if (e.isPopupTrigger) showMenu(e)
       }
-
       private fun showMenu(e: MouseEvent) {
         val menu = JPopupMenu()
-        val pasteAction = JMenuItem(TodosoBundle.message("todo.menu.paste"), AllIcons.Actions.Attach)
+        val mask = Toolkit.getDefaultToolkit().menuShortcutKeyMaskEx
+
+        val pasteAction = JMenuItem(TodosoBundle.message("todo.menu.paste"), AllIcons.Actions.MenuPaste)
+        pasteAction.accelerator = KeyStroke.getKeyStroke(KeyEvent.VK_V, mask)
         pasteAction.addActionListener { inputTextArea.paste() }
         menu.add(pasteAction)
+
         menu.show(e.component, e.x, e.y)
       }
     })

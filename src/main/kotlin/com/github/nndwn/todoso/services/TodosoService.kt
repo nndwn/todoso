@@ -124,11 +124,43 @@ class TodosoService(private val project: Project) {
     }
   }
 
+  fun injectMetadataPlugin() {
+    val todoFile = getTodoFile() ?: return
+    val plugin = PluginManagerCore.getPlugin(PluginId.getId(TodosoConstants.PLUGIN_ID))
+    val version = plugin?.version ?: "unknown"
+    val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    val metadataLine = "<!-- Plugin Version: $version | Last Updated: $now -->"
+
+    runWriteCommandAction(project, "Inject Metadata", null, {
+      val content = try {
+        VfsUtil.loadText(todoFile)
+      } catch (_: Exception) {
+        ""
+      }
+      val lines = content.lines().toMutableList()
+
+      val existingIndex = lines.indexOfFirst { it.startsWith("<!-- Plugin Version:") }
+      if (existingIndex != -1) {
+        lines[existingIndex] = metadataLine
+      } else {
+        val headerIndex = lines.indexOfFirst { it.contains(TodosoConstants.GITHUB_REPO_URL) }
+        if (headerIndex != -1) {
+          lines.add(headerIndex + 1, metadataLine)
+        } else {
+          lines.add(0, metadataLine)
+        }
+      }
+
+      val newContent = lines.joinToString("\n")
+      VfsUtil.saveText(todoFile, newContent)
+      VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+    })
+  }
+
   fun markCacheDirty() {
     isCacheDirty = true
   }
 
-  fun getCachedTasks(): List<TodoTask> = cachedTasks
 
   fun loadTask(): List<TodoTask> {
     val currentPath = settings.state.todoFilePath

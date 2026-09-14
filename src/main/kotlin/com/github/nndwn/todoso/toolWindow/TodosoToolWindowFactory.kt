@@ -83,6 +83,7 @@ class TodosoToolWindowFactory : ToolWindowFactory, DumbAware {
                     settings = settings,
                     onTaskSelected = { task, force -> panel.handleTaskSelection(task, force) },
                     onTaskEdit = { task -> panel.handler.setEditMode(true, task.description) },
+                    onDelete = { panel.handler.handleDeleteAction() },
                     onContextMenu = { task, e -> panel.showContextMenu(task, e) }
                 )
             },

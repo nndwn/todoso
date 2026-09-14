@@ -41,7 +41,7 @@ object TodoTaskParser {
 
     return TodoTask(
       id = extractedId.id,
-      isPersistentId = extractedId.isPersistentId || !ignoreId,
+      isPersistentId = extractedId.isPersistentId,
       rawText = rawLine,
       description = cleanDescription,
       status = status,

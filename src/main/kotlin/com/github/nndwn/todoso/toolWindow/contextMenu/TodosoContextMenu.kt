@@ -11,6 +11,7 @@ import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.TodosoActionHandler
 import com.github.nndwn.todoso.toolWindow.SortOption
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.CommonShortcuts
 
 class TodosoContextMenu(
     private val service : TodosoService,
@@ -66,7 +67,7 @@ class TodosoContextMenu(
             }
         }
 
-        subMenu(TodosoBundle.message("todo.menu.change.priority"), AllIcons.General.Filter) {
+        subMenu(TodosoBundle.message("todo.menu.change.priority"), AllIcons.General.ChevronUp) {
             Priority.entries.forEach { priority ->
                 item(
                     text = priority.displayName,
@@ -82,7 +83,7 @@ class TodosoContextMenu(
         }
 
         subMenu(TodosoBundle.message("todo.menu.manage.tags"), AllIcons.Nodes.Tag) {
-            val cachedTasks = service.getCachedTasks()
+            val taskData = service.loadTask()
             val exclusiveRelations = TodosoConstants.EXCLUSIVE_RELATIONS
             val exclusiveTags = exclusiveRelations.flatten()
 
@@ -103,14 +104,14 @@ class TodosoContextMenu(
             }
 
             // 2. Popular Tags (Excluding Exclusives)
-            val popularTags = TagParser.getPopularTags(cachedTasks)
+            val popularTags = TagParser.getPopularTags(taskData)
                 .filter { it !in exclusiveTags }
 
             if (popularTags.isNotEmpty()) {
                 subMenu(TodosoBundle.message("todo.suggestion.popular.tags")) {
                     popularTags.forEach { tag ->
                         toggle(
-                            text = "#$tag",
+                            text = "#${TagParser.truncateTag(tag)}",
                             isSelected = { 
                                 service.findTaskById(taskId)?.tags?.contains(tag) ?: false 
                             },
@@ -123,7 +124,7 @@ class TodosoContextMenu(
             }
 
             // 3. Recent Versions
-            val recentVersions = TagParser.getRecentVersions(tasks = cachedTasks)
+            val recentVersions = TagParser.getRecentVersions(tasks = taskData)
             if (recentVersions.isNotEmpty()) {
                 subMenu(TodosoBundle.message("todo.filter.group.versions")) {
                     recentVersions.forEach { tag ->
@@ -146,6 +147,7 @@ class TodosoContextMenu(
         item(
             text = TodosoBundle.message("todo.menu.copy.context"),
             icon = AllIcons.Actions.Copy,
+            shortcut = CommonShortcuts.getCopy(),
             onAction = { 
                 service.findTaskById(taskId)?.let { handler.handleCopyContext() }
             }
@@ -154,6 +156,7 @@ class TodosoContextMenu(
         item(
             text = TodosoBundle.message("todo.menu.delete"),
             icon = AllIcons.Actions.GC,
+            shortcut = CommonShortcuts.getDelete(),
             onAction = { 
                 service.findTaskById(taskId)?.let { handler.handleDeleteAction() }
             }
@@ -171,13 +174,14 @@ class TodosoContextMenu(
             onAction = { handler.handleRandomTask() }
         )
         item(
-            text = "Navigate to Line",
-            icon = AllIcons.Actions.MenuOpen,
+            text = TodosoBundle.message("todo.menu.navigate.lane"),
+            icon = AllIcons.Actions.ShowCode,
             onAction = { handler.getSelectedTask()?.let { handler.handleNavigateToTask(it) } }
         )
         item(
             text = TodosoBundle.message("todo.filter.search"),
             icon = AllIcons.Actions.Find,
+            shortcut = CommonShortcuts.getFind(),
             onAction = { handler.handleToggleSearch() }
         )
     }

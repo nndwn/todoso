@@ -18,6 +18,8 @@ import java.awt.Color
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Rectangle
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JPanel
@@ -34,7 +36,8 @@ class TodosoItemComponent(
     private var isVisualEnabled: Boolean,
     private val onSelect: (TodoTask) -> Unit,
     private val onEdit: (TodoTask) -> Unit,
-    private val onContextMenu: (TodoTask, MouseEvent) -> Unit
+    private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
+    private val onDelete: (TodoTask) -> Unit
 ) : JPanel(BorderLayout()), Scrollable {
 
     private var isSelected = false
@@ -72,6 +75,7 @@ class TodosoItemComponent(
 
     init {
         isOpaque = true
+        isFocusable = true
         background = UIUtil.getListBackground()
         cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
         
@@ -115,6 +119,7 @@ class TodosoItemComponent(
             }
 
             override fun mousePressed(e: MouseEvent) {
+                requestFocusInWindow()
                 if (e.isPopupTrigger) {
                     onContextMenu(task, e)
                 } else {
@@ -135,6 +140,14 @@ class TodosoItemComponent(
         
         addMouseListener(hoverListener)
         iconLabel.addMouseListener(hoverListener)
+
+        addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(e: KeyEvent) {
+                if (e.keyCode == KeyEvent.VK_DELETE) {
+                    onDelete(task)
+                }
+            }
+        })
     }
 
     fun setSelected(selected: Boolean) {

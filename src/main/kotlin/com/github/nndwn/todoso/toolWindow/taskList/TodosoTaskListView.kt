@@ -20,6 +20,7 @@ class TodosoTaskListView(
     private val settings: TodosoSettingsService,
     private val onTaskSelected: (TodoTask, Boolean) -> Unit,
     private val onTaskEdit: (TodoTask) -> Unit,
+    private val onDelete: (TodoTask) -> Unit,
     private val onContextMenu: (TodoTask, MouseEvent) -> Unit
 ) : JBPanel<TodosoTaskListView>(BorderLayout()) {
 
@@ -27,6 +28,7 @@ class TodosoTaskListView(
         init {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             isOpaque = false
+            isFocusable = false
         }
         override fun getPreferredScrollableViewportSize(): Dimension = preferredSize
         override fun getScrollableUnitIncrement(visibleRect: Rectangle?, orientation: Int, direction: Int): Int = 20
@@ -54,7 +56,6 @@ class TodosoTaskListView(
         val newComponents = mutableListOf<TodosoItemComponent>()
         val currentVisualEnabled = settings.state.visualEnabled
 
-        // 1. Update atau Buat Komponen Baru
         sortedTasks.forEach { task ->
             val existing = currentComponents[task.id]
             if (existing != null) {
@@ -66,6 +67,7 @@ class TodosoTaskListView(
                     service, task, currentVisualEnabled,
                     onSelect = { t -> onTaskSelected(t, false) },
                     onEdit = { t -> onTaskEdit(t) },
+                    onDelete = { t -> onDelete(t) },
                     onContextMenu = { t, e -> onContextMenu(t, e) }
                 )
                 newComp.setSelected(isTaskSelected(task))
@@ -73,25 +75,20 @@ class TodosoTaskListView(
             }
         }
 
-        // 2. Sinkronisasi Container tanpa memicu fluktuasi ukuran
         tasksContainer.apply {
-            // Kunci ukuran saat ini agar scrollbar tidak melompat
             val currentSize = preferredSize
             preferredSize = currentSize
             
             try {
-                // Hapus yang tidak ada di list baru
                 val newIds = sortedTasks.map { it.id }.toSet()
                 taskComponents.filter { it.task.id !in newIds }.forEach { remove(it) }
 
-                // Pastikan urutan di UI sesuai dengan sortedTasks
                 newComponents.forEachIndexed { index, comp ->
                     if (index >= componentCount || getComponent(index) != comp) {
                         add(comp, index)
                     }
                 }
             } finally {
-                // Lepaskan kunci ukuran agar layout bisa menyesuaikan secara alami
                 preferredSize = null
             }
         }
@@ -102,7 +99,13 @@ class TodosoTaskListView(
         tasksContainer.revalidate()
         tasksContainer.repaint()
         
-        // Kembalikan auto scroll karena sekarang sudah stabil
+        // Restore focus to selected task
+        selectedTask?.let { target ->
+            SwingUtilities.invokeLater {
+                taskComponents.find { it.task.id == target.id }?.requestFocusInWindow()
+            }
+        }
+
         SwingUtilities.invokeLater { scrollToSelected() }
     }
 
@@ -112,14 +115,21 @@ class TodosoTaskListView(
         tasksContainer.scrollRectToVisible(component.bounds)
     }
 
-
     private fun isTaskSelected(task: TodoTask): Boolean {
         return task.id.isNotBlank() && task.id == selectedTask?.id
     }
 
     fun setSelectedTask(task: TodoTask?) {
         this.selectedTask = task
-        taskComponents.forEach { it.setSelected(it.task.id == task?.id) }
+        taskComponents.forEach { 
+            val isTarget = it.task.id == task?.id
+            it.setSelected(isTarget)
+            if (isTarget) {
+                SwingUtilities.invokeLater {
+                    it.requestFocusInWindow()
+                }
+            }
+        }
     }
     
     fun getSelectedTask(): TodoTask? = selectedTask

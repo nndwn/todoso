@@ -15,7 +15,7 @@ class TodosoMainPanelTest : BasePlatformTestCase() {
 
     assertTrue(
       "Instruction header should be present at the beginning of the file.\nContent was: $content",
-      content.startsWith(expectedHeader),
+      content.contains(expectedHeader),
     )
     assertTrue(
       "Original content should still be present.",
@@ -29,6 +29,9 @@ class TodosoMainPanelTest : BasePlatformTestCase() {
     val todoFile = myFixture.addFileToProject(TodosoConstants.FILENAME, originalContent)
     TodosoTestHelper.createMainPanel(project)
     val content = VfsUtil.loadText(todoFile.virtualFile)
-    assertEquals("Content should not change if the header is already present.", originalContent, content)
+    
+    assertTrue("Header should still exist.", content.contains(header))
+    assertTrue("Metadata should be injected.", content.contains("<!-- Plugin Version:"))
+    assertTrue("Original task should still exist.", content.contains("Task 1"))
   }
 }

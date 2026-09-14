@@ -16,13 +16,14 @@ class TodosoFilterTest : BasePlatformTestCase() {
 
     override fun setUp() {
         super.setUp()
-        // Metadata (Priority/Dates) must follow strict positioning rules
+        // Metadata (Priority/Dates) must follow strict positioning rules.
+        // Added persistent IDs to prevent auto-persistence from interfering with tests.
         val content = """
-            - [ ] 🔺 Task 1 #feature 🛫 2024-01-01
-            - [/] ⏫ Task 2 #issue
-            - [x] 🔼 Task 3 #production 📅 2024-01-02
-            - [ ] 🔽 Task 4 #development
-            - [-] ⏬ Task 5 #issue
+            - [ ] 🔺 Task 1 #feature 🛫 2024-01-01 🆔 t1a2b3
+            - [/] ⏫ Task 2 #issue 🆔 t2c3d4
+            - [x] 🔼 Task 3 #production 📅 2024-01-02 🆔 t3e4f5
+            - [ ] 🔽 Task 4 #development 🆔 t4g5h6
+            - [-] ⏬ Task 5 #issue 🆔 t5i6j7
         """.trimIndent()
         myFixture.addFileToProject(TodosoConstants.FILENAME, content)
         mainPanel = TodosoTestHelper.createMainPanel(project)

@@ -101,10 +101,11 @@ class TodosoActionHandler(
 
   fun handleDeleteAction() {
     val selected = view.getSelectedTask() ?: return
+    val desc = selected.id
     val result =
       Messages.showYesNoDialog(
         project,
-        TodosoBundle.message("todo.action.delete.confirm.message"),
+        TodosoBundle.message("todo.action.delete.confirm.message", desc ),
         TodosoBundle.message("todo.action.delete.confirm.title"),
         Messages.getQuestionIcon(),
       )

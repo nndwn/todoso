@@ -298,8 +298,7 @@ class TodosoToolbar(
   }
 
   private fun createTagFilterAction(tag: String, count: Int): ToggleAction {
-    val displayTag = if (tag.length > 20) tag.take(17) + "..." else tag
-    val text = "#$displayTag ($count)"
+    val text = "#${TagParser.truncateTag(tag)} ($count)"
     return object : ToggleAction(text) {
       override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == tag
       override fun setSelected(e: AnActionEvent, state: Boolean) {

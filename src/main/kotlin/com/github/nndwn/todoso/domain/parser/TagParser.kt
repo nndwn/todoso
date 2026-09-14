@@ -17,6 +17,8 @@ object TagParser {
       .toList()
   }
 
+  fun truncateTag(tag: String): String = if (tag.length > 20) tag.take(17) + "..." else tag
+
   fun getPopularTags(tasks: List<TodoTask>, limit: Int = 10): List<String> {
     return tasks
       .asSequence()
