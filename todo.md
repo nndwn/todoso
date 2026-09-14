@@ -20,7 +20,7 @@
 - [x] prefix untuk # 🆔 G0bitz 🛫 2026-09-08 22:18 ✅ 2026-09-09 06:41
 - [x] untuk # dan @ untuk tampilan belum bagus tidak tampil di atas inputran dan ukurannya tidak mengikutin ukuran layar plugin yang sudah aktif 🆔 yec9ne 🛫 2026-09-08 21:24 ✅ 2026-09-08 22:17
 - [x] 🔼 seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil dan hapus Navigation Tags 🛫 2026-09-09 08:09 🆔 8tybE7 ✅ 2026-09-09 16:50
-- [ ] ⏬ ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus #feature 🆔 iEWvdY
+- [ ] ⏬ ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus #feature #development 🆔 iEWvdY
 - [x] untut @TodosoInputPanel.kt ini uda cukup terlalu panjang mungkin perlu di refactoring 🆔 PHxgc4 🛫 2026-09-08 21:27 ✅ 2026-09-08 21:48
 - [x] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu edited 🛫 2026-09-09 09:27 🆔 Kepi8h ✅ 2026-09-09 18:03
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
@@ -31,11 +31,11 @@
 - [x] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF 🛫 2026-09-09 16:51 ✅ 2026-09-09 17:03
 - [x] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13 ✅ 2026-09-09 21:39
 - [x] 🔼 lakukan refactoring TodosoInputPanel sudah terlalu besar sekarang 🆔 8cvWay 🛫 2026-09-09 18:20 ✅ 2026-09-09 18:20
-- [ ] ⏬ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? 🆔 w7tKwD
+- [ ] ⏬ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? #development #feature 🆔 w7tKwD
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
-- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #issue #test 📝 2026-09-14 15:58 🆔 E4TFhe // asdas
+- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #issue #test #development 📝 2026-09-14 15:58 🆔 E4TFhe // asdas
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
@@ -58,7 +58,7 @@
 - [x] [H] harusnya todosoContextMenu tidak perlu tahu mengenai isi TodosoToolbar #issue 🆔 S5Cdbo 🛫 2026-09-13 14:20 ✅ 2026-09-13 15:07
 - [x] [H]rename edit dan tags menjadi edit task #issue 🆔 5dzxA2 🛫 2026-09-13 14:31 ✅ 2026-09-13 14:31
 - [x] [H] pada klik kanan perlu ada add tag berupa berupa tag populer dan tag eklusif lalu filter tag populer jika ada memiliki tag eklusif #feature 🆔 9TRrqs 🛫 2026-09-13 23:23 ✅ 2026-09-14 00:18
-- [ ] 🔽 untuk di klik kanan apa perlu ada filter ? #feature 🆔 LjXZqK
+- [ ] 🔽 untuk di klik kanan apa perlu ada filter ? #feature #development 🆔 LjXZqK
 - [x] ⏫ issue untuk placeholder input jangan terhapus pada saat inputan kosong #issue 🆔 yeBXUB 🛫 2026-09-13 22:35 ✅ 2026-09-13 23:03
 - [x] [H] pada priority jika sudah diberikan priority jangan di berikan priority yang sama #issue 🆔 le419q 🛫 2026-09-13 14:51 ✅ 2026-09-13 15:06
 - [x] ⏫ #issue di auto scroll tidak efektif untuk sistem order list ini karena setiap perubahan perlu jeda sync 🆔 KjTPl7 🛫 2026-09-13 15:16 ✅ 2026-09-13 15:26
@@ -79,8 +79,9 @@
 - [x] 🔼 dialog delete komfirmasi delete tidak begitu informatif #issue 🆔 JtSdzg 🛫 2026-09-14 13:42 ✅ 2026-09-14 13:49
 - [x] ⏫ tag di klik kanan perlu sebuah informasi number jumlah #issue #v2.0.1 🆔 H8rMow
 <!-- - [ ] hanya sebauh test ➕ 2026-09-14 15:59 🆔 an5FdC -->
-- [/] ⏫ perbaikan script depcrapted dan car tahu masalah pengunaan script internal #issue #production #v2.0.1 ➕ 2026-09-14 20:59 📝 2026-09-15 00:34 🆔 DxrMp5
+- [ ] ⏫ perbaikan script depcrapted dan car tahu masalah pengunaan script internal #issue #production ➕ 2026-09-14 20:59 📝 2026-09-15 00:34 🆔 DxrMp5
 - [x] ⏫ matikan klik 2x edit , worse banget #issue #production #v2.0.1 ➕ 2026-09-14 22:03 🆔 Ycr6jC
 - [x] 🔺 ternyata belum terintegrasi dengan waktu #production #issue #v2.0.1 ➕ 2026-09-14 22:23 📝 2026-09-14 22:40 🆔 365lZE
 - [x] 🔺 #issue ternyata pada klik kanan terdapat popular tag untuk version juga termasuk #v2.0.1 #production ➕ 2026-09-14 23:20 🆔 ebrLyD
 - [x] 🔼 untuk tag TodosoInput seperti nya perlu count tapi masalah nya tag yang diberikan akan sama dengan yang di input malah hasil jadi issue karena tag yang diberikan hasil nya akan nilai nya #development #v2.0.1 ➕ 2026-09-14 23:25 🆔 MOl0d9 // disana juga perbaikan karena hanya bisa untuk keyboard saja tidak untuk mouse
+- [ ] ⏫ just test ➕ 2026-09-15 01:47 🆔 jF5xVU
