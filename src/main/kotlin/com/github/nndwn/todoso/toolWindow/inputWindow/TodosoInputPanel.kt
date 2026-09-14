@@ -352,12 +352,14 @@ class TodosoInputPanel(
   }
 
   private fun handleAttachFile() {
+    if (project.isDisposed) return
+
     val descriptor =
       FileChooserDescriptorFactory.createAllButJarContentsDescriptor()
         .withTitle(TodosoBundle.message("todo.insert.file"))
         .withDescription(TodosoBundle.message("todo.insert.file.desc"))
 
-    val selectedFile = FileChooser.chooseFile(descriptor, project, null) ?: return
+    val selectedFile = FileChooser.chooseFile(descriptor, this, project, null) ?: return
     insertMarkdownAttachment(selectedFile)
   }
 

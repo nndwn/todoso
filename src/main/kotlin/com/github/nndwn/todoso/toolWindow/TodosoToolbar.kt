@@ -129,7 +129,7 @@ class TodosoToolbar(
         e.presentation.isEnabled = service.loadTask().isNotEmpty()
       }
 
-      override fun getChildren(e: AnActionEvent?): Array<AnAction> = group.getChildActionsOrStubs()
+      override fun getChildren(e: AnActionEvent?): Array<AnAction> = group.getChildren(e)
 
       override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
     }
@@ -177,7 +177,7 @@ class TodosoToolbar(
           dynamicGroup.add(createDateFilterAction(DateFilter.WITH_DATE))
         }
 
-        return dynamicGroup.getChildActionsOrStubs()
+        return dynamicGroup.getChildren(e)
       }
 
       override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
@@ -235,7 +235,7 @@ class TodosoToolbar(
           }
         }
 
-        return dynamicGroup.getChildActionsOrStubs()
+        return dynamicGroup.getChildren(e)
       }
 
       override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT

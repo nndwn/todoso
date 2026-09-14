@@ -9,15 +9,16 @@ import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
-import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -36,6 +37,23 @@ fun interface TodosoDataChangeListener {
 
 @Service(Service.Level.PROJECT)
 class TodosoService(private val project: Project) {
+
+  init {
+    val connection = project.messageBus.connect()
+    connection.subscribe(
+      VirtualFileManager.VFS_CHANGES,
+      object : BulkFileListener {
+        override fun after(events: List<VFileEvent>) {
+          val todoFile = getTodoFile() ?: return
+          if (events.any { it.file == todoFile }) {
+            if (!isInternalWriting) {
+              markCacheDirty()
+            }
+          }
+        }
+      },
+    )
+  }
 
   private val instructionHeader: String
     get() = TodosoBundle.message("todo.instruction.inject", TodosoConstants.GITHUB_REPO_URL)
@@ -124,44 +142,44 @@ class TodosoService(private val project: Project) {
     }
   }
 
-  fun injectMetadataPlugin() {
-    val todoFile = getTodoFile() ?: return
-    val plugin = PluginManagerCore.getPlugin(PluginId.getId(TodosoConstants.PLUGIN_ID))
-    val version = plugin?.version ?: "unknown"
-    val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-    val metadataLine = "<!-- Plugin Version: $version | Last Updated: $now -->"
-
-    runWriteCommandAction(
-      project,
-      "Inject Metadata",
-      null,
-      {
-        val content =
-          try {
-            VfsUtil.loadText(todoFile)
-          } catch (_: Exception) {
-            ""
-          }
-        val lines = content.lines().toMutableList()
-
-        val existingIndex = lines.indexOfFirst { it.startsWith("<!-- Plugin Version:") }
-        if (existingIndex != -1) {
-          lines[existingIndex] = metadataLine
-        } else {
-          val headerIndex = lines.indexOfFirst { it.contains(TodosoConstants.GITHUB_REPO_URL) }
-          if (headerIndex != -1) {
-            lines.add(headerIndex + 1, metadataLine)
-          } else {
-            lines.add(0, metadataLine)
-          }
-        }
-
-        val newContent = lines.joinToString("\n")
-        VfsUtil.saveText(todoFile, newContent)
-        VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
-      },
-    )
-  }
+  //  fun injectMetadataPlugin() {
+  //    val todoFile = getTodoFile() ?: return
+  //    val plugin = PluginManager.getPluginByClass(this::class.java)
+  //    val version = plugin?.version ?: "unknown"
+  //    val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+  //    val metadataLine = "<!-- Plugin Version: $version | Last Updated: $now -->"
+  //
+  //    runWriteCommandAction(
+  //      project,
+  //      "Inject Metadata",
+  //      null,
+  //      {
+  //        val content =
+  //          try {
+  //            VfsUtil.loadText(todoFile)
+  //          } catch (_: Exception) {
+  //            ""
+  //          }
+  //        val lines = content.lines().toMutableList()
+  //
+  //        val existingIndex = lines.indexOfFirst { it.startsWith("<!-- Plugin Version:") }
+  //        if (existingIndex != -1) {
+  //          lines[existingIndex] = metadataLine
+  //        } else {
+  //          val headerIndex = lines.indexOfFirst { it.contains(TodosoConstants.GITHUB_REPO_URL) }
+  //          if (headerIndex != -1) {
+  //            lines.add(headerIndex + 1, metadataLine)
+  //          } else {
+  //            lines.add(0, metadataLine)
+  //          }
+  //        }
+  //
+  //        val newContent = lines.joinToString("\n")
+  //        VfsUtil.saveText(todoFile, newContent)
+  //        VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+  //      },
+  //    )
+  //  }
 
   fun markCacheDirty() {
     isCacheDirty = true
@@ -180,8 +198,6 @@ class TodosoService(private val project: Project) {
           return emptyList()
         }
 
-    todoFile.refresh(false, false)
-    if (!isCacheDirty && currentPath == lastLoadedPath) return cachedTasks
     val content =
       try {
         VfsUtil.loadText(todoFile)

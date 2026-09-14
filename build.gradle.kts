@@ -1,4 +1,5 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -11,7 +12,7 @@ dependencies {
 
     intellijPlatform {
         intellijIdea("2025.2.6.2")
-        //local(file("/home/xenial/.local/share/JetBrains/Toolbox/apps/android-studio"))
         testFramework(TestFrameworkType.Platform)
     }
 }
+

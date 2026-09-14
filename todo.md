@@ -1,4 +1,5 @@
 <!-- For instructions, read more here: https://github.com/nndwn/todoso -->
+<!-- Plugin Version: 2.0.0 | Last Updated: 2026-09-14 15:58:32 -->
 
 > [!NOTE]
 > **AI Agent Protocol**:
@@ -11,7 +12,7 @@
 - [x] ⏫ pertama bagaimana menampilkan list ? pada panel plugin Intellij?  🆔 8XnWwK 🛫 2026-09-08 05:21 ✅ 2026-09-08 17:47
 - [x] ⏫ pertama siapkan data list todo.md #feature 🆔 oLYbLu 🛫 2026-09-08 05:21 ✅ 2026-09-08 05:21
 - [x] 🔺 rewrite context menu #development #issue 🆔 7aGPQD 🛫 2026-09-10 13:30 ✅ 2026-09-14 13:27
-- [x] pada input apa bisa ketika # langsung muncul sebagian tag berdasarkan waktu baru di bikin dan paling banyak atau bisa di bilang tag yang populer di batasin kemuncunlannya agar tidak memenuhi layar di TodosoInputPanel 🆔 UBpLSS 🛫 2026-09-08 21:05 ✅ 2026-09-08 21:16
+- [x] pada input apa bisa ketika # langsung muncul sebagian tag berdasarkan waktu baru di bikin dan paling banyak atau bisa di bilang tag yang populer di batasin kemuncunlannya agar tidak memenuhi layar di TodosoInputPanel 🛫 2026-09-08 21:05 ✅ 2026-09-08 21:16 🆔 UBpLSS
 - [x] Di TodosoCell atasi teks panjang 🆔 i26x4X 🛫 2026-09-09 06:55 ✅ 2026-09-09 06:58
 - [x] 🔼 di Navigation tags atasi masalah tags panjang 🛫 2026-09-12 15:59 🆔 QpRyJN ✅ 2026-09-12 17:38
 - [x] untuk enter pada Input langsung submit harus nya #issue 🆔 fOIJWT 🛫 2026-09-08 21:06 ✅ 2026-09-08 21:16
@@ -19,7 +20,7 @@
 - [x] prefix untuk # 🆔 G0bitz 🛫 2026-09-08 22:18 ✅ 2026-09-09 06:41
 - [x] untuk # dan @ untuk tampilan belum bagus tidak tampil di atas inputran dan ukurannya tidak mengikutin ukuran layar plugin yang sudah aktif 🆔 yec9ne 🛫 2026-09-08 21:24 ✅ 2026-09-08 22:17
 - [x] 🔼 seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil dan hapus Navigation Tags 🛫 2026-09-09 08:09 🆔 8tybE7 ✅ 2026-09-09 16:50
-- [ ] ⏬ ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus 🆔 iEWvdY
+- [ ] ⏬ ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus #feature 🆔 iEWvdY
 - [x] untut @TodosoInputPanel.kt ini uda cukup terlalu panjang mungkin perlu di refactoring 🆔 PHxgc4 🛫 2026-09-08 21:27 ✅ 2026-09-08 21:48
 - [x] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu edited 🛫 2026-09-09 09:27 🆔 Kepi8h ✅ 2026-09-09 18:03
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
@@ -34,7 +35,7 @@
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
-- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti 🆔 E4TFhe
+- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #issue #test 📝 2026-09-14 15:58 🆔 E4TFhe // asdas
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
@@ -77,3 +78,4 @@
 - [x] 🔼 TodosoItem support delete tombol 🆔 491Soj 🛫 2026-09-14 06:10 ✅ 2026-09-14 06:10
 - [x] 🔼 dialog delete komfirmasi delete tidak begitu informatif #issue 🆔 JtSdzg 🛫 2026-09-14 13:42 ✅ 2026-09-14 13:49
 - [ ] [H] tag di klik kanan perlu sebuah informasi number jumlah #issue 🆔 H8rMow
+- [ ] hanya sebauh test ➕ 2026-09-14 15:59 🆔 an5FdC
