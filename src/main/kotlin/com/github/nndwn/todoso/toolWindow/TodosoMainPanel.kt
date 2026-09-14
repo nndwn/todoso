@@ -89,6 +89,7 @@ class TodosoMainPanel(
     setupShortcuts()
     setupListeners()
     service.injectInstructionsIfNeeded()
+    service.injectMetadataPlugin()
     subsChange()
   }
 

@@ -18,7 +18,6 @@ import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBTextArea
-import com.intellij.ui.components.TextComponentEmptyText
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.Cursor
@@ -74,7 +73,6 @@ class TodosoInputPanel(
     JBTextArea().apply {
       font = fontInput.deriveFont(12f)
       emptyText.text = TodosoBundle.message("todo.input.placeholder")
-      TextComponentEmptyText.setupPlaceholderVisibility(this)
       lineWrap = true
       wrapStyleWord = true
       rows = 3
