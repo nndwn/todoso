@@ -15,9 +15,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-            factoryClass="com.github.nndwn.todoso.toolWindow.TodosoToolWindowFactory"
-            id="Todo"
+            id="Todoso"
+            anchor="left"
             icon="com.github.nndwn.todoso.TodosoIcons.Logo"
+            factoryClass="com.github.nndwn.todoso.toolWindow.TodosoToolWindowFactory"
         />
         <postStartupActivity implementation="com.github.nndwn.todoso.startup.MyProjectActivity" />
         <notificationGroup id="com.github.nndwn.todoso.notifications" displayType="BALLOON" />

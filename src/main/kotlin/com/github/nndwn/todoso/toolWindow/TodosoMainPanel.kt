@@ -4,6 +4,7 @@ import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
+import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
@@ -39,11 +40,6 @@ class TodosoMainPanel(
   private val project: Project,
   private val service: TodosoService,
   private val settings: TodosoSettingsService,
-  private val toolbarProvider: (TodosoMainPanel) -> TodosoToolbar,
-  private val inputPanelProvider: (TodosoMainPanel) -> TodosoInputPanel,
-  private val taskListViewProvider: (TodosoMainPanel) -> TodosoTaskListView,
-  private val searchPanelProvider: (TodosoMainPanel) -> TodosoSearchPanel,
-  private val suggestionOverlayProvider: (TodosoMainPanel) -> SuggestionOverlayPanel,
 ) : JPanel(BorderLayout()), TodosoActionHandler.TodoViewActions {
 
   val uiFont: Font = JBUI.Fonts.label()
@@ -74,12 +70,74 @@ class TodosoMainPanel(
       putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
     }
 
-  // Components initialized via providers
-  internal val toolbarPanel = toolbarProvider(this)
-  internal val inputPanel = inputPanelProvider(this)
-  internal val taskListView = taskListViewProvider(this)
-  internal val searchPanel = searchPanelProvider(this)
-  internal val suggestionOverlay = suggestionOverlayProvider(this)
+  internal val toolbarPanel: TodosoToolbar = TodosoToolbar(
+    settings = settings,
+    targetComponent = this,
+    onRefreshUI = { refreshUiState() },
+    onRefreshTasks = { handler.refreshTasks() },
+    onRandomTask = { handler.handleRandomTask() },
+    onErrorHandler = { msg -> handler.handleErrorNotification(msg) },
+    onSortChanged = { options -> setCurrentSortOption(options) },
+    filterState = filterState,
+    onFilterChanged = { type, value -> onFilterChanged(type, value) },
+  )
+
+  internal val inputPanel: TodosoInputPanel = TodosoInputPanel(
+    project = project,
+    onNewTask = { text ->
+      hideSearchPanel()
+      handler.handleAddTask(text)
+    },
+    onUpdateTask = { text ->
+      hideSearchPanel()
+      handler.handleUpdateTask(text)
+    },
+    onConfirmCancel = { note ->
+      hideSearchPanel()
+      handler.handleConfirmCancel(note)
+    },
+    onCreateNote = { note ->
+      hideSearchPanel()
+      handler.handleUpdateNote(note)
+    },
+    onCancelEdit = { handler.handleCancelEdit() },
+    fontInput = uiFont,
+    getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
+    getAllTasks = { service.loadTask() },
+    onSuggestionRequest = { items ->
+      if (items != null) {
+        suggestionOverlay.updateItems(items)
+        updateOverlayPosition()
+      } else {
+        suggestionOverlay.hideOverlay()
+      }
+    },
+    onNavigationRequest = { direction ->
+      when (direction) {
+        "UP" -> suggestionOverlay.moveUp()
+        "DOWN" -> suggestionOverlay.moveDown()
+        "ENTER" -> suggestionOverlay.confirmSelection()
+        "ESCAPE" -> suggestionOverlay.hideOverlay()
+      }
+    },
+  )
+
+  internal val taskListView: TodosoTaskListView = TodosoTaskListView(
+    service = service,
+    settings = settings,
+    onTaskSelected = { task, force -> handleTaskSelection(task, force) },
+    onTaskEdit = { task -> handler.setEditMode(true, task.description) },
+    onDelete = { handler.handleDeleteAction() },
+    onContextMenu = { task, e -> showContextMenu(task, e) },
+  )
+
+  internal val searchPanel: TodosoSearchPanel = TodosoSearchPanel(
+    onQueryChanged = { query -> onSearchQueryChanged(query) }
+  )
+
+  internal val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
+    inputPanel.insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask)
+  }
 
   private val layeredPane = JLayeredPane()
   private val mainContent = JPanel(BorderLayout())
@@ -89,7 +147,6 @@ class TodosoMainPanel(
     setupShortcuts()
     setupListeners()
     service.injectInstructionsIfNeeded()
-    //service.injectMetadataPlugin()
     subsChange()
   }
 
