@@ -228,7 +228,7 @@ class TodosoItemComponent(
       } else {
         TodosoBundle.message("todo.tooltip.task.details")
       }
-    ht.setTitle(title)
+    ht.setTitle { title }
 
     val chunks = mutableListOf<HtmlChunk>()
 

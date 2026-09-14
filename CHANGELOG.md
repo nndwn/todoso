@@ -3,6 +3,10 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- a complete overhaul of the previous rewrite, typed by an AI agent, it was really sad, now I'm trying to rewrite it, it's even sadder.
+- a complete overhaul of the parsing, previously found many parsing bugs, now there might be even more.
+- a complete overhaul of the UI/UX, previously looked plain, now it's full of colors, making it look absolutely tacky.
+- thank you, Android Studio's built-in AI agent makes my life even worse
 
 ## [1.0.7] - 2026-09-05
 
