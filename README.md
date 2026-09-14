@@ -12,7 +12,19 @@ just type task in field and click right select priority and select tags or if yo
 
 I’m not good at typing in English but this AI agent typing is more pathetic than me, this ReadMe actually for my notes.
 
+### Preview
+Here is a look at the Todoso interface and features:
 
+
+<div align="center">
+  <img src="images/view.png" width="45%" />
+  <img src="images/menu.png" width="45%" />
+</div>
+
+<div align="center">
+  <img src="images/filter.png" width="45%" />
+  <img src="images/suggestion.png" width="45%" />
+</div>
 
 #### File-Based Workflow
 * **Automatic Integration**: Reads from `todo.md` at your project root by default.
