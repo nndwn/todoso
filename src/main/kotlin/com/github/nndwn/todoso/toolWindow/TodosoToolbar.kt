@@ -149,7 +149,7 @@ class TodosoToolbar(
       }
 
       override fun getChildren(e: AnActionEvent?): Array<AnAction> {
-        val project = e?.project ?: return AnAction.EMPTY_ARRAY
+        val project = e?.project ?: return EMPTY_ARRAY
         val service = project.service<TodosoService>()
         val tasks = service.loadTask()
 
