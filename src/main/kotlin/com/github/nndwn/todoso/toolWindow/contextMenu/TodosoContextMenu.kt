@@ -10,6 +10,7 @@ import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.SortOption
 import com.github.nndwn.todoso.toolWindow.TodosoActionHandler
+import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.CommonShortcuts
 
@@ -36,10 +37,12 @@ class TodosoContextMenu(
 
   private fun TodoMenuBuilder.editorTask(initialTask: TodoTask) {
     val taskId = initialTask.id
+    val isNormalMode = { handler.getCurrentMode() is InputMode.Normal }
 
     item(
       text = TodosoBundle.message("todo.menu.edit.task"),
       icon = AllIcons.Actions.Edit,
+      isVisible = isNormalMode,
       onAction = {
         service.findTaskById(taskId)?.let { handler.setEditMode(true, it.description) }
       },
@@ -48,12 +51,17 @@ class TodosoContextMenu(
     item(
       text = TodosoBundle.message("todo.menu.add.note"),
       icon = AllIcons.Actions.EditSource,
+      isVisible = isNormalMode,
       onAction = {
         service.findTaskById(taskId)?.let { handler.setNoteMode(true, it.metadata.notes) }
       },
     )
 
-    subMenu(TodosoBundle.message("todo.menu.change.status"), AllIcons.Actions.Diff) {
+    subMenu(
+      text = TodosoBundle.message("todo.menu.change.status"),
+      icon = AllIcons.Actions.Diff,
+      isVisible = isNormalMode
+    ) {
       TaskStatus.entries.forEach { status ->
         item(
           text = status.displayName,
@@ -67,7 +75,11 @@ class TodosoContextMenu(
       }
     }
 
-    subMenu(TodosoBundle.message("todo.menu.change.priority"), AllIcons.General.ChevronUp) {
+    subMenu(
+      text = TodosoBundle.message("todo.menu.change.priority"),
+      icon = AllIcons.General.ChevronUp,
+      isVisible = isNormalMode
+    ) {
       Priority.entries.forEach { priority ->
         item(
           text = priority.displayName,
@@ -82,7 +94,11 @@ class TodosoContextMenu(
       }
     }
 
-    subMenu(TodosoBundle.message("todo.menu.manage.tags"), AllIcons.Nodes.Tag) {
+    subMenu(
+      text = TodosoBundle.message("todo.menu.manage.tags"),
+      icon = AllIcons.Nodes.Tag,
+      isVisible = isNormalMode
+    ) {
       val taskData = service.loadTask()
       val exclusiveRelations = TodosoConstants.EXCLUSIVE_RELATIONS
       val exclusiveTags = exclusiveRelations.flatten()
@@ -91,7 +107,7 @@ class TodosoContextMenu(
       exclusiveRelations.forEach { group ->
         group.forEach { tag ->
           toggle(
-            text = TagParser.formatTagWithCount(tag, group),
+            text = TagParser.formatTagWithCount(tag, taskData),
             isSelected = {
               service.findTaskById(taskId)?.tags?.contains(tag) ?: false
             },
@@ -114,7 +130,7 @@ class TodosoContextMenu(
         subMenu(TodosoBundle.message("todo.suggestion.popular.tags")) {
           popularTags.forEach { tag ->
             toggle(
-              text = TagParser.formatTagWithCount(tag, popularTags, isTruncated = true),
+              text = TagParser.formatTagWithCount(tag, taskData, isTruncated = true),
               isSelected = {
                 service.findTaskById(taskId)?.tags?.contains(tag) ?: false
               },
@@ -130,7 +146,7 @@ class TodosoContextMenu(
         subMenu(TodosoBundle.message("todo.filter.group.versions")) {
           recentVersions.forEach { tag ->
             toggle(
-              text = TagParser.formatTagWithCount(tag, recentVersions),
+              text = TagParser.formatTagWithCount(tag, taskData),
               isSelected = {
                 service.findTaskById(taskId)?.tags?.contains(tag) ?: false
               },
@@ -149,6 +165,7 @@ class TodosoContextMenu(
       text = TodosoBundle.message("todo.menu.copy.context"),
       icon = AllIcons.Actions.Copy,
       shortcut = CommonShortcuts.getCopy(),
+      isVisible = isNormalMode,
       onAction = {
         service.findTaskById(taskId)?.let { handler.handleCopyContext() }
       },
@@ -158,6 +175,7 @@ class TodosoContextMenu(
       text = TodosoBundle.message("todo.menu.delete"),
       icon = AllIcons.Actions.GC,
       shortcut = CommonShortcuts.getDelete(),
+      isVisible = isNormalMode,
       onAction = {
         service.findTaskById(taskId)?.let { handler.handleDeleteAction() }
       },

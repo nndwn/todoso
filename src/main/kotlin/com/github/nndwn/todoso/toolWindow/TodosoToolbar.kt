@@ -220,20 +220,24 @@ class TodosoToolbar(
         )
         actions.add(Separator.getInstance()) // Garis Pemisah Polos
 
+
+        val recentVersions = TagParser.getRecentVersions(tasks = tasks)
         val popularTags = TagParser.getPopularTags(tasks)
+          .filter {  it !in recentVersions }
+
         if (popularTags.isNotEmpty()) {
           actions.add(Separator(TodosoBundle.message("todo.suggestion.popular.tags")))
           popularTags.forEach { tag ->
-            val label = TagParser.formatTagWithCount(tag, popularTags, isTruncated = true)
+            val label = TagParser.formatTagWithCount(tag, tasks, isTruncated = true)
             actions.add(createTagFilterAction(tag, label))
           }
         }
 
-        val recentVersions = TagParser.getRecentVersions(tasks = tasks)
+
         if (recentVersions.isNotEmpty()) {
           actions.add(Separator(TodosoBundle.message("todo.filter.group.versions")))
           recentVersions.forEach { tag ->
-            val label = TagParser.formatTagWithCount(tag, recentVersions)
+            val label = TagParser.formatTagWithCount(tag, tasks)
             actions.add(createTagFilterAction(tag, label))
           }
         }

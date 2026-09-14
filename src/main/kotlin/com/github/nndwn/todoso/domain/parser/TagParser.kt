@@ -4,6 +4,7 @@ import com.github.nndwn.todoso.domain.model.TodoTask
 
 object TagParser {
   val TAG_REGEX = Regex("""(?<=\s|^)#(?!\d+(?:\s|$|[.,!?]))([\p{L}\p{N}_/#.-]*[\p{L}\p{N}_/#-]|C#|F#)""")
+  val VERSION_REGEX = Regex("""^v\d.*""", RegexOption.IGNORE_CASE)
 
   fun parseTags(input: String?): List<String> {
     if (input.isNullOrBlank()) return emptyList()
@@ -45,7 +46,7 @@ object TagParser {
     return tasks
       .asSequence()
       .flatMap { it.tags }
-      .filter { it.startsWith("v", ignoreCase = true) }
+      .filter { it.matches(VERSION_REGEX) }
       .distinct()
       .sortedDescending()
       .take(limit)
@@ -56,9 +57,12 @@ object TagParser {
    * Membuat label ber-format untuk Tag beserta jumlah task-nya (jika jumlah > 0).
    * Contoh: "feature" -> "#feature (5)", atau "production" -> "#production" jika kosong.
    */
-  fun formatTagWithCount(tag: String, tasks: List<String>, isTruncated: Boolean = false): String {
-    val count = tasks.count { it.contains(tag) }
-    val cleanTag = if (isTruncated) truncateTag(tag) else tag
-    return if (count > 0) "#$cleanTag ($count)" else "#$cleanTag"
+  fun formatTagWithCount(tag: String, tasks: List<TodoTask>, isTruncated: Boolean = false): String {
+    val cleanTag = tag.removePrefix("#")
+    val count = tasks.count { task ->
+      task.tags.any { it.removePrefix("#").equals(cleanTag, ignoreCase = true) }
+    }
+    val displayTag = if (isTruncated) truncateTag(cleanTag) else cleanTag
+    return if (count > 0) "#$displayTag ($count)" else "#$displayTag"
   }
 }

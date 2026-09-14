@@ -8,6 +8,7 @@ import com.github.nndwn.todoso.domain.parser.TagParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
@@ -277,7 +278,10 @@ class TodosoInputPanel(
       is InputMode.Note -> onCreateNote(ensureNotePrefix(text))
       is InputMode.Normal -> onNewTask(text)
     }
-    inputTextArea.requestFocusInWindow()
+
+    ApplicationManager.getApplication().invokeLater {
+      inputTextArea.requestFocusInWindow()
+    }
   }
 
   fun setMode(mode: InputMode, initialText: String = "") {
@@ -347,8 +351,8 @@ class TodosoInputPanel(
 
   fun clearInputText() = setMode(InputMode.Normal)
 
-  fun requestUnfocus() {
-    this.requestFocusInWindow()
+  fun requestFocusToInput() {
+    inputTextArea.requestFocusInWindow()
   }
 
   private fun handleAttachFile() {
@@ -454,7 +458,7 @@ class TodosoInputPanel(
             SuggestionItem(
               it,
               TodosoBundle.message("todo.suggestion.quick.tags"),
-
+              tagDisplay = TagParser.formatTagWithCount(it, allTasks)
             )
           }
         } else {
@@ -462,20 +466,32 @@ class TodosoInputPanel(
             SuggestionItem(
               it,
               TodosoBundle.message("todo.suggestion.popular.tags"),
-              tagDisplay = TagParser.formatTagWithCount(it, popularTags)
+              tagDisplay = TagParser.formatTagWithCount(it, allTasks)
             )
           }
         }
       } else {
-        val getAllTags = allTasks.flatMap { it.tags }.distinct().filter { it.startsWith(prefix, ignoreCase = true) }
-        getAllTags
+        val allAvailableTags =
+          (allTasks.flatMap { it.tags } + popularTags + TodosoConstants.DEFAULT_QUICK_TAGS)
+            .map { it.removePrefix("#") }
+            .distinct()
+
+        allAvailableTags
+          .filter { it.startsWith(prefix, ignoreCase = true) }
           .map { tag ->
             val isPopular = popularTags.contains(tag)
+            val isExclusive = TodosoConstants.DEFAULT_QUICK_TAGS.contains(tag)
+            val isVersion = tag.matches(TagParser.VERSION_REGEX)
+
             SuggestionItem(
               tag,
-              if (isPopular) TodosoBundle.message("todo.suggestion.popular.tags")
-              else TodosoBundle.message("todo.suggestion.all.tags"),
-              tagDisplay = TagParser.formatTagWithCount(tag, getAllTags)
+              when {
+                isVersion -> TodosoBundle.message("todo.filter.group.versions")
+                isPopular -> TodosoBundle.message("todo.suggestion.popular.tags")
+                isExclusive -> TodosoBundle.message("todo.suggestion.quick.tags")
+                else -> TodosoBundle.message("todo.suggestion.all.tags")
+              },
+              tagDisplay = TagParser.formatTagWithCount(tag, allTasks)
             )
           }
       }
@@ -490,7 +506,7 @@ class TodosoInputPanel(
       suggestions.addAll(
         relatedTasks.map { task ->
           SuggestionItem(
-            text = task.description.take(80) + (if (task.description.length > 40) "..." else ""),
+            text = task.description.take(50) + (if (task.description.length > 50) "..." else ""),
             category = TodosoBundle.message("todo.suggestion.related.tags"),
             isTask = true,
             taskId = task.id,
@@ -508,6 +524,7 @@ class TodosoInputPanel(
     if (lastHash == -1) return null
 
     val sub = text.substring(lastHash + 1, caretPos)
-    return if (sub.contains(" ")) null else sub
+    // Jangan anggap prefix jika mengandung spasi, tab, atau baris baru (whitespace)
+    return if (sub.any { it.isWhitespace() }) null else sub
   }
 }

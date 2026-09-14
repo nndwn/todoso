@@ -14,7 +14,7 @@ class RoundedInputPanel(private val textArea: JTextArea) : JBPanel<RoundedInputP
     border = JBUI.Borders.empty(2)
 
     val scrollPane =
-      JBScrollPane(textArea).apply {
+      JBScrollPane(textArea, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER).apply {
         border = JBUI.Borders.empty()
         isOpaque = false
         viewport.isOpaque = false

@@ -110,13 +110,6 @@ class TodosoTaskListView(
     tasksContainer.revalidate()
     tasksContainer.repaint()
 
-    // Restore focus to selected task
-    selectedTask?.let { target ->
-      SwingUtilities.invokeLater {
-        taskComponents.find { it.task.id == target.id }?.requestFocusInWindow()
-      }
-    }
-
     SwingUtilities.invokeLater { scrollToSelected() }
   }
 
@@ -130,12 +123,12 @@ class TodosoTaskListView(
     return task.id.isNotBlank() && task.id == selectedTask?.id
   }
 
-  fun setSelectedTask(task: TodoTask?) {
+  fun setSelectedTask(task: TodoTask?, requestFocus: Boolean = false) {
     this.selectedTask = task
     taskComponents.forEach {
       val isTarget = it.task.id == task?.id
       it.setSelected(isTarget)
-      if (isTarget) {
+      if (isTarget && requestFocus) {
         SwingUtilities.invokeLater {
           it.requestFocusInWindow()
         }

@@ -16,6 +16,7 @@ sealed interface TodosoMenuElement {
     val iconProvider: (() -> Icon)? = null,
     val shortcut: ShortcutSet? = null,
     val isEnabled: () -> Boolean = { true },
+    val isVisible: () -> Boolean = { true },
     val onAction: () -> Unit,
   ) : TodosoMenuElement
 
@@ -23,6 +24,7 @@ sealed interface TodosoMenuElement {
     val text: String,
     val icon: Icon? = null,
     val isEnabled: () -> Boolean = { true },
+    val isVisible: () -> Boolean = { true },
     val children: List<TodosoMenuElement>,
   ) : TodosoMenuElement
 
@@ -45,20 +47,22 @@ class TodoMenuBuilder {
     iconProvider: (() -> Icon)? = null,
     shortcut: ShortcutSet? = null,
     isEnabled: () -> Boolean = { true },
+    isVisible: () -> Boolean = { true },
     onAction: () -> Unit,
   ) {
-    element.add(TodosoMenuElement.Action(text, icon, iconProvider, shortcut, isEnabled, onAction))
+    element.add(TodosoMenuElement.Action(text, icon, iconProvider, shortcut, isEnabled, isVisible, onAction))
   }
 
   fun subMenu(
     text: String,
     icon: Icon? = null,
     isEnabled: () -> Boolean = { true },
+    isVisible: () -> Boolean = { true },
     init: TodoMenuBuilder.() -> Unit,
   ) {
     val builder = TodoMenuBuilder()
     builder.init()
-    element.add(TodosoMenuElement.SubMenu(text, icon, isEnabled, builder.build()))
+    element.add(TodosoMenuElement.SubMenu(text, icon, isEnabled, isVisible, builder.build()))
   }
 
   fun separator() {
@@ -98,6 +102,7 @@ private fun fillActionGroup(
 
             override fun update(e: AnActionEvent) {
               e.presentation.isEnabled = element.isEnabled()
+              e.presentation.isVisible = element.isVisible()
               element.iconProvider?.let { e.presentation.icon = it() }
             }
 
@@ -113,6 +118,7 @@ private fun fillActionGroup(
           object : DefaultActionGroup() {
             override fun update(e: AnActionEvent) {
               e.presentation.isEnabled = element.isEnabled()
+              e.presentation.isVisible = element.isVisible()
             }
 
             override fun getActionUpdateThread() = ActionUpdateThread.EDT

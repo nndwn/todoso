@@ -6,6 +6,7 @@ import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.services.TodosoService
+import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
@@ -41,11 +42,13 @@ class TodosoActionHandler(
 
     fun setNoteMode(enabled: Boolean, text: String = "")
 
+    fun getCurrentMode(): InputMode
+
     fun getInputText(): String
 
     fun clearInputText()
 
-    fun requestUnfocus()
+    fun requestFocusToInput()
 
     fun setSelectedTask(task: TodoTask?)
 
@@ -59,6 +62,8 @@ class TodosoActionHandler(
   fun setEditMode(enabled: Boolean, text: String = "") = view.setEditMode(enabled, text)
 
   fun setNoteMode(enabled: Boolean, text: String = "") = view.setNoteMode(enabled, text)
+
+  fun getCurrentMode() = view.getCurrentMode()
 
   fun refreshTasks() = view.refreshTasks()
 

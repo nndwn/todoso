@@ -2,6 +2,10 @@
 
 An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root. Designed for simplicity, it supports modern standards inspired by **Obsidian** and **Notion**.
 
+[![Version](https://img.shields.io/jetbrains/plugin/v/34048-todoso-markdown-todo-list.svg?logo=jetbrains&color=blue)](https://plugins.jetbrains.com/plugin/34048-todoso-markdown-todo-list)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/34048-todoso-markdown-todo-list.svg?logo=jetbrains&color=green)](https://plugins.jetbrains.com/plugin/34048-todoso-markdown-todo-list)
+[![Rating](https://img.shields.io/jetbrains/plugin/r/stars/34048-todoso-markdown-todo-list.svg?color=orange)](https://plugins.jetbrains.com/plugin/34048-todoso-markdown-todo-list)
+
 I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.
 
 ## Usage

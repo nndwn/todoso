@@ -3,9 +3,12 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- seperti yang ku bilang sebelumnya ku menyelesaikan bug dan menciptakan bug baru lagi.
+- menyelesaikan bug parsing tag yang lupa di terapkan
+- menyelesaikan Issue UX 
+- tidak ada fitur ditambahkan di versi ini
 
 ## [2.0.1] - 2026-09-14
-
 - a complete overhaul of the previous rewrite, typed by an AI agent, it was really sad, now I'm trying to rewrite it, it's even sadder.
 - a complete overhaul of the parsing, previously found many parsing bugs, now there might be even more.
 - a complete overhaul of the UI/UX, previously looked plain, now it's full of colors, making it look absolutely tacky.
@@ -97,7 +100,7 @@
 - **Interactive Footer**: Rounded input area with specialized buttons for New Task and Canceled Task.
 - **Priority & Status Filters**: Persistent filters for prioritizing and focusing on tasks.
 - **Random Task**: Randomly pick a Todo task to start working on.
-- **Edit & Delete**: Full support for editing descriptions/tags and deleting tasks with confirmation.
+- **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
 [Unreleased]: https://github.com/nndwn/todoso/compare/v2.0.1...HEAD

@@ -10,6 +10,7 @@ import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoContextMenu
 import com.github.nndwn.todoso.toolWindow.contextMenu.toActionGroup
+import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.github.nndwn.todoso.toolWindow.logic.TodoTaskFilterer
@@ -242,15 +243,17 @@ class TodosoMainPanel(
 
   override fun setCancelMode(enabled: Boolean) = inputPanel.setCancelMode(enabled)
 
+  override fun getCurrentMode() = inputPanel.currentMode
+
   override fun getSelectedTask(): TodoTask? = taskListView.getSelectedTask()
 
   override fun getInputText(): String = inputPanel.inputTextArea.text
 
   override fun clearInputText() = inputPanel.clearInputText()
 
-  override fun requestUnfocus() = inputPanel.requestUnfocus()
+  override fun requestFocusToInput() = inputPanel.requestFocusToInput()
 
-  override fun setSelectedTask(task: TodoTask?) = taskListView.setSelectedTask(task)
+  override fun setSelectedTask(task: TodoTask?) = taskListView.setSelectedTask(task, requestFocus = false)
 
   override fun toggleSearch() = searchPanel.toggle()
 
@@ -285,9 +288,8 @@ class TodosoMainPanel(
     if (!forceSelect && taskListView.getSelectedTask()?.id == task.id) {
       taskListView.setSelectedTask(null)
     } else {
-      taskListView.setSelectedTask(task)
+      taskListView.setSelectedTask(task, requestFocus = true)
     }
-    requestUnfocus()
     updateButtonStates()
   }
 

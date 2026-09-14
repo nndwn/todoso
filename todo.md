@@ -72,7 +72,7 @@
 - [x] 🔺 #issue ganti icon priority 🆔 RhHFLt 🛫 2026-09-14 01:51 ✅ 2026-09-14 05:16
 - [x] di context menu perlu ada informasi shorcut #issue 🆔 dnJLY0 🛫 2026-09-14 02:02 ✅ 2026-09-14 14:00
 - [x] ⏫ context menu perlu di ganti bentuk icon dan informasi shortcut 🆔 N4xsEr 🛫 2026-09-14 13:41 ✅ 2026-09-14 14:00
-- [ ] 🔼 sepertinya perlu icon hastag #feature #development 🆔 e63jJq
+- [ ] 🔽 sepertinya perlu icon hastag #feature #development 🆔 e63jJq
 - [x] ⏫ penaganan tags panjang pada context menu #issue 🆔 eFHX7j 🛫 2026-09-14 05:15 ✅ 2026-09-14 05:15
 - [x] ⏫ #issue todosoItem tidak support tombol delete 🆔 EN3Y03 🛫 2026-09-14 05:18 ✅ 2026-09-14 06:08
 - [x] 🔼 TodosoItem support delete tombol 🆔 491Soj 🛫 2026-09-14 06:10 ✅ 2026-09-14 06:10
@@ -84,4 +84,17 @@
 - [x] 🔺 ternyata belum terintegrasi dengan waktu #production #issue #v2.0.1 ➕ 2026-09-14 22:23 📝 2026-09-14 22:40 🆔 365lZE
 - [x] 🔺 #issue ternyata pada klik kanan terdapat popular tag untuk version juga termasuk #v2.0.1 #production ➕ 2026-09-14 23:20 🆔 ebrLyD
 - [x] 🔼 untuk tag TodosoInput seperti nya perlu count tapi masalah nya tag yang diberikan akan sama dengan yang di input malah hasil jadi issue karena tag yang diberikan hasil nya akan nilai nya #development #v2.0.1 ➕ 2026-09-14 23:25 🆔 MOl0d9 // disana juga perbaikan karena hanya bisa untuk keyboard saja tidak untuk mouse
-- [ ] ⏫ just test ➕ 2026-09-15 01:47 🆔 jF5xVU
+<!-- - [ ] ⏫ just test ➕ 2026-09-15 01:47 🆔 jF5xVU -->
+- [x] ⏫ untuk tag jika user belum menambahkan #feature seharus nya ada karena termasuk eklusif tag #development #v2.0.2 🛫 2026-09-15 03:40 ✅ 2026-09-15 06:12 ➕ 2026-09-15 03:16 🆔 X7GhL6 // dan juga menyelesaikan masalah tag version yang ternyata memiliki celah parsing
+- [x] ⏫ seperti perlu shortcut untuk penambahan task baru #v2.0.2 #issue #production 🛫 2026-09-15 03:41 ✅ 2026-09-15 06:31 ➕ 2026-09-15 03:18 🆔 XyMfkn // enggak perlu shorcut tapi perbaikin kalau melakukan enter pada saat new task kenapa jadi unfocus
+- [x] 🔼 Di input tidak bisa typing ke atas dengan mengunakan keyboard #issue #production #v2.0.2 🛫 2026-09-15 06:42 ✅ 2026-09-15 09:58 ➕ 2026-09-15 03:20 🆔 KXZ7AL
+- [x] 🔼 #issue bagaimana jika di deskripsi memiliki tag yang sama ? seharus dianggap satu 1 nantinya ini akan bermasalah di count , jadi mungkin di count menghitung berdasarkan id task #production #v2.0.2 🛫 2026-09-15 03:39 ✅ 2026-09-15 06:15 ➕ 2026-09-15 03:23 🆔 3HGkAU
+- [x] 🔺 #issue nilai count hanya bernilai satu akibat list string berdasar tag tidak berdasarkan task #production #v2.0.2 🛫 2026-09-15 03:39 ✅ 2026-09-15 06:11 ➕ 2026-09-15 03:25 🆔 6SfUFD
+- [ ] ⏬ mungkin ke depannya di inpunt ada perintah command #feature #development ➕ 2026-09-15 03:42 🆔 iszkMc
+- [-] 🔼 di descripsi task seperti nya perlu huruf awalan yang besar biar tampak rapi #feature #development #v2.0.2 ❌ 2026-09-15 06:54 ➕ 2026-09-15 03:46 🆔 MrooV4 // sepertnya tidak perlu hanya menambahk koplesitas
+- [ ] ⏫ #issue matikan scroll list task pada keyboard jika user menekan atas , tapi aktifikan select mengunakan scroll #production #v2.0.2 ➕ 2026-09-15 03:47 🆔 FjNe3s
+- [/] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #v2.0.2 #issue #development 🛫 2026-09-15 06:14 ➕ 2026-09-15 06:14 🆔 BSRA1a
+<!-- - [ ] test ➕ 2026-09-15 06:17 🆔 00cXx3 -->
+- [/] ⏫ seharus nya saat mode edit task seharus context menu editTask di tiadakan #v2.0.2 #issue #production 🛫 2026-09-15 06:44 ➕ 2026-09-15 06:34 🆔 VVlAVM
+<!-- - [ ] test ➕ 2026-09-15 06:39 🆔 7qbmV4 -->
+- [x] ⏫ di readme tambahkan link download ke markeplace #issue #v2.0.2 #production 🛫 2026-09-15 09:45 ✅ 2026-09-15 09:45 ➕ 2026-09-15 07:11 🆔 kkWrqo
