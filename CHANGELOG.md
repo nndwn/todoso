@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.0.3] - 2026-09-15
+
 - Seems like this version is stable enough.
 - Fixed a bug where the task selection would suddenly jump/scroll to the bottom.
 - Fixed a UX issue regarding the tag suggestion overlay popup.
@@ -113,7 +115,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.2...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.3...HEAD
+[2.0.3]: https://github.com/nndwn/todoso/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/nndwn/todoso/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/nndwn/todoso/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/nndwn/todoso/compare/1.0.7...2.0.0
