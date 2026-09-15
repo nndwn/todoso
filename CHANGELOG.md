@@ -3,12 +3,16 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.0.2] - 2026-09-15
+
 - As I said before, I fixed some bugs and created new ones.
 - Fixed tag parsing bugs that were previously overlooked.
 - Resolved UX issues for better keyboard navigation.
 - No new features added in this version.
 
 ## [2.0.1] - 2026-09-14
+
 - a complete overhaul of the previous rewrite, typed by an AI agent, it was really sad, now I'm trying to rewrite it, it's even sadder.
 - a complete overhaul of the parsing, previously found many parsing bugs, now there might be even more.
 - a complete overhaul of the UI/UX, previously looked plain, now it's full of colors, making it look absolutely tacky.
@@ -103,13 +107,14 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/v2.0.1...HEAD
-[2.0.1]: https://github.com/nndwn/todoso/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/nndwn/todoso/compare/v1.0.7...v2.0.0
-[1.0.7]: https://github.com/nndwn/todoso/compare/v1.0.6...v1.0.7
-[1.0.6]: https://github.com/nndwn/todoso/compare/v1.0.5...v1.0.6
-[1.0.5]: https://github.com/nndwn/todoso/compare/v1.0.4...v1.0.5
-[1.0.4]: https://github.com/nndwn/todoso/compare/v1.0.3...v1.0.4
-[1.0.3]: https://github.com/nndwn/todoso/compare/v1.0.2...v1.0.3
-[1.0.2]: https://github.com/nndwn/todoso/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/nndwn/todoso/commits/v1.0.1
+[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.2...HEAD
+[2.0.2]: https://github.com/nndwn/todoso/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/nndwn/todoso/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/nndwn/todoso/compare/1.0.7...2.0.0
+[1.0.7]: https://github.com/nndwn/todoso/compare/1.0.6...1.0.7
+[1.0.6]: https://github.com/nndwn/todoso/compare/1.0.5...1.0.6
+[1.0.5]: https://github.com/nndwn/todoso/compare/1.0.4...1.0.5
+[1.0.4]: https://github.com/nndwn/todoso/compare/1.0.3...1.0.4
+[1.0.3]: https://github.com/nndwn/todoso/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/nndwn/todoso/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/nndwn/todoso/commits/1.0.1
