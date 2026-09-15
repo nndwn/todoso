@@ -68,6 +68,7 @@ class TodosoInputPanel(
   }
 
   private var isOverlayVisible = false
+  private var isNavigationActive = false
 
   var currentMode: InputMode = InputMode.Normal
     private set
@@ -260,19 +261,27 @@ class TodosoInputPanel(
 
     when (e.keyCode) {
       KeyEvent.VK_DOWN -> {
+        isNavigationActive = true
         onNavigationRequest("DOWN")
         e.consume()
         return true
       }
       KeyEvent.VK_UP -> {
+        isNavigationActive = true
         onNavigationRequest("UP")
         e.consume()
         return true
       }
       KeyEvent.VK_ENTER -> {
-        onNavigationRequest("ENTER")
-        e.consume()
-        return true
+        if (isNavigationActive) {
+          onNavigationRequest("ENTER")
+          e.consume()
+          return true
+        } else {
+          hideOverlay()
+          // Biarkan event VK_ENTER berlanjut ke text area untuk mengirim (submit) tugas
+          return false
+        }
       }
     }
     return false
@@ -420,11 +429,13 @@ class TodosoInputPanel(
     }
 
     isOverlayVisible = true
+    isNavigationActive = false // Reset status navigasi setiap kali pop-up baru muncul
     onSuggestionRequest(items)
   }
 
   private fun hideOverlay() {
     isOverlayVisible = false
+    isNavigationActive = false
     onSuggestionRequest(null)
   }
 

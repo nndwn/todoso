@@ -139,7 +139,6 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       service = service,
       settings = settings,
       onTaskSelected = { task, force -> handleTaskSelection(task, force) },
-      onTaskEdit = { task -> handler.setEditMode(true, task.description) },
       onDelete = { handler.handleDeleteAction() },
       onContextMenu = { task, e -> showContextMenu(task, e) },
       onTabPressed = { inputPanel.requestFocusToInput() },

@@ -20,7 +20,6 @@ class TodosoTaskListView(
   private val service: TodosoService,
   private val settings: TodosoSettingsService,
   private val onTaskSelected: (TodoTask, Boolean) -> Unit,
-  private val onTaskEdit: (TodoTask) -> Unit,
   private val onDelete: (TodoTask) -> Unit,
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
   private val onTabPressed: () -> Unit,
@@ -79,7 +78,7 @@ class TodosoTaskListView(
             task,
             currentVisualEnabled,
             onSelect = { t -> onTaskSelected(t, false) },
-            onEdit = {},
+            onDoubleClick = {},
             onDelete = { t -> onDelete(t) },
             onContextMenu = { t, e -> onContextMenu(t, e) },
             onNavigate = { keyCode -> handleNavigation(keyCode) },
@@ -156,6 +155,9 @@ class TodosoTaskListView(
           it.requestFocusInWindow()
         }
       }
+    }
+    if (task != null) {
+      SwingUtilities.invokeLater { scrollToSelected() }
     }
   }
 

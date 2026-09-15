@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+- Seems like this version is stable enough.
+- Fixed a bug where the task selection would suddenly jump/scroll to the bottom.
+- Fixed a UX issue regarding the tag suggestion overlay popup.
+- Improved keyboard navigation handling within the task list view.
+- No new features added in this version; focused solely on bug fixes and UX improvements.
+
 ## [2.0.2] - 2026-09-15
 
 - As I said before, I fixed some bugs and created new ones.

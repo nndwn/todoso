@@ -98,3 +98,6 @@
 - [x] ⏫ seharus nya saat mode edit task seharus context menu editTask di tiadakan #v2.0.2 #issue #production 🛫 2026-09-15 06:44 ✅ 2026-09-15 10:57 ➕ 2026-09-15 06:34 🆔 VVlAVM
 <!-- - [ ] test ➕ 2026-09-15 06:39 🆔 7qbmV4 -->
 - [x] ⏫ di readme tambahkan link download ke markeplace #issue #v2.0.2 #production 🛫 2026-09-15 09:45 ✅ 2026-09-15 09:45 ➕ 2026-09-15 07:11 🆔 kkWrqo
+- [x] 🔺 terdapat #issue ketika di klik dia langsung perpindah #production #v2.0.3 🛫 2026-09-16 00:52 ✅ 2026-09-16 01:44 ➕ 2026-09-16 00:32 🆔 dZJiSC
+- [x] 🔼 #issue scroll paling atas scroll tidak ikut bergerak #production #v2.0.3 🛫 2026-09-16 01:45 ✅ 2026-09-16 01:45 ➕ 2026-09-16 00:36 🆔 p9qao8
+- [x] 🔼 issue pada suggestion ketika user menkan # muncul tag lalu setelah enter muncul related yang terhubung dengan tag tapi user tidak menginkannya jadi harus tekan spasi terlbih dahulu atau esc baru bisa enter atau posting #issue #v2.0.3 🛫 2026-09-16 01:45 ✅ 2026-09-16 02:03 ➕ 2026-09-16 00:47 🆔 GoyeyU

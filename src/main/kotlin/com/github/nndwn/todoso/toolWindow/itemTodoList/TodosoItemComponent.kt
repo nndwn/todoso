@@ -35,7 +35,7 @@ class TodosoItemComponent(
   var task: TodoTask,
   private var isVisualEnabled: Boolean,
   private val onSelect: (TodoTask) -> Unit,
-  private val onEdit: (TodoTask) -> Unit,
+  private val onDoubleClick: (TodoTask) -> Unit,
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
   private val onDelete: (TodoTask) -> Unit,
   private val onNavigate: (Int) -> Unit,
@@ -53,8 +53,12 @@ class TodosoItemComponent(
 
   private val textPane =
     object : JTextPane() {
-        override fun getScrollableTracksViewportWidth(): Boolean = true
+      override fun getScrollableTracksViewportWidth(): Boolean = true
+
+      override fun processMouseEvent(e: MouseEvent) {
+        dispatchToParent(e)
       }
+    }
       .apply {
         contentType = "text/html"
         editorKit = HTMLEditorKit()
@@ -68,20 +72,6 @@ class TodosoItemComponent(
         }
 
         border = JBUI.Borders.empty(8, 10)
-
-        addMouseListener(
-          object : MouseAdapter() {
-            override fun mousePressed(e: MouseEvent) = dispatchToParent(e)
-
-            override fun mouseReleased(e: MouseEvent) = dispatchToParent(e)
-
-            override fun mouseClicked(e: MouseEvent) = dispatchToParent(e)
-
-            override fun mouseEntered(e: MouseEvent) = dispatchToParent(e)
-
-            override fun mouseExited(e: MouseEvent) = dispatchToParent(e)
-          }
-        )
       }
 
   init {
@@ -144,7 +134,7 @@ class TodosoItemComponent(
             onContextMenu(task, e)
           } else {
             if (e.clickCount == 2) {
-              onEdit(task)
+              onDoubleClick(task)
             } else {
               onSelect(task)
             }
