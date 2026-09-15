@@ -57,6 +57,7 @@ class FeatureConsistencyTest : BasePlatformTestCase() {
         getAllTasks = { emptyList() },
         onSuggestionRequest = {},
         onNavigationRequest = {},
+        onTabPressed = {}
       )
 
     // Direct access to internal method

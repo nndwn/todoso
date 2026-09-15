@@ -27,6 +27,7 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
         getAllTasks = { emptyList() },
         onSuggestionRequest = { lastRequestedItems = it },
         onNavigationRequest = {},
+        onTabPressed = {}
       )
   }
 
@@ -89,6 +90,7 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
         getAllTasks = { emptyList() },
         onSuggestionRequest = { lastRequestedItems = it },
         onNavigationRequest = {},
+        onTabPressed = {}
       )
 
     inputPanel.inputTextArea.text = "#"
@@ -117,6 +119,7 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
         getAllTasks = { listOf(mockTask) }, // Tapi ada di semua task
         onSuggestionRequest = { lastRequestedItems = it },
         onNavigationRequest = {},
+        onTabPressed = {}
       )
 
     // Cari prefix tag langka tersebut

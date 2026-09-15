@@ -7,6 +7,7 @@ import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.TodosoActionHandler
+import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class TodosoContextMenuTest : BasePlatformTestCase() {
@@ -39,12 +40,15 @@ class TodosoContextMenuTest : BasePlatformTestCase() {
         override fun setCancelMode(enabled: Boolean) {}
 
         override fun setNoteMode(enabled: Boolean, text: String) {}
+        override fun getCurrentMode(): InputMode {
+          return InputMode.Normal
+        }
 
         override fun getInputText(): String = ""
 
         override fun clearInputText() {}
 
-        override fun requestUnfocus() {}
+        override fun requestFocusToInput() {}
 
         override fun setSelectedTask(task: TodoTask?) {
           selected = task

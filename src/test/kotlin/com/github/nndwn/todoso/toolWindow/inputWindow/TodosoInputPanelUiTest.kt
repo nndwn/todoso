@@ -36,6 +36,7 @@ class TodosoInputPanelUiTest : BasePlatformTestCase() {
         getAllTasks = { emptyList() },
         onSuggestionRequest = {},
         onNavigationRequest = {},
+        onTabPressed = {}
       )
   }
 
