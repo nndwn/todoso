@@ -38,6 +38,7 @@ class TodosoItemComponent(
   private val onEdit: (TodoTask) -> Unit,
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
   private val onDelete: (TodoTask) -> Unit,
+  private val onNavigate: (Int) -> Unit,
 ) : JPanel(BorderLayout()), Scrollable {
 
   private var isSelected = false
@@ -161,8 +162,20 @@ class TodosoItemComponent(
     addKeyListener(
       object : KeyAdapter() {
         override fun keyPressed(e: KeyEvent) {
-          if (e.keyCode == KeyEvent.VK_DELETE) {
-            onDelete(task)
+          when (e.keyCode) {
+            KeyEvent.VK_DELETE -> onDelete(task)
+            KeyEvent.VK_UP -> {
+              onNavigate(KeyEvent.VK_UP)
+              e.consume()
+            }
+            KeyEvent.VK_DOWN -> {
+              onNavigate(KeyEvent.VK_DOWN)
+              e.consume()
+            }
+            KeyEvent.VK_ENTER -> {
+              onSelect(task)
+              e.consume()
+            }
           }
         }
       }

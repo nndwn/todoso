@@ -9,6 +9,7 @@ import com.intellij.ui.components.JBScrollPane
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Rectangle
+import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import javax.swing.BorderFactory
 import javax.swing.BoxLayout
@@ -22,6 +23,7 @@ class TodosoTaskListView(
   private val onTaskEdit: (TodoTask) -> Unit,
   private val onDelete: (TodoTask) -> Unit,
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
+  private val onFocusInput: () -> Unit,
 ) : JBPanel<TodosoTaskListView>(BorderLayout()) {
 
   private val tasksContainer =
@@ -80,6 +82,7 @@ class TodosoTaskListView(
             onEdit = { },
             onDelete = { t -> onDelete(t) },
             onContextMenu = { t, e -> onContextMenu(t, e) },
+            onNavigate = { keyCode -> handleNavigation(keyCode) },
           )
         newComp.setSelected(isTaskSelected(task))
         newComponents.add(newComp)
@@ -111,6 +114,27 @@ class TodosoTaskListView(
     tasksContainer.repaint()
 
     SwingUtilities.invokeLater { scrollToSelected() }
+  }
+
+  private fun handleNavigation(keyCode: Int) {
+    val current = selectedTask ?: return
+    val index = taskComponents.indexOfFirst { it.task.id == current.id }
+    if (index == -1) return
+
+    when (keyCode) {
+      KeyEvent.VK_UP -> {
+        if (index > 0) {
+          onTaskSelected(taskComponents[index - 1].task, true)
+        } else {
+          onFocusInput()
+        }
+      }
+      KeyEvent.VK_DOWN -> {
+        if (index < taskComponents.size - 1) {
+          onTaskSelected(taskComponents[index + 1].task, true)
+        }
+      }
+    }
   }
 
   private fun scrollToSelected() {

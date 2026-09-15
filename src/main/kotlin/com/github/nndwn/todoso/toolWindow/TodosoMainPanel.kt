@@ -10,7 +10,6 @@ import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoContextMenu
 import com.github.nndwn.todoso.toolWindow.contextMenu.toActionGroup
-import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.github.nndwn.todoso.toolWindow.logic.TodoTaskFilterer
@@ -20,6 +19,7 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonShortcuts
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBScrollPane
@@ -39,10 +39,10 @@ import javax.swing.SwingUtilities
 
 class TodosoMainPanel(
   private val project: Project,
-  private val service: TodosoService,
-  private val settings: TodosoSettingsService,
 ) : JPanel(BorderLayout()), TodosoActionHandler.TodoViewActions {
 
+  private val service = project.service<TodosoService>()
+  private val settings = TodosoSettingsService.getInstance(project)
   val uiFont: Font = JBUI.Fonts.label()
   internal val handler = TodosoActionHandler(project, service, this)
   private val filterState = FilterState()
@@ -130,6 +130,7 @@ class TodosoMainPanel(
     onTaskEdit = { task -> handler.setEditMode(true, task.description) },
     onDelete = { handler.handleDeleteAction() },
     onContextMenu = { task, e -> showContextMenu(task, e) },
+    onFocusInput = { inputPanel.requestFocusToInput() }
   )
 
   internal val searchPanel: TodosoSearchPanel = TodosoSearchPanel(

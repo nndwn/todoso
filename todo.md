@@ -93,8 +93,8 @@
 - [ ] ⏬ mungkin ke depannya di inpunt ada perintah command #feature #development ➕ 2026-09-15 03:42 🆔 iszkMc
 - [-] 🔼 di descripsi task seperti nya perlu huruf awalan yang besar biar tampak rapi #feature #development #v2.0.2 ❌ 2026-09-15 06:54 ➕ 2026-09-15 03:46 🆔 MrooV4 // sepertnya tidak perlu hanya menambahk koplesitas
 - [ ] ⏫ #issue matikan scroll list task pada keyboard jika user menekan atas , tapi aktifikan select mengunakan scroll #production #v2.0.2 ➕ 2026-09-15 03:47 🆔 FjNe3s
-- [/] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #v2.0.2 #issue #development 🛫 2026-09-15 06:14 ➕ 2026-09-15 06:14 🆔 BSRA1a
+- [ ] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #v2.0.2 #issue #development ➕ 2026-09-15 06:14 🆔 BSRA1a // perlu di pikirikan lagi bagaimana struktur nya , jika refaktoring secara pattern percuma juga hanya memotong beberapa baris
 <!-- - [ ] test ➕ 2026-09-15 06:17 🆔 00cXx3 -->
-- [/] ⏫ seharus nya saat mode edit task seharus context menu editTask di tiadakan #v2.0.2 #issue #production 🛫 2026-09-15 06:44 ➕ 2026-09-15 06:34 🆔 VVlAVM
+- [x] ⏫ seharus nya saat mode edit task seharus context menu editTask di tiadakan #v2.0.2 #issue #production 🛫 2026-09-15 06:44 ✅ 2026-09-15 10:57 ➕ 2026-09-15 06:34 🆔 VVlAVM
 <!-- - [ ] test ➕ 2026-09-15 06:39 🆔 7qbmV4 -->
 - [x] ⏫ di readme tambahkan link download ke markeplace #issue #v2.0.2 #production 🛫 2026-09-15 09:45 ✅ 2026-09-15 09:45 ➕ 2026-09-15 07:11 🆔 kkWrqo
