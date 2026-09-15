@@ -9,7 +9,6 @@ import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
-import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
@@ -143,44 +142,44 @@ class TodosoService(private val project: Project) {
     }
   }
 
-//  fun injectMetadataPlugin() {
-//    val todoFile = getTodoFile() ?: return
-//    val plugin = PluginManager.getPluginByClass(this::class.java)
-//    val version = plugin?.version ?: "unknown"
-//    val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-//    val metadataLine = "<!-- Plugin Version: $version | Last Updated: $now -->"
-//
-//    runWriteCommandAction(
-//      project,
-//      "Inject Metadata",
-//      null,
-//      {
-//        val content =
-//          try {
-//            VfsUtil.loadText(todoFile)
-//          } catch (_: Exception) {
-//            ""
-//          }
-//        val lines = content.lines().toMutableList()
-//
-//        val existingIndex = lines.indexOfFirst { it.startsWith("<!-- Plugin Version:") }
-//        if (existingIndex != -1) {
-//          lines[existingIndex] = metadataLine
-//        } else {
-//          val headerIndex = lines.indexOfFirst { it.contains(TodosoConstants.GITHUB_REPO_URL) }
-//          if (headerIndex != -1) {
-//            lines.add(headerIndex + 1, metadataLine)
-//          } else {
-//            lines.add(0, metadataLine)
-//          }
-//        }
-//
-//        val newContent = lines.joinToString("\n")
-//        VfsUtil.saveText(todoFile, newContent)
-//        VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
-//      },
-//    )
-//  }
+  //  fun injectMetadataPlugin() {
+  //    val todoFile = getTodoFile() ?: return
+  //    val plugin = PluginManager.getPluginByClass(this::class.java)
+  //    val version = plugin?.version ?: "unknown"
+  //    val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+  //    val metadataLine = "<!-- Plugin Version: $version | Last Updated: $now -->"
+  //
+  //    runWriteCommandAction(
+  //      project,
+  //      "Inject Metadata",
+  //      null,
+  //      {
+  //        val content =
+  //          try {
+  //            VfsUtil.loadText(todoFile)
+  //          } catch (_: Exception) {
+  //            ""
+  //          }
+  //        val lines = content.lines().toMutableList()
+  //
+  //        val existingIndex = lines.indexOfFirst { it.startsWith("<!-- Plugin Version:") }
+  //        if (existingIndex != -1) {
+  //          lines[existingIndex] = metadataLine
+  //        } else {
+  //          val headerIndex = lines.indexOfFirst { it.contains(TodosoConstants.GITHUB_REPO_URL) }
+  //          if (headerIndex != -1) {
+  //            lines.add(headerIndex + 1, metadataLine)
+  //          } else {
+  //            lines.add(0, metadataLine)
+  //          }
+  //        }
+  //
+  //        val newContent = lines.joinToString("\n")
+  //        VfsUtil.saveText(todoFile, newContent)
+  //        VfsUtil.markDirtyAndRefresh(false, true, true, todoFile)
+  //      },
+  //    )
+  //  }
 
   fun markCacheDirty() {
     isCacheDirty = true
@@ -277,45 +276,46 @@ class TodosoService(private val project: Project) {
 
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
     val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-    
+
     // Siapkan metadata dasar dengan penanganan transisi siklus hidup tanggal
     var baseMetadata = task.metadata
     if (!note.isNullOrBlank()) {
       baseMetadata = baseMetadata.copy(notes = note)
     }
 
-    val updatedMeta = when (newStatus) {
-      TaskStatus.TODO -> {
-        // Kembali ke TODO: Hapus semua tanggal riwayat pengerjaan (Start, End, Cancel)
-        baseMetadata.copy(
-          startDate = null,
-          endDate = null,
-          cancelDate = null
-        )
+    val updatedMeta =
+      when (newStatus) {
+        TaskStatus.TODO -> {
+          // Kembali ke TODO: Hapus semua tanggal riwayat pengerjaan (Start, End, Cancel)
+          baseMetadata.copy(
+            startDate = null,
+            endDate = null,
+            cancelDate = null,
+          )
+        }
+        TaskStatus.DOING -> {
+          // Transisi ke DOING: Catat tanggal mulai baru, hapus riwayat selesai/batal sebelumnya jika ada
+          baseMetadata.copy(
+            startDate = nowFormatted,
+            endDate = null,
+            cancelDate = null,
+          )
+        }
+        TaskStatus.DONE -> {
+          // Transisi ke DONE: Catat tanggal penyelesaian
+          baseMetadata.copy(
+            endDate = nowFormatted,
+            cancelDate = null,
+          )
+        }
+        TaskStatus.CANCELLED -> {
+          // Transisi ke CANCELLED: Catat tanggal pembatalan
+          baseMetadata.copy(
+            cancelDate = nowFormatted,
+            endDate = null,
+          )
+        }
       }
-      TaskStatus.DOING -> {
-        // Transisi ke DOING: Catat tanggal mulai baru, hapus riwayat selesai/batal sebelumnya jika ada
-        baseMetadata.copy(
-          startDate = nowFormatted,
-          endDate = null,
-          cancelDate = null
-        )
-      }
-      TaskStatus.DONE -> {
-        // Transisi ke DONE: Catat tanggal penyelesaian
-        baseMetadata.copy(
-          endDate = nowFormatted,
-          cancelDate = null
-        )
-      }
-      TaskStatus.CANCELLED -> {
-        // Transisi ke CANCELLED: Catat tanggal pembatalan
-        baseMetadata.copy(
-          cancelDate = nowFormatted,
-          endDate = null
-        )
-      }
-    }
 
     val updatedTask = task.copy(status = newStatus, metadata = updatedMeta, isPersistentId = true)
     updateTaskInMemory(updatedTask)

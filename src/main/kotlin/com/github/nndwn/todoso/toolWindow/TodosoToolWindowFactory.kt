@@ -6,11 +6,10 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 
-class TodosoToolWindowFactory : ToolWindowFactory , DumbAware {
+class TodosoToolWindowFactory : ToolWindowFactory, DumbAware {
   override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
 
-    val mainPanel =
-      TodosoMainPanel(project = project)
+    val mainPanel = TodosoMainPanel(project = project)
     val content = ContentFactory.getInstance().createContent(mainPanel, "", false)
     toolWindow.contentManager.addContent(content)
   }

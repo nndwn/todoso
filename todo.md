@@ -92,8 +92,8 @@
 - [x] 🔺 #issue nilai count hanya bernilai satu akibat list string berdasar tag tidak berdasarkan task #production #v2.0.2 🛫 2026-09-15 03:39 ✅ 2026-09-15 06:11 ➕ 2026-09-15 03:25 🆔 6SfUFD
 - [ ] ⏬ mungkin ke depannya di inpunt ada perintah command #feature #development ➕ 2026-09-15 03:42 🆔 iszkMc
 - [-] 🔼 di descripsi task seperti nya perlu huruf awalan yang besar biar tampak rapi #feature #development #v2.0.2 ❌ 2026-09-15 06:54 ➕ 2026-09-15 03:46 🆔 MrooV4 // sepertnya tidak perlu hanya menambahk koplesitas
-- [ ] ⏫ #issue matikan scroll list task pada keyboard jika user menekan atas , tapi aktifikan select mengunakan scroll #production #v2.0.2 ➕ 2026-09-15 03:47 🆔 FjNe3s
-- [ ] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #v2.0.2 #issue #development ➕ 2026-09-15 06:14 🆔 BSRA1a // perlu di pikirikan lagi bagaimana struktur nya , jika refaktoring secara pattern percuma juga hanya memotong beberapa baris
+- [x] ⏫ #issue matikan scroll list task pada keyboard jika user menekan atas , tapi aktifikan select mengunakan scroll #production #v2.0.2 🛫 2026-09-15 11:34 ✅ 2026-09-15 11:46 ➕ 2026-09-15 03:47 🆔 FjNe3s // penambahan tab untuk navigasi antara input dan list
+- [ ] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #issue #development ➕ 2026-09-15 06:14 🆔 BSRA1a // perlu di pikirikan lagi bagaimana struktur nya , jika refaktoring secara pattern percuma juga hanya memotong beberapa baris
 <!-- - [ ] test ➕ 2026-09-15 06:17 🆔 00cXx3 -->
 - [x] ⏫ seharus nya saat mode edit task seharus context menu editTask di tiadakan #v2.0.2 #issue #production 🛫 2026-09-15 06:44 ✅ 2026-09-15 10:57 ➕ 2026-09-15 06:34 🆔 VVlAVM
 <!-- - [ ] test ➕ 2026-09-15 06:39 🆔 7qbmV4 -->

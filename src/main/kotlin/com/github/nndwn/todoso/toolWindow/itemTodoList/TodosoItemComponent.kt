@@ -39,6 +39,7 @@ class TodosoItemComponent(
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
   private val onDelete: (TodoTask) -> Unit,
   private val onNavigate: (Int) -> Unit,
+  private val onTabPressed: () -> Unit,
 ) : JPanel(BorderLayout()), Scrollable {
 
   private var isSelected = false
@@ -86,6 +87,7 @@ class TodosoItemComponent(
   init {
     isOpaque = true
     isFocusable = true
+    setFocusTraversalKeysEnabled(false) // Mencegah Swing memindah fokus ke item berikutnya secara otomatis
     background = UIUtil.getListBackground()
     cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
 
@@ -170,6 +172,10 @@ class TodosoItemComponent(
             }
             KeyEvent.VK_DOWN -> {
               onNavigate(KeyEvent.VK_DOWN)
+              e.consume()
+            }
+            KeyEvent.VK_TAB -> {
+              onTabPressed()
               e.consume()
             }
             KeyEvent.VK_ENTER -> {

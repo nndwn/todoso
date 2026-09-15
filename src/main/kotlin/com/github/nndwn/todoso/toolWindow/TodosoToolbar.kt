@@ -14,6 +14,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.Separator
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileChooser.FileChooser
@@ -22,7 +23,6 @@ import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.JComponent
-import com.intellij.openapi.actionSystem.Separator
 
 class TodosoToolbar(
   private val settings: TodosoSettingsService,
@@ -161,9 +161,7 @@ class TodosoToolbar(
 
         // 1. Priority Header & Items
         actions.add(Separator(TodosoBundle.message("todo.filter.group.priority"))) // Pemisah Ber-Header
-        Priority.entries
-          .filter { it != Priority.NONE }
-          .forEach { actions.add(createPriorityFilterAction(it)) }
+        Priority.entries.filter { it != Priority.NONE }.forEach { actions.add(createPriorityFilterAction(it)) }
 
         // 2. Status Header & Items
         actions.add(Separator(TodosoBundle.message("todo.filter.group.status")))
@@ -220,10 +218,8 @@ class TodosoToolbar(
         )
         actions.add(Separator.getInstance()) // Garis Pemisah Polos
 
-
         val recentVersions = TagParser.getRecentVersions(tasks = tasks)
-        val popularTags = TagParser.getPopularTags(tasks)
-          .filter {  it !in recentVersions }
+        val popularTags = TagParser.getPopularTags(tasks).filter { it !in recentVersions }
 
         if (popularTags.isNotEmpty()) {
           actions.add(Separator(TodosoBundle.message("todo.suggestion.popular.tags")))
@@ -232,7 +228,6 @@ class TodosoToolbar(
             actions.add(createTagFilterAction(tag, label))
           }
         }
-
 
         if (recentVersions.isNotEmpty()) {
           actions.add(Separator(TodosoBundle.message("todo.filter.group.versions")))

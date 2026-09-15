@@ -37,9 +37,7 @@ import javax.swing.JLayeredPane
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
-class TodosoMainPanel(
-  private val project: Project,
-) : JPanel(BorderLayout()), TodosoActionHandler.TodoViewActions {
+class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), TodosoActionHandler.TodoViewActions {
 
   private val service = project.service<TodosoService>()
   private val settings = TodosoSettingsService.getInstance(project)
@@ -71,71 +69,84 @@ class TodosoMainPanel(
       putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
     }
 
-  internal val toolbarPanel: TodosoToolbar = TodosoToolbar(
-    settings = settings,
-    targetComponent = this,
-    onRefreshUI = { refreshUiState() },
-    onRefreshTasks = { handler.refreshTasks() },
-    onRandomTask = { handler.handleRandomTask() },
-    onErrorHandler = { msg -> handler.handleErrorNotification(msg) },
-    onSortChanged = { options -> setCurrentSortOption(options) },
-    filterState = filterState,
-    onFilterChanged = { type, value -> onFilterChanged(type, value) },
-  )
+  internal val toolbarPanel: TodosoToolbar =
+    TodosoToolbar(
+      settings = settings,
+      targetComponent = this,
+      onRefreshUI = { refreshUiState() },
+      onRefreshTasks = { handler.refreshTasks() },
+      onRandomTask = { handler.handleRandomTask() },
+      onErrorHandler = { msg -> handler.handleErrorNotification(msg) },
+      onSortChanged = { options -> setCurrentSortOption(options) },
+      filterState = filterState,
+      onFilterChanged = { type, value -> onFilterChanged(type, value) },
+    )
 
-  internal val inputPanel: TodosoInputPanel = TodosoInputPanel(
-    project = project,
-    onNewTask = { text ->
-      hideSearchPanel()
-      handler.handleAddTask(text)
-    },
-    onUpdateTask = { text ->
-      hideSearchPanel()
-      handler.handleUpdateTask(text)
-    },
-    onConfirmCancel = { note ->
-      hideSearchPanel()
-      handler.handleConfirmCancel(note)
-    },
-    onCreateNote = { note ->
-      hideSearchPanel()
-      handler.handleUpdateNote(note)
-    },
-    onCancelEdit = { handler.handleCancelEdit() },
-    fontInput = uiFont,
-    getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
-    getAllTasks = { service.loadTask() },
-    onSuggestionRequest = { items ->
-      if (items != null) {
-        suggestionOverlay.updateItems(items)
-        updateOverlayPosition()
-      } else {
-        suggestionOverlay.hideOverlay()
-      }
-    },
-    onNavigationRequest = { direction ->
-      when (direction) {
-        "UP" -> suggestionOverlay.moveUp()
-        "DOWN" -> suggestionOverlay.moveDown()
-        "ENTER" -> suggestionOverlay.confirmSelection()
-        "ESCAPE" -> suggestionOverlay.hideOverlay()
-      }
-    },
-  )
+  internal val inputPanel: TodosoInputPanel =
+    TodosoInputPanel(
+      project = project,
+      onNewTask = { text ->
+        hideSearchPanel()
+        handler.handleAddTask(text)
+      },
+      onUpdateTask = { text ->
+        hideSearchPanel()
+        handler.handleUpdateTask(text)
+      },
+      onConfirmCancel = { note ->
+        hideSearchPanel()
+        handler.handleConfirmCancel(note)
+      },
+      onCreateNote = { note ->
+        hideSearchPanel()
+        handler.handleUpdateNote(note)
+      },
+      onCancelEdit = { handler.handleCancelEdit() },
+      fontInput = uiFont,
+      getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
+      getAllTasks = { service.loadTask() },
+      onSuggestionRequest = { items ->
+        if (items != null) {
+          suggestionOverlay.updateItems(items)
+          updateOverlayPosition()
+        } else {
+          suggestionOverlay.hideOverlay()
+        }
+      },
+      onNavigationRequest = { direction ->
+        when (direction) {
+          "UP" -> suggestionOverlay.moveUp()
+          "DOWN" -> suggestionOverlay.moveDown()
+          "ENTER" -> suggestionOverlay.confirmSelection()
+          "ESCAPE" -> suggestionOverlay.hideOverlay()
+        }
+      },
+      onTabPressed = {
+        taskListView.getSelectedTask()?.let { task ->
+          taskListView.setSelectedTask(task, requestFocus = true)
+        }
+          ?: run {
+            if (taskListView.taskComponents.isNotEmpty()) {
+              val firstTask = taskListView.taskComponents.first().task
+              handleTaskSelection(firstTask, forceSelect = true) // Pilih dan fokus tugas pertama
+            }
+          }
+      },
+    )
 
-  internal val taskListView: TodosoTaskListView = TodosoTaskListView(
-    service = service,
-    settings = settings,
-    onTaskSelected = { task, force -> handleTaskSelection(task, force) },
-    onTaskEdit = { task -> handler.setEditMode(true, task.description) },
-    onDelete = { handler.handleDeleteAction() },
-    onContextMenu = { task, e -> showContextMenu(task, e) },
-    onFocusInput = { inputPanel.requestFocusToInput() }
-  )
+  internal val taskListView: TodosoTaskListView =
+    TodosoTaskListView(
+      service = service,
+      settings = settings,
+      onTaskSelected = { task, force -> handleTaskSelection(task, force) },
+      onTaskEdit = { task -> handler.setEditMode(true, task.description) },
+      onDelete = { handler.handleDeleteAction() },
+      onContextMenu = { task, e -> showContextMenu(task, e) },
+      onTabPressed = { inputPanel.requestFocusToInput() },
+    )
 
-  internal val searchPanel: TodosoSearchPanel = TodosoSearchPanel(
-    onQueryChanged = { query -> onSearchQueryChanged(query) }
-  )
+  internal val searchPanel: TodosoSearchPanel =
+    TodosoSearchPanel(onQueryChanged = { query -> onSearchQueryChanged(query) })
 
   internal val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
     inputPanel.insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask)

@@ -23,7 +23,7 @@ class TodosoTaskListView(
   private val onTaskEdit: (TodoTask) -> Unit,
   private val onDelete: (TodoTask) -> Unit,
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
-  private val onFocusInput: () -> Unit,
+  private val onTabPressed: () -> Unit,
 ) : JBPanel<TodosoTaskListView>(BorderLayout()) {
 
   private val tasksContainer =
@@ -79,10 +79,11 @@ class TodosoTaskListView(
             task,
             currentVisualEnabled,
             onSelect = { t -> onTaskSelected(t, false) },
-            onEdit = { },
+            onEdit = {},
             onDelete = { t -> onDelete(t) },
             onContextMenu = { t, e -> onContextMenu(t, e) },
             onNavigate = { keyCode -> handleNavigation(keyCode) },
+            onTabPressed = { onTabPressed() },
           )
         newComp.setSelected(isTaskSelected(task))
         newComponents.add(newComp)
@@ -125,8 +126,6 @@ class TodosoTaskListView(
       KeyEvent.VK_UP -> {
         if (index > 0) {
           onTaskSelected(taskComponents[index - 1].task, true)
-        } else {
-          onFocusInput()
         }
       }
       KeyEvent.VK_DOWN -> {

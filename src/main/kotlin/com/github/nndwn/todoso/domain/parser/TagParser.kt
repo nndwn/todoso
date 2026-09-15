@@ -54,8 +54,8 @@ object TagParser {
   }
 
   /**
-   * Membuat label ber-format untuk Tag beserta jumlah task-nya (jika jumlah > 0).
-   * Contoh: "feature" -> "#feature (5)", atau "production" -> "#production" jika kosong.
+   * Membuat label ber-format untuk Tag beserta jumlah task-nya (jika jumlah > 0). Contoh: "feature" -> "#feature (5)",
+   * atau "production" -> "#production" jika kosong.
    */
   fun formatTagWithCount(tag: String, tasks: List<TodoTask>, isTruncated: Boolean = false): String {
     val cleanTag = tag.removePrefix("#")

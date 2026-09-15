@@ -60,7 +60,7 @@ class TodosoContextMenu(
     subMenu(
       text = TodosoBundle.message("todo.menu.change.status"),
       icon = AllIcons.Actions.Diff,
-      isVisible = isNormalMode
+      isVisible = isNormalMode,
     ) {
       TaskStatus.entries.forEach { status ->
         item(
@@ -78,7 +78,7 @@ class TodosoContextMenu(
     subMenu(
       text = TodosoBundle.message("todo.menu.change.priority"),
       icon = AllIcons.General.ChevronUp,
-      isVisible = isNormalMode
+      isVisible = isNormalMode,
     ) {
       Priority.entries.forEach { priority ->
         item(
@@ -97,7 +97,7 @@ class TodosoContextMenu(
     subMenu(
       text = TodosoBundle.message("todo.menu.manage.tags"),
       icon = AllIcons.Nodes.Tag,
-      isVisible = isNormalMode
+      isVisible = isNormalMode,
     ) {
       val taskData = service.loadTask()
       val exclusiveRelations = TodosoConstants.EXCLUSIVE_RELATIONS
@@ -123,8 +123,7 @@ class TodosoContextMenu(
       val recentVersions = TagParser.getRecentVersions(tasks = taskData)
 
       // 2. Popular Tags (Excluding Exclusives and Recent Versions)
-      val popularTags = TagParser.getPopularTags(taskData)
-        .filter { it !in exclusiveTags && it !in recentVersions }
+      val popularTags = TagParser.getPopularTags(taskData).filter { it !in exclusiveTags && it !in recentVersions }
 
       if (popularTags.isNotEmpty()) {
         subMenu(TodosoBundle.message("todo.suggestion.popular.tags")) {

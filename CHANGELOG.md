@@ -3,10 +3,10 @@
 # Todoso Changelog
 
 ## [Unreleased]
-- seperti yang ku bilang sebelumnya ku menyelesaikan bug dan menciptakan bug baru lagi.
-- menyelesaikan bug parsing tag yang lupa di terapkan
-- menyelesaikan Issue UX 
-- tidak ada fitur ditambahkan di versi ini
+- As I said before, I fixed some bugs and created new ones.
+- Fixed tag parsing bugs that were previously overlooked.
+- Resolved UX issues for better keyboard navigation.
+- No new features added in this version.
 
 ## [2.0.1] - 2026-09-14
 - a complete overhaul of the previous rewrite, typed by an AI agent, it was really sad, now I'm trying to rewrite it, it's even sadder.

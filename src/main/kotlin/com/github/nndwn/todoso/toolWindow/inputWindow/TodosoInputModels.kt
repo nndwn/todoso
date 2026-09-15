@@ -21,5 +21,5 @@ data class SuggestionItem(
   val subText: String? = null,
   val isTask: Boolean = false,
   val taskId: String? = null,
-  val tagDisplay : String? = null,
+  val tagDisplay: String? = null,
 )

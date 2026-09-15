@@ -52,6 +52,7 @@ class TodosoInputPanel(
   private val getAllTasks: () -> List<TodoTask>,
   private val onSuggestionRequest: (List<SuggestionItem>?) -> Unit,
   private val onNavigationRequest: (String) -> Unit,
+  private val onTabPressed: () -> Unit,
 ) : JBPanel<TodosoInputPanel>(BorderLayout()) {
 
   companion object {
@@ -116,6 +117,7 @@ class TodosoInputPanel(
 
   init {
     isFocusable = true
+    inputTextArea.setFocusTraversalKeysEnabled(false)
     setupUI()
     setupListeners()
     setupContextMenu()
@@ -220,6 +222,12 @@ class TodosoInputPanel(
 
         override fun keyPressed(e: KeyEvent) {
           if (handlePopupNavigation(e)) return
+
+          if (e.keyCode == KeyEvent.VK_TAB) {
+            onTabPressed()
+            e.consume()
+            return
+          }
 
           if (e.keyCode == KeyEvent.VK_ESCAPE) {
             if (isOverlayVisible) {
@@ -458,7 +466,7 @@ class TodosoInputPanel(
             SuggestionItem(
               it,
               TodosoBundle.message("todo.suggestion.quick.tags"),
-              tagDisplay = TagParser.formatTagWithCount(it, allTasks)
+              tagDisplay = TagParser.formatTagWithCount(it, allTasks),
             )
           }
         } else {
@@ -466,7 +474,7 @@ class TodosoInputPanel(
             SuggestionItem(
               it,
               TodosoBundle.message("todo.suggestion.popular.tags"),
-              tagDisplay = TagParser.formatTagWithCount(it, allTasks)
+              tagDisplay = TagParser.formatTagWithCount(it, allTasks),
             )
           }
         }
@@ -491,7 +499,7 @@ class TodosoInputPanel(
                 isExclusive -> TodosoBundle.message("todo.suggestion.quick.tags")
                 else -> TodosoBundle.message("todo.suggestion.all.tags")
               },
-              tagDisplay = TagParser.formatTagWithCount(tag, allTasks)
+              tagDisplay = TagParser.formatTagWithCount(tag, allTasks),
             )
           }
       }
