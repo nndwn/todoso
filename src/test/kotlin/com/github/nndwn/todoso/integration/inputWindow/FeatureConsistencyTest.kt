@@ -8,6 +8,8 @@ import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.toolWindow.SortOption
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.logic.TodoTaskFilterer
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import java.awt.Font
 
@@ -31,9 +33,10 @@ class FeatureConsistencyTest : BasePlatformTestCase() {
     val sortOptions = setOf(SortOption.DATE, SortOption.PRIORITY)
     val sorted = TodoTaskFilterer.applySorting(tasks, sortOptions)
 
-    assertEquals("Task C", sorted[0].description)
-    assertEquals("Task B", sorted[1].description)
-    assertEquals("Task A", sorted[2].description)
+    // New logic: Descending date (latest first)
+    assertEquals("Task B", sorted[0].description) // 2024-01-01, High
+    assertEquals("Task A", sorted[1].description) // 2024-01-01, Low
+    assertEquals("Task C", sorted[2].description) // 2023-12-31, Medium
   }
 
   fun testFileCasingDetection() {
@@ -74,6 +77,22 @@ class FeatureConsistencyTest : BasePlatformTestCase() {
     assertNotNull(task)
     val duration = DateParser.calculateDuration(task!!.metadata)
     assertEquals("1h 30m", duration)
+  }
+
+
+  fun testAddToChangelog() {
+    val task = TodoTaskParser.parseLine("- [ ] New Feature #feature", 1)!!
+    val result = service.addToChangelog(task)
+    assertTrue("Should succeed adding to changelog", result)
+
+    val projectDir = project.guessProjectDir()
+    val changelogFile = projectDir?.findChild("CHANGELOG.md")
+    assertNotNull("CHANGELOG.md should be created", changelogFile)
+
+    val content = VfsUtil.loadText(changelogFile!!)
+    assertTrue("Should contain header", content.contains("# Changelog"))
+    assertTrue("Should contain Unreleased", content.contains("## [Unreleased]"))
+    assertTrue("Should contain task description", content.contains("- New Feature #feature"))
   }
 
   private fun createTask(desc: String, priority: Priority, date: String): TodoTask {
