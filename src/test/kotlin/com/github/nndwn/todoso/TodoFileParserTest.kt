@@ -82,6 +82,8 @@ class TodoFileParserTest : BasePlatformTestCase() {
         "- [ ] #v1.0.1." to listOf("v1.0.1"),
         "- [ ] #123 numeric" to emptyList(),
         "- [ ] #core // #note in comment" to listOf("core"),
+        "- [ ] ##a ##1 ##A" to listOf("#a", "#1", "#A"),
+        "- [ ] ## ### ####" to emptyList(),
       )
 
     cases.forEach { (input, expected) ->

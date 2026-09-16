@@ -2,6 +2,7 @@ package com.github.nndwn.todoso.toolWindow.inputWindow.components
 
 import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionItem
 import com.intellij.ui.CollectionListModel
+import com.intellij.ui.JBColor
 import com.intellij.ui.SimpleColoredComponent
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.components.JBLabel
@@ -23,6 +24,7 @@ import javax.swing.*
 class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Unit) :
   JBPanel<SuggestionOverlayPanel>(BorderLayout()) {
 
+  private var isSelectionActive = false
   private val listModel = CollectionListModel<SuggestionItem>()
   private val list =
     JBList(listModel).apply {
@@ -55,7 +57,11 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
         val itemPanel =
           JPanel(BorderLayout(8, 0)).apply {
             isOpaque = true
-            background = if (isSelected) list.selectionBackground else list.background
+            background = when {
+              isSelected && isSelectionActive -> list.selectionBackground
+              isSelected && !isSelectionActive -> JBColor.namedColor("List.hoverBackground", JBColor(0xDFE1E5, 0x4E5157))
+              else -> list.background
+            }
             border = JBUI.Borders.empty(4, 8)
 
             // Icon
@@ -88,6 +94,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
           override fun mousePressed(e: MouseEvent) {
             val index = locationToIndex(e.point)
             if (index != -1) {
+              isSelectionActive = true
               selectedIndex = index
               confirmSelection()
             }
@@ -99,8 +106,11 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
         object : MouseMotionAdapter() {
           override fun mouseMoved(e: MouseEvent) {
             val index = locationToIndex(e.point)
-            if (index != -1 && index != selectedIndex) {
-              selectedIndex = index
+            if (index != -1) {
+              if (index != selectedIndex || !isSelectionActive) {
+                isSelectionActive = true
+                selectedIndex = index
+              }
             }
           }
         }
@@ -142,6 +152,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
   fun updateItems(items: List<SuggestionItem>) {
     listModel.replaceAll(items)
     if (items.isNotEmpty()) {
+      isSelectionActive = false
       list.selectedIndex = 0
       isVisible = true
 
@@ -165,6 +176,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
 
   fun moveUp() {
     if (listModel.size == 0) return
+    isSelectionActive = true
     val newIndex = (list.selectedIndex - 1).coerceAtLeast(0)
     list.selectedIndex = newIndex
     list.ensureIndexIsVisible(newIndex)
@@ -172,6 +184,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
 
   fun moveDown() {
     if (listModel.size == 0) return
+    isSelectionActive = true
     val newIndex = (list.selectedIndex + 1).coerceAtMost(listModel.size - 1)
     list.selectedIndex = newIndex
     list.ensureIndexIsVisible(newIndex)

@@ -3,7 +3,7 @@ package com.github.nndwn.todoso.domain.parser
 import com.github.nndwn.todoso.domain.model.TodoTask
 
 object TagParser {
-  val TAG_REGEX = Regex("""(?<=\s|^)#(?!\d+(?:\s|$|[.,!?]))([\p{L}\p{N}_/#.-]*[\p{L}\p{N}_/#-]|C#|F#)""")
+  val TAG_REGEX = Regex("""(?<=\s|^)#(?!\d+(?:\s|$|[.,!?]))(?![#]+(?:\s|$|[.,!?]))([\p{L}\p{N}_/#.-]*[\p{L}\p{N}_/#-]|C#|F#)""")
   val VERSION_REGEX = Regex("""^v\d.*""", RegexOption.IGNORE_CASE)
 
   fun parseTags(input: String?): List<String> {

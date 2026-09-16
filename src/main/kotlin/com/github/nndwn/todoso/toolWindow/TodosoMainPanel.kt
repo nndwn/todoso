@@ -117,7 +117,7 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
         when (direction) {
           "UP" -> suggestionOverlay.moveUp()
           "DOWN" -> suggestionOverlay.moveDown()
-          "ENTER" -> suggestionOverlay.confirmSelection()
+          "ENTER", "TAB" -> suggestionOverlay.confirmSelection()
           "ESCAPE" -> suggestionOverlay.hideOverlay()
         }
       },

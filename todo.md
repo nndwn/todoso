@@ -20,7 +20,7 @@
 - [x] prefix untuk # 🆔 G0bitz 🛫 2026-09-08 22:18 ✅ 2026-09-09 06:41
 - [x] untuk # dan @ untuk tampilan belum bagus tidak tampil di atas inputran dan ukurannya tidak mengikutin ukuran layar plugin yang sudah aktif 🆔 yec9ne 🛫 2026-09-08 21:24 ✅ 2026-09-08 22:17
 - [x] 🔼 seperti untuk inputan perlu di perbesarkan lagi dan tulisan sedikit di perkecil dan hapus Navigation Tags 🛫 2026-09-09 08:09 🆔 8tybE7 ✅ 2026-09-09 16:50
-- [ ] ⏬ ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus #feature #development 🆔 iEWvdY
+- [-] ⏬ ku merasa kurang pass dengan navigation tag di atas field input kurasa tags perlu penanganan halaman khusus #feature #development ❌ 2026-09-16 21:42 🆔 iEWvdY // sepertinya tidak perlu hanya menambah komplesitas , jika user ingin manage tag atau rename semua tag user harus menuju file lalu replace all di editor , biar sistem menampilkan sesuatu apa adanya
 - [x] untut @TodosoInputPanel.kt ini uda cukup terlalu panjang mungkin perlu di refactoring 🆔 PHxgc4 🛫 2026-09-08 21:27 ✅ 2026-09-08 21:48
 - [x] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu edited 🛫 2026-09-09 09:27 🆔 Kepi8h ✅ 2026-09-09 18:03
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
@@ -42,7 +42,7 @@
 - [x] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P 🛫 2026-09-10 18:12 ✅ 2026-09-11 10:17
 - [x] tooltip di todoItem 🆔 ZBXy14 🛫 2026-09-11 11:06 ✅ 2026-09-11 11:24
 - [-] rewrite icon with icon-collection repository 🆔 oQ1Frv ❌ 2026-09-12 12:28 // noted: lebih nyesuaikan template icon ide yang sudah ada, tapi tetap tambahkan icon yang pada dasarnya tidak ada di ide
-- [x] ⏫ ada issue di showSuggestion ketika muncul ui bertabrakan dengan ui component item #issue 🆔 ETF4bH 🛫 2026-09-11 14:36 ✅ 2026-09-11 14:57
+- [x] ⏫ ada issue di showSuggestion ketika muncul ui bertabrakan dengan ui component item #issue 🛫 2026-09-11 14:36 ✅ 2026-09-11 14:57 🆔 ETF4bH // today kosong karena dia berdasarkan waktu 1 hari sementara ku periksa di jam 00:37 di pastikan kosong , tapi bagaimana date dia menapilkan create date sementara create bisa saja done di tampilkan di atas
 - [x] 🔺 buat klik kanan untuk ubah status 🆔 ZshZWF 🛫 2026-09-12 15:42 ✅ 2026-09-13 13:58
 - [x] ⏫ mmebuat hide visual berdasarkan status, prioriy , latest , berdasarkan 10 tah populer , bersarkan 4 tag version paling atas #feature 🛫 2026-09-11 18:16 🆔 xdNreu ✅ 2026-09-12 14:54
 - [x] 🔼 terkadang membingungkan ketika lihat task yang sudah di short , tiba -tiba ketik task baru task tidak tampak sama sekali di pilihan #issue 🛫 2026-09-11 17:32 🆔 q9YqEa ✅ 2026-09-11 18:10
@@ -79,7 +79,7 @@
 - [x] 🔼 dialog delete komfirmasi delete tidak begitu informatif #issue 🆔 JtSdzg 🛫 2026-09-14 13:42 ✅ 2026-09-14 13:49
 - [x] ⏫ tag di klik kanan perlu sebuah informasi number jumlah #issue #v2.0.1 🆔 H8rMow
 <!-- - [ ] hanya sebauh test ➕ 2026-09-14 15:59 🆔 an5FdC -->
-- [ ] ⏫ perbaikan script depcrapted dan car tahu masalah pengunaan script internal #issue #production ➕ 2026-09-14 20:59 📝 2026-09-15 00:34 🆔 DxrMp5
+- [x] ⏫ perbaikan script depcrapted dan car tahu masalah pengunaan script internal #issue #production #v2.0.2 🛫 2026-09-16 16:48 ✅ 2026-09-16 16:48 ➕ 2026-09-14 20:59 📝 2026-09-15 00:34 🆔 DxrMp5 // untuk versi janggan di upgrade ikutin aturan versi pada template plugin
 - [x] ⏫ matikan klik 2x edit , worse banget #issue #production #v2.0.1 ➕ 2026-09-14 22:03 🆔 Ycr6jC
 - [x] 🔺 ternyata belum terintegrasi dengan waktu #production #issue #v2.0.1 ➕ 2026-09-14 22:23 📝 2026-09-14 22:40 🆔 365lZE
 - [x] 🔺 #issue ternyata pada klik kanan terdapat popular tag untuk version juga termasuk #v2.0.1 #production ➕ 2026-09-14 23:20 🆔 ebrLyD
@@ -91,7 +91,7 @@
 - [x] 🔼 #issue bagaimana jika di deskripsi memiliki tag yang sama ? seharus dianggap satu 1 nantinya ini akan bermasalah di count , jadi mungkin di count menghitung berdasarkan id task #production #v2.0.2 🛫 2026-09-15 03:39 ✅ 2026-09-15 06:15 ➕ 2026-09-15 03:23 🆔 3HGkAU
 - [x] 🔺 #issue nilai count hanya bernilai satu akibat list string berdasar tag tidak berdasarkan task #production #v2.0.2 🛫 2026-09-15 03:39 ✅ 2026-09-15 06:11 ➕ 2026-09-15 03:25 🆔 6SfUFD
 - [ ] ⏬ mungkin ke depannya di inpunt ada perintah command #feature #development ➕ 2026-09-15 03:42 🆔 iszkMc
-- [-] 🔼 di descripsi task seperti nya perlu huruf awalan yang besar biar tampak rapi #feature #development #v2.0.2 ❌ 2026-09-15 06:54 ➕ 2026-09-15 03:46 🆔 MrooV4 // sepertnya tidak perlu hanya menambahk koplesitas
+- [-] 🔼 di descripsi task seperti nya perlu huruf awalan yang besar biar tampak rapi #feature #development #v2.0.2 ❌ 2026-09-15 06:54 ➕ 2026-09-15 03:46 🆔 MrooV4 // sepertnya tidak perlu hanya menambahk koplesitas , biarkan user berkreasi
 - [x] ⏫ #issue matikan scroll list task pada keyboard jika user menekan atas , tapi aktifikan select mengunakan scroll #production #v2.0.2 🛫 2026-09-15 11:34 ✅ 2026-09-15 11:46 ➕ 2026-09-15 03:47 🆔 FjNe3s // penambahan tab untuk navigasi antara input dan list
 - [ ] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #issue #development ➕ 2026-09-15 06:14 🆔 BSRA1a // perlu di pikirikan lagi bagaimana struktur nya , jika refaktoring secara pattern percuma juga hanya memotong beberapa baris
 <!-- - [ ] test ➕ 2026-09-15 06:17 🆔 00cXx3 -->
@@ -101,3 +101,11 @@
 - [x] 🔺 terdapat #issue ketika di klik dia langsung perpindah #production #v2.0.3 🛫 2026-09-16 00:52 ✅ 2026-09-16 01:44 ➕ 2026-09-16 00:32 🆔 dZJiSC
 - [x] 🔼 #issue scroll paling atas scroll tidak ikut bergerak #production #v2.0.3 🛫 2026-09-16 01:45 ✅ 2026-09-16 01:45 ➕ 2026-09-16 00:36 🆔 p9qao8
 - [x] 🔼 issue pada suggestion ketika user menkan # muncul tag lalu setelah enter muncul related yang terhubung dengan tag tapi user tidak menginkannya jadi harus tekan spasi terlbih dahulu atau esc baru bisa enter atau posting #issue #v2.0.3 🛫 2026-09-16 01:45 ✅ 2026-09-16 02:03 ➕ 2026-09-16 00:47 🆔 GoyeyU
+- [ ] 🔼 penambahan fitur untuk changelogs.md #v2.0.4 #development #feature ➕ 2026-09-16 16:08 📝 2026-09-16 16:20 🆔 TcplZ6
+- [ ] ⏫ #issue ketika project dalam proses analisis smart plugin tidak dapat perubahan dan group by, mengapa bisa seperti itu ? #production ➕ 2026-09-16 16:15 🆔 u2KxaN // masih di cari tahu kesalahannya , soal kasus ini sangat jarang
+- [x] 🔺 #issue untuk suggest untuk warna jangan membuat langsung seleksi itu membuat user menjadi salah paham kalau itu sudah terseleksi jadi ketika user menekan up atau down , atau mouse di seleksi click baru berubah menjadi warna seleksi lebih tepat nya seperti hover lalu tambahkan tab untuk langsung seleksi #production #v2.0.4 🛫 2026-09-17 02:15 ✅ 2026-09-17 02:40 ➕ 2026-09-16 16:19 📝 2026-09-17 02:12 🆔 P6hsRw
+- [ ] 🔼 #feature changelogs sendiri berupa conteks menu tool di bawah random task , jadi ketika user tidak memiliki file CHANGELOG.md maka todoso akan membuat nya jika user melakukan add to changelogs pada klik kanan di sediakan untuk formatnya <!-- Keep a Changelog guide -> https://keepachangelog.com --> \n\n ## [Unreleased] , lalu tambahkan list yang di seleksi tersebut kesana , todoso hanya menambahkan daftar di bawah ini ## [Unreleased] karena dasarnya todoso tidak mengatur versi yang sudah release #v2.0.4 #production ➕ 2026-09-16 17:30 📝 2026-09-16 17:31 🆔 fy4EPG
+- [x] 🔺 #issue daftar harus di reverse #v2.0.4 #production 🛫 2026-09-16 22:55 ✅ 2026-09-16 23:35 ➕ 2026-09-16 21:32 📝 2026-09-16 21:32 🆔 rd71We
+- [x] 🔺 #issue ## kenapa ini diaggap sebagai tag , pada dasar itu di perbolehkan sebagai tag ? #production #v2.0.4 🛫 2026-09-16 23:51 ✅ 2026-09-17 00:06 ➕ 2026-09-16 21:34 🆔 yunnM6 // boleh lakukan ## asalkan ada huruf lanjutannya seperti ##1, ##a yang tidak boleh nya hanya ### , ## , ####
+- [x] ⏫ #remove hapus refress di klik kanan #feature sebagai gantinya di toolbar sebagai refress menjadi reset sehingga mematikan seluruh sort dan group by ke dalam defaut #v2.0.4 #production 🛫 2026-09-17 00:27 ✅ 2026-09-17 02:11 ➕ 2026-09-17 00:21 📝 2026-09-17 00:23 🆔 M0leJv
+- [x] ⏫ #issue untuk date waktu terbaru malah di bawah karena di utamakan done date , jika tidak ada done date, jadi start date , baru create date , ku bingung bagus nya seperti apa , tapi bagaimana dengan today kenapa kosong ? #v2.0.4 #production 🛫 2026-09-17 00:43 ✅ 2026-09-17 02:15 ➕ 2026-09-17 00:37 🆔 fjPP7s

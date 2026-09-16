@@ -78,11 +78,18 @@ class TodosoToolbar(
   private fun createRefreshAction(): AnAction =
     object :
       AnAction(
-        TodosoBundle.message("todo.menu.refresh"),
-        TodosoBundle.message("todo.action.refresh.desc"),
+        TodosoBundle.message("todo.action.reset"),
+        TodosoBundle.message("todo.action.reset.desc"),
         AllIcons.Actions.Refresh,
       ) {
-      override fun actionPerformed(e: AnActionEvent) = onRefreshTasks()
+      override fun actionPerformed(e: AnActionEvent) {
+        onFilterChanged(FilterType.RESET_ALL, null)
+        currentSort.clear()
+        settings.state.sortOption = ""
+        onSortChanged(emptySet())
+        settings.state.visualEnabled = true
+        onRefreshTasks()
+      }
     }
 
   private fun createRandomTaskAction(): AnAction =
@@ -249,7 +256,7 @@ class TodosoToolbar(
       AnAction(
         TodosoBundle.message("todo.filter.clear.all"),
         TodosoBundle.message("todo.filter.clear.all.desc"),
-        AllIcons.Actions.GC,
+        null,
       ) {
       override fun actionPerformed(e: AnActionEvent) = onFilterChanged(FilterType.RESET_ALL, null)
 

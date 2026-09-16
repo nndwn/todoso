@@ -25,14 +25,14 @@ class TodosoServiceTest : BasePlatformTestCase() {
     val tasks = service.loadTask()
     assertEquals(2, tasks.size)
 
-    assertEquals("Task Pertama #core", tasks[0].description)
-    assertEquals(listOf("core"), tasks[0].tags)
-    assertEquals(1, tasks[0].lineNumber)
+    assertEquals("Task Kedua #ui", tasks[0].description)
+    assertEquals(listOf("ui"), tasks[0].tags)
+    assertEquals(2, tasks[0].lineNumber)
     assertNotNull("Created date harus tercatat otomatis", tasks[0].metadata.createdDate)
 
-    assertEquals("Task Kedua #ui", tasks[1].description)
-    assertEquals(listOf("ui"), tasks[1].tags)
-    assertEquals(2, tasks[1].lineNumber)
+    assertEquals("Task Pertama #core", tasks[1].description)
+    assertEquals(listOf("core"), tasks[1].tags)
+    assertEquals(1, tasks[1].lineNumber)
     assertNotNull("Created date harus tercatat otomatis", tasks[1].metadata.createdDate)
 
     assertTrue("Task pertama harus memiliki persistent ID", tasks[0].isPersistentId)
@@ -112,19 +112,19 @@ class TodosoServiceTest : BasePlatformTestCase() {
     val tasks = service.loadTask()
     assertEquals(2, tasks.size)
 
-    assertEquals("Task Lama", tasks[0].description)
-    assertEquals("ini catatan awal", tasks[0].metadata.notes)
-    assertEquals(1, tasks[0].lineNumber)
+    assertEquals("Task Baru Setelah Komentar #test", tasks[0].description)
+    assertEquals(listOf("test"), tasks[0].tags)
+    assertEquals(2, tasks[0].lineNumber)
 
-    assertEquals("Task Baru Setelah Komentar #test", tasks[1].description)
-    assertEquals(listOf("test"), tasks[1].tags)
-    assertEquals(2, tasks[1].lineNumber)
+    assertEquals("Task Lama", tasks[1].description)
+    assertEquals("ini catatan awal", tasks[1].metadata.notes)
+    assertEquals(1, tasks[1].lineNumber)
   }
 
   fun testEditTaskAddsEditedDate() {
     // 1. Tambah task awal
     service.addTask("Task Awal")
-    var task = service.loadTask().first()
+    val task = service.loadTask().first()
     val createdDate = task.metadata.createdDate
     assertNotNull("Created date harus ada", createdDate)
     assertNull("Edited date harusnya null di awal", task.metadata.editedDate)

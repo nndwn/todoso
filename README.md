@@ -9,7 +9,7 @@ An IntelliJ plugin to manage your todo list directly from a `todo.md` file in th
 I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.
 
 ## Usage
-just type task in field and click right select priority and select tags or if you want fast
+Simply type your task in the field and right-click to select priority and tags. Alternatively, use the quick syntax for faster entry:
 ```txt
 [H] task description #feature #development #v0.0.1 
 ```
@@ -55,6 +55,7 @@ A smart single-input field that intelligently processes plain text, Markdown syn
             * **New User Experience**: If a project has no tags yet, Todoso suggests **Quick Tags** (`#feature`, `#issue`, `#production`, `#development`, `#urgent`) to help you get started.
             * **Deep Search**: Typing after `#` searches through *all* tags ever used in the project, not just the top 10.
             * Selecting a task from the suggestions instantly inserts its unique `🆔 ID` for easy cross-referencing.
+            * **Keyboard Navigation Support**: Use the up and down arrow keys to navigate suggestions. Press **Enter** to select a task, or use **Tab** for quick selection when suggestions appear.
 *    **Input Modes**:
         *   **Normal**: Default state for creating new tasks.
         *   **Edit**: Triggered when modifying existing tasks (Blue background).
@@ -90,6 +91,12 @@ Todoso provides an interactive toolbar with dynamic view options and multi-crite
           3. Enable **Date** (third) → Tasks with the *same status* AND *same priority* will then be ordered by date.
       * **Pro Tip**: To change the hierarchy, simply click "Default" to clear the chain and re-enable them in your preferred order!
       * **Recommended**: Choose `Status` first, then `Priority`.
+*   **Date Sorting Hierarchy**: When sorting by date, Todoso applies a smart lifecycle-based priority:
+          1. **Active Due Dates**: Tasks with deadlines that are not yet completed.
+          2. **In Progress (Doing)**: Tasks currently being worked on.
+          3. **New (Todo)**: Tasks that are yet to start.
+          4. **Completed (Done/Cancelled)**: Finished tasks are moved to the bottom to keep your focus on active work.
+*   **Manual Reset**: Click the **Reset** (Refresh) icon to instantly clear all active filters, reset sorting to default, and re-enable visual mode settings in one click.
 *   **Persistent Sort State**: Your custom sorting chain is automatically saved and restored across IDE restarts.
 *   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
 *   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
@@ -107,6 +114,7 @@ A comprehensive right-click menu for lightning-fast task management:
     *   **Version Tracking**: Dedicated sub-menu for version-related tags (`v*`).
     *   **Inline Integrity**: Adding tags via the menu preserves your existing "inline" tags within the description, appending new ones only if they don't already exist.
 *   **Copy Context**: Copies the task description and its relevant metadata to the clipboard for sharing.
+*   **Delete Task**: Deleting a task does not immediately remove it from `todo.md`. Instead, it is commented out, requiring manual deletion if you wish to clear the line entirely.
 *   **Navigate to Source**: Instantly jumps to the exact line in your Markdown file.
 
 ####  Comprehensive Filtering & Search System
@@ -118,13 +126,14 @@ Manage large task lists with precision using the new integrated filtering engine
     *   **Deep Search**: Searches through description text, metadata notes, and Task IDs.
 *   **Filter by Priority & Status**: Quickly isolate critical bugs or focus only on tasks currently in progress.
 *   **Smart Date Explorer**:
-    *   **Today**: View tasks starting or due exactly today.
+    *   **Today**: View tasks created, edited, started, or due exactly today.
     *   **This Week**: Plan your week with a dynamic view of upcoming tasks.
     *   **Has Date**: Filter out tasks that lack any scheduling metadata.
 *   **Dynamic Tag Explorer**:
     *   **Popular Tags**: Instantly filter by your 10 most used tags.
     *   **Version Tracking**: Automatically identifies and groups tasks by project versions (tags starting with `v`).
-*   **Session-Based Integrity**: To prevent confusion (e.g., "Where did my data go?"), filters are stored **in-memory only**. They reset on every IDE restart so you always start your day with a full view of your project.
+*   **Integrated Reset Action**: Use the toolbar's Reset button to clear all search queries and active filters, returning the view to the full project state.
+*   **Session-Based Integrity**: To prevent confusion (e.g., "Where did my data go?"), filters are stored **in-memory only**. They reset on every IDE restart or when the manual Reset button is pressed.
      
 #### Strict Line Parsing Rules
 
@@ -171,24 +180,21 @@ Todoso adheres strictly to the Obsidian tag standard with enhanced sanitization 
 
 2. **Hierarchical & Technical Tag Support**:
    * Supports nested tag hierarchy using slashes (e.g., `#project/feature/v1`).
-   * Explicitly supports technical language tags such as `#C#` and `#F#`.
+   * **Flexible Hash Symbols**: Tags can contain additional hash symbols (e.g., `##a`, `##1`, `#C#`, `#F#`) as long as the tag contains at least one non-hash character. Tags consisting purely of hash symbols (e.g., `##`, `###`) are ignored to prevent confusion with Markdown headers.
 
 3. **No Pure Numeric Tags**:
    * Tags consisting purely of digits (e.g., `#123`) are rejected to avoid conflicts with issue numbers or ticket IDs.
    * Version tags containing numbers alongside letters or punctuation (e.g., `#v1.0.1`, `#v1`) remain fully valid.
 
-4. **Automatic Trailing Punctuation Sanitization**:
-   * Trailing punctuation attached to tags within sentences (such as `#issue,`, `#core.`, or `#v1.0.1!`) is cleanly stripped (`issue`, `core`, `v1.0.1`).
-
-5. **Metadata Comment Isolation**:
+4. **Metadata Comment Isolation**:
    * Any tags located after the metadata comment separator `//` (e.g., `- [ ] Task #ui // review #note`) are ignored by the task tag parser and reserved for metadata notes.
 
-6. **Mutual Exclusive Tag Groups (Automation)**:
+5. **Mutual Exclusive Tag Groups (Automation)**:
    * To keep task categorization logical, certain tags are programmed to be mutually exclusive when applied via automated tools (like the context menu):
       * `#feature` ↔ `#issue`
       * `#development` ↔ `#production`
    * Applying one tag from these groups will automatically remove its "opposite" tag, preventing contradictory labels.
-
+6. **Tag Versioning**: Version tags must start with `#v[Number]`, following the Semantic Versioning rules defined at [semver.org](https://semver.org/).
 #### Unique Task ID & Persistence Rules
 
 Todoso follows the Obsidian Tasks convention for unique task identification:

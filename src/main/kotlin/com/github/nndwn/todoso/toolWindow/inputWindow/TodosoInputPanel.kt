@@ -225,7 +225,11 @@ class TodosoInputPanel(
           if (handlePopupNavigation(e)) return
 
           if (e.keyCode == KeyEvent.VK_TAB) {
-            onTabPressed()
+            if (isOverlayVisible) {
+              onNavigationRequest("TAB")
+            } else {
+              onTabPressed()
+            }
             e.consume()
             return
           }

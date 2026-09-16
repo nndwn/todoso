@@ -183,11 +183,6 @@ class TodosoContextMenu(
 
   private fun TodoMenuBuilder.toolTask() {
     item(
-      text = TodosoBundle.message("todo.menu.refresh"),
-      icon = AllIcons.Actions.Refresh,
-      onAction = { handler.refreshTasks() },
-    )
-    item(
       text = TodosoBundle.message("todo.menu.random"),
       icon = AllIcons.Actions.Lightning,
       onAction = { handler.handleRandomTask() },

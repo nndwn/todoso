@@ -226,7 +226,7 @@ class TodosoService(private val project: Project) {
       }
     }
 
-    cachedTasks = tasks
+    cachedTasks = tasks.reversed()
     tasksById = tasks.associateBy { it.id }
     isCacheDirty = false
     lastLoadedPath = currentPath

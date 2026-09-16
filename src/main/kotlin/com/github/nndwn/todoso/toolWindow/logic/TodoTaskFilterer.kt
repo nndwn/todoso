@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow.logic
 
+import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.toolWindow.DateFilter
 import com.github.nndwn.todoso.toolWindow.FilterState
@@ -37,7 +38,9 @@ object TodoTaskFilterer {
           DateFilter.TODAY -> isTaskMatchingDate(task) { it == LocalDate.now() }
           DateFilter.THIS_WEEK -> isTaskMatchingDate(task) { isDateInCurrentWeek(it) }
           DateFilter.WITH_DATE ->
-            task.metadata.dueDate != null || task.metadata.startDate != null || task.metadata.createdDate != null
+            task.metadata.endDate != null || task.metadata.cancelDate != null ||
+              task.metadata.dueDate != null || task.metadata.startDate != null ||
+              task.metadata.editedDate != null || task.metadata.createdDate != null
           else -> true
         }
 
@@ -62,7 +65,16 @@ object TodoTaskFilterer {
         SortOption.STATUS -> comparators.add(compareBy { it.status })
         SortOption.DATE ->
           comparators.add(
-            compareBy { it.metadata.dueDate ?: it.metadata.startDate ?: it.metadata.createdDate ?: "9999-99-99" }
+            compareByDescending<TodoTask> {
+              when {
+                it.status != TaskStatus.DONE && it.status != TaskStatus.CANCELLED && it.metadata.dueDate != null -> 3
+                it.status == TaskStatus.DOING -> 2
+                it.status == TaskStatus.TODO -> 1
+                else -> 0 // Done, Cancelled, atau tanpa tanggal
+              }
+            }.thenByDescending {
+              it.metadata.endDate ?: it.metadata.cancelDate ?: it.metadata.dueDate ?: it.metadata.startDate ?: it.metadata.createdDate ?: ""
+            }
           )
         SortOption.PRIORITY -> comparators.add(compareBy { it.priority })
       }
@@ -78,8 +90,11 @@ object TodoTaskFilterer {
   private fun isTaskMatchingDate(task: TodoTask, predicate: (LocalDate) -> Boolean): Boolean {
     val dates =
       listOfNotNull(
+        task.metadata.endDate,
+        task.metadata.cancelDate,
         task.metadata.dueDate,
         task.metadata.startDate,
+        task.metadata.editedDate,
         task.metadata.createdDate,
       )
     return dates.any { dateStr ->
