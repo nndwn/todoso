@@ -39,23 +39,7 @@ class TodosoContextMenu(
     val taskId = initialTask.id
     val isNormalMode = { handler.getCurrentMode() is InputMode.Normal }
 
-    item(
-      text = TodosoBundle.message("todo.menu.edit.task"),
-      icon = AllIcons.Actions.Edit,
-      isVisible = isNormalMode,
-      onAction = {
-        service.findTaskById(taskId)?.let { handler.setEditMode(true, it.description) }
-      },
-    )
 
-    item(
-      text = TodosoBundle.message("todo.menu.add.note"),
-      icon = AllIcons.Actions.EditSource,
-      isVisible = isNormalMode,
-      onAction = {
-        service.findTaskById(taskId)?.let { handler.setNoteMode(true, it.metadata.notes) }
-      },
-    )
 
     subMenu(
       text = TodosoBundle.message("todo.menu.change.status"),
@@ -158,6 +142,24 @@ class TodosoContextMenu(
       }
     }
 
+    item(
+      text = TodosoBundle.message("todo.menu.edit.task"),
+      icon = AllIcons.Actions.Edit,
+      isVisible = isNormalMode,
+      onAction = {
+        service.findTaskById(taskId)?.let { handler.setEditMode(true, it.description) }
+      },
+    )
+
+    item(
+      text = TodosoBundle.message("todo.menu.add.note"),
+      icon = AllIcons.Actions.EditSource,
+      isVisible = isNormalMode,
+      onAction = {
+        service.findTaskById(taskId)?.let { handler.setNoteMode(true, it.metadata.notes) }
+      },
+    )
+
     separator()
 
     item(
@@ -186,6 +188,12 @@ class TodosoContextMenu(
       text = TodosoBundle.message("todo.menu.random"),
       icon = AllIcons.Actions.Lightning,
       onAction = { handler.handleRandomTask() },
+    )
+    item(
+      text = TodosoBundle.message("todo.menu.add_to_changelog"),
+      icon = AllIcons.Actions.Checked,
+      isEnabled = { handler.getSelectedTask() != null },
+      onAction = { handler.handleAddToChangelog() },
     )
     item(
       text = TodosoBundle.message("todo.menu.navigate.lane"),

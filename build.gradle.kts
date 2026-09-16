@@ -17,15 +17,15 @@ dependencies {
 }
 
 
-tasks {
-    verifyPlugin {
-        // Abaikan peringatan Internal API usages agar build task tidak gagal (tetap dianggap OK/Lolos)
-        // karena ini adalah false positive bridge methods dari Kotlin
-        failureLevel = listOf(
-            VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
-            VerifyPluginTask.FailureLevel.INVALID_PLUGIN
-        )
-    }
-}
+//tasks {
+//    verifyPlugin {
+//        // Abaikan peringatan Internal API usages agar build task tidak gagal (tetap dianggap OK/Lolos)
+//        // karena ini adalah false positive bridge methods dari Kotlin
+//        failureLevel = listOf(
+//            VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+//            VerifyPluginTask.FailureLevel.INVALID_PLUGIN
+//        )
+//    }
+//}
 
 

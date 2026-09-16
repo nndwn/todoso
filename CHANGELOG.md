@@ -3,6 +3,12 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- I thought the previous version was stable, but it wasn't. I really hope this version is final-final-final.
+- Fixed UX issues in tag suggestions; previously, Tab could not be used for quick selection.
+- Fixed tag parsing issues where '##' was incorrectly recognized as a tag. Now, any consecutive '#' (double, triple, etc.) are no longer treated as tags.
+- Fixed UX issues in sorting and filtering. Latest items are now shown at the top, and the date filter now prioritizes 'not done' and recent tasks.
+- Instead of just fixing issues, I added a new feature: todo tasks can now be copied to the changelog via the right-click menu (Add to Changelog).
+- I'm starting to wonder if the reviewer is actually human...
 
 ## [2.0.3] - 2026-09-15
 

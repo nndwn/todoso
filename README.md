@@ -116,6 +116,10 @@ A comprehensive right-click menu for lightning-fast task management:
 *   **Copy Context**: Copies the task description and its relevant metadata to the clipboard for sharing.
 *   **Delete Task**: Deleting a task does not immediately remove it from `todo.md`. Instead, it is commented out, requiring manual deletion if you wish to clear the line entirely.
 *   **Navigate to Source**: Instantly jumps to the exact line in your Markdown file.
+*   **Add to Changelog**: 
+    * **One-Click Publishing**: Quickly copy a task description (including tags) to your `CHANGELOG.md` file.
+    * **Smart File Management**: Automatically creates `CHANGELOG.md` if missing or inserts a `## [Unreleased]` section above the latest version.
+    * **Non-Destructive**: Only copies the description to the changelog without modifying the original task in `todo.md`.
 
 ####  Comprehensive Filtering & Search System
 Manage large task lists with precision using the new integrated filtering engine:

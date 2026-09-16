@@ -332,6 +332,58 @@ class TodosoService(private val project: Project) {
     modifyTaskLine(task) { TodoTaskBuilder.rebuildTaskLine(updatedTask) }
   }
 
+  fun addToChangelog(task: TodoTask): Boolean {
+    val projectDir = project.guessProjectDir() ?: return false
+    val changelogName = "CHANGELOG.md"
+    
+    return try {
+      runWriteCommandAction(project, "Add to Changelog", null, {
+        val changelogFile = projectDir.findChild(changelogName) 
+          ?: projectDir.createChildData(this, changelogName)
+
+        val content = VfsUtil.loadText(changelogFile)
+        val lines = content.lines().toMutableList()
+        val taskEntry = "- ${task.description}"
+
+        val unreleasedIndex = lines.indexOfFirst { it.trim().startsWith("## [Unreleased]") }
+
+        if (unreleasedIndex != -1) {
+          // Insert after header
+          lines.add(unreleasedIndex + 1, taskEntry)
+        } else {
+          val firstVersionIndex = lines.indexOfFirst { it.trim().startsWith("## [") }
+          if (firstVersionIndex != -1) {
+            // Insert before first version
+            lines.add(firstVersionIndex, "## [Unreleased]")
+            lines.add(firstVersionIndex + 1, taskEntry)
+            lines.add(firstVersionIndex + 2, "")
+          } else {
+            // New file or no versions
+            if (content.isBlank()) {
+              lines.clear()
+              lines.add("<!-- Keep a Changelog guide -> https://keepachangelog.com -->")
+              lines.add("# Changelog")
+              lines.add("")
+              lines.add("## [Unreleased]")
+              lines.add(taskEntry)
+            } else {
+              lines.add("")
+              lines.add("## [Unreleased]")
+              lines.add(taskEntry)
+            }
+          }
+        }
+
+        val newContent = lines.joinToString("\n").replace(Regex("\n{3,}"), "\n\n")
+        VfsUtil.saveText(changelogFile, newContent)
+        VfsUtil.markDirtyAndRefresh(false, true, true, changelogFile)
+      })
+      true
+    } catch (e: Exception) {
+      false
+    }
+  }
+
   private fun updateTaskInMemory(updatedTask: TodoTask) {
     val index = cachedTasks.indexOfFirst { it.id == updatedTask.id }
     if (index != -1) {

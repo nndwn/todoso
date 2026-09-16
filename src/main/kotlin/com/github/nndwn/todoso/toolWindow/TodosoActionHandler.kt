@@ -136,6 +136,23 @@ class TodosoActionHandler(
     CopyPasteManager.getInstance().setContents(StringSelection(selected.rawText))
   }
 
+  fun handleAddToChangelog() {
+    val selected = view.getSelectedTask() ?: return
+    val success = service.addToChangelog(selected)
+    if (success) {
+      NotificationGroupManager.getInstance()
+        .getNotificationGroup("com.github.nndwn.todoso.notifications")
+        .createNotification(
+          TodosoConstants.PLUGIN_NAME,
+          TodosoBundle.message("todo.action.add_to_changelog.success"),
+          NotificationType.INFORMATION,
+        )
+        .notify(project)
+    } else {
+      handleErrorNotification(TodosoBundle.message("todo.action.add_to_changelog.error"))
+    }
+  }
+
   fun updateTaskStatus(task: TodoTask, status: TaskStatus) {
     if (status == TaskStatus.CANCELLED) {
       val noted = view.getInputText().trim()
