@@ -3,6 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.0.4] - 2026-09-16
+
 - I thought the previous version was stable, but it wasn't. I really hope this version is final-final-final.
 - Fixed UX issues in tag suggestions; previously, Tab could not be used for quick selection.
 - Fixed tag parsing issues where '##' was incorrectly recognized as a tag. Now, any consecutive '#' (double, triple, etc.) are no longer treated as tags.
@@ -121,7 +124,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.3...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.4...HEAD
+[2.0.4]: https://github.com/nndwn/todoso/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/nndwn/todoso/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/nndwn/todoso/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/nndwn/todoso/compare/2.0.0...2.0.1
