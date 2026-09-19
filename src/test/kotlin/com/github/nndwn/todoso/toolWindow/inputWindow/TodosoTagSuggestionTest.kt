@@ -1,6 +1,5 @@
 package com.github.nndwn.todoso.toolWindow.inputWindow
 
-import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.ui.UIUtil
 import java.awt.Font
@@ -11,23 +10,34 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
   private lateinit var inputPanel: TodosoInputPanel
   private var lastRequestedItems: List<SuggestionItem>? = null
 
+  private fun createSuggestionItem(tag: String, category: String) = SuggestionItem(
+    text = tag,
+    category = category,
+    type = SuggestionType.TAGS,
+    tagDisplay = tag
+  )
+
   override fun setUp() {
     super.setUp()
     lastRequestedItems = null
     inputPanel =
       TodosoInputPanel(
-        project = project,
         onNewTask = {},
         onUpdateTask = {},
         onConfirmCancel = {},
         onCreateNote = {},
         onCancelEdit = {},
         fontInput = Font("Monospaced", Font.PLAIN, 12),
-        getPopularTags = { listOf("feature", "bug") },
-        getAllTasks = { emptyList() },
+        onSuggestionProvider = { prefix ->
+          listOf("feature", "bug")
+            .filter { it.startsWith(prefix) }
+            .map { createSuggestionItem(it, "Popular Tags") }
+        },
         onSuggestionRequest = { lastRequestedItems = it },
         onNavigationRequest = {},
-        onTabPressed = {}
+        onTabPressed = {},
+        onAttachFileRequest = {},
+        onTextValidator = { true }
       )
   }
 
@@ -68,29 +78,34 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
     assertNotNull("Overlay harusnya muncul saat ada #", lastRequestedItems)
 
     // 2. Hapus '#' (simulasi backspace)
+    // Sekarang menghapus teks hingga kosong memicu saran Priority, jadi overlay TIDAK null
     inputPanel.inputTextArea.text = ""
     inputPanel.inputTextArea.caretPosition = 0
     UIUtil.dispatchAllInvocationEvents()
 
-    assertNull("Overlay harusnya tersembunyi (null) saat # dihapus", lastRequestedItems)
+    assertNotNull("Overlay harusnya muncul (Priority) saat teks kosong", lastRequestedItems)
   }
 
   fun testQuickTagsForNewUser() {
     // Override inputPanel dengan kondisi tag kosong
     inputPanel =
       TodosoInputPanel(
-        project = project,
         onNewTask = {},
         onUpdateTask = {},
         onConfirmCancel = {},
         onCreateNote = {},
         onCancelEdit = {},
         fontInput = Font("Monospaced", Font.PLAIN, 12),
-        getPopularTags = { emptyList() },
-        getAllTasks = { emptyList() },
+        onSuggestionProvider = { prefix ->
+          listOf("feature", "bug")
+            .filter { it.startsWith(prefix) }
+            .map { createSuggestionItem(it, "Quick Tags") }
+        },
         onSuggestionRequest = { lastRequestedItems = it },
         onNavigationRequest = {},
-        onTabPressed = {}
+        onTabPressed = {},
+        onAttachFileRequest = {},
+        onTextValidator = { true }
       )
 
     inputPanel.inputTextArea.text = "#"
@@ -104,22 +119,29 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
 
   fun testDeepSearchForNonPopularTags() {
     val nonPopularTag = "very-rare-tag"
-    val mockTask = TodoTaskParser.parseLine("- [ ] Task #$nonPopularTag", 1)!!
 
     inputPanel =
       TodosoInputPanel(
-        project = project,
         onNewTask = {},
         onUpdateTask = {},
         onConfirmCancel = {},
         onCreateNote = {},
         onCancelEdit = {},
         fontInput = Font("Monospaced", Font.PLAIN, 12),
-        getPopularTags = { listOf("popular1", "popular2") }, // Rare tag tidak ada di sini
-        getAllTasks = { listOf(mockTask) }, // Tapi ada di semua task
+        onSuggestionProvider = { prefix ->
+          val popular = listOf("popular1", "popular2")
+          val rare = listOf(nonPopularTag)
+          
+          val result = mutableListOf<SuggestionItem>()
+          popular.filter { it.startsWith(prefix) }.forEach { result.add(createSuggestionItem(it, "Popular Tags")) }
+          rare.filter { it.startsWith(prefix) }.forEach { result.add(createSuggestionItem(it, "All Tags")) }
+          result
+        },
         onSuggestionRequest = { lastRequestedItems = it },
         onNavigationRequest = {},
-        onTabPressed = {}
+        onTabPressed = {},
+        onAttachFileRequest = {},
+        onTextValidator = { true }
       )
 
     // Cari prefix tag langka tersebut
