@@ -3,11 +3,14 @@ package com.github.nndwn.todoso.toolWindow.itemTodoList
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.TagParser
+import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.UIUtil
 import java.awt.Color
 
 object TodosoHtmlBuilder {
+  private val URL_REGEX = Regex("""\b(?:https?://|www\.)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}[^\s<]*\b|\b[a-zA-Z0-9.-]+\.(?:com|org|net|io|me|id|gov|edu|github\.io)(?:/[^\s<]*)?\b""")
+
   fun build(
     task: TodoTask,
     isSelected: Boolean,
@@ -41,13 +44,24 @@ object TodosoHtmlBuilder {
       task.description.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br/>")
 
     // Highlight Tags
-    TagParser.TAG_REGEX.findAll(description).forEach { match ->
+    description = TagParser.TAG_REGEX.replace(description) { match ->
       val tag = match.value
-      description =
-        description.replace(
-          tag,
-          "<span style='color: $tagColorHex; font-style: italic; font-weight: bold;'>$tag</span>",
-        )
+      val tagName = match.groupValues[1]
+      "<a href='tag:$tagName' style='color: $tagColorHex; font-style: italic; font-weight: bold; text-decoration: none;'>$tag</a>"
+    }
+
+    // Highlight IDs
+    description = TaskIdParser.TASK_ID_REGEX.replace(description) { match ->
+      val idText = match.value
+      val idVal = match.groupValues[1]
+      "<a href='id:$idVal' style='color: $tagColorHex; font-weight: bold; text-decoration: none;'>$idText</a>"
+    }
+
+    // Highlight External Links
+    description = URL_REGEX.replace(description) { match ->
+      val url = match.value
+      val href = if (!url.contains("://") && !url.startsWith("www.")) "https://$url" else if (url.startsWith("www.")) "https://$url" else url
+      "<a href='$href' style='color: #589DF6; text-decoration: underline;'>$url</a>"
     }
 
     return """

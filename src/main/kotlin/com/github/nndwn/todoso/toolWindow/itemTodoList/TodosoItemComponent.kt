@@ -6,6 +6,7 @@ import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.services.TodosoService
+import com.intellij.ide.BrowserUtil
 import com.intellij.ide.HelpTooltip
 import com.intellij.openapi.util.text.HtmlChunk
 import com.intellij.ui.JBColor
@@ -17,6 +18,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.Dimension
+import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -27,7 +29,11 @@ import javax.swing.JTextPane
 import javax.swing.Scrollable
 import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
+import javax.swing.event.HyperlinkEvent
+import javax.swing.text.AttributeSet
 import javax.swing.text.DefaultCaret
+import javax.swing.text.html.HTML
+import javax.swing.text.html.HTMLDocument
 import javax.swing.text.html.HTMLEditorKit
 
 class TodosoItemComponent(
@@ -40,9 +46,11 @@ class TodosoItemComponent(
   private val onDelete: (TodoTask) -> Unit,
   private val onNavigate: (Int) -> Unit,
   private val onTabPressed: () -> Unit,
+  private val onSearch: (String) -> Unit,
 ) : JPanel(BorderLayout()), Scrollable {
 
   private var isSelected = false
+  private var lastHtml: String? = null
 
   private val iconLabel =
     JBLabel().apply {
@@ -56,7 +64,32 @@ class TodosoItemComponent(
       override fun getScrollableTracksViewportWidth(): Boolean = true
 
       override fun processMouseEvent(e: MouseEvent) {
+        val isLink = isLinkAt(e.point)
+        super.processMouseEvent(e)
+
+        if (isLink && (e.id == MouseEvent.MOUSE_PRESSED || e.id == MouseEvent.MOUSE_RELEASED || e.id == MouseEvent.MOUSE_CLICKED)) {
+          if (e.id == MouseEvent.MOUSE_PRESSED) {
+            requestFocusInWindow()
+          }
+        } else {
+          dispatchToParent(e)
+        }
+      }
+
+      override fun processMouseMotionEvent(e: MouseEvent) {
+        super.processMouseMotionEvent(e)
         dispatchToParent(e)
+      }
+
+      private fun isLinkAt(p: Point): Boolean {
+        val pos = viewToModel2D(p)
+        if (pos >= 0) {
+          val doc = document as? HTMLDocument
+          val elem = doc?.getCharacterElement(pos)
+          val a = elem?.attributes?.getAttribute(HTML.Tag.A)
+          return a != null
+        }
+        return false
       }
     }
       .apply {
@@ -65,6 +98,17 @@ class TodosoItemComponent(
         isEditable = false
         isOpaque = false
         isFocusable = false
+
+        addHyperlinkListener { e ->
+          if (e.eventType == HyperlinkEvent.EventType.ACTIVATED) {
+            val desc = e.description
+            when {
+              desc.startsWith("tag:") -> onSearch("#" + desc.removePrefix("tag:"))
+              desc.startsWith("id:") -> onSearch(desc.removePrefix("id:"))
+              else -> BrowserUtil.browse(desc)
+            }
+          }
+        }
 
         highlighter = null
         (caret as? DefaultCaret)?.apply {
@@ -77,7 +121,7 @@ class TodosoItemComponent(
   init {
     isOpaque = true
     isFocusable = true
-    setFocusTraversalKeysEnabled(false) // Mencegah Swing memindah fokus ke item berikutnya secara otomatis
+    setFocusTraversalKeysEnabled(false)
     background = UIUtil.getListBackground()
     cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
 
@@ -91,19 +135,12 @@ class TodosoItemComponent(
   }
 
   private fun dispatchToParent(e: MouseEvent) {
-    val parentEvent =
-      MouseEvent(
-        this,
-        e.id,
-        e.`when`,
-        e.modifiersEx,
-        e.x + textPane.x,
-        e.y + textPane.y,
-        e.clickCount,
-        e.isPopupTrigger,
-        e.button,
-      )
-    processMouseEvent(parentEvent)
+    val parentEvent = SwingUtilities.convertMouseEvent(textPane, e, this)
+    if (e.id == MouseEvent.MOUSE_MOVED || e.id == MouseEvent.MOUSE_DRAGGED) {
+      processMouseMotionEvent(parentEvent)
+    } else {
+      processMouseEvent(parentEvent)
+    }
   }
 
   private fun setupEvents() {
@@ -196,7 +233,7 @@ class TodosoItemComponent(
       updateIcon(iconLabel, task, isVisualEnabled)
       updateContent()
     } else {
-      // Walau konten sama, mungkin line number berubah (tetap simpan referensi terbaru)
+
       this.task = newTask
     }
   }
@@ -216,9 +253,9 @@ class TodosoItemComponent(
     val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
     val newHtml = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
 
-    // Optimasi: Jangan ganti teks jika HTML-nya sama persis untuk mencegah flicker
-    if (textPane.text != newHtml) {
+    if (lastHtml != newHtml) {
       textPane.text = newHtml
+      lastHtml = newHtml
     }
 
     this.toolTipText = null
@@ -241,7 +278,13 @@ class TodosoItemComponent(
 
     val chunks = mutableListOf<HtmlChunk>()
 
-    // 1. Detail Tugas Utama
+    // 1. Deskripsi lengkap untuk status DONE atau CANCELLED
+    if (task.status == TaskStatus.DONE || task.status == TaskStatus.CANCELLED) {
+      chunks.add(HtmlChunk.tag("b").addText(task.description))
+      chunks.add(HtmlChunk.br())
+    }
+
+    // 2. Detail Tugas Utama
     appendTaskMetadata(chunks, task)
 
     // 2. Rujukan

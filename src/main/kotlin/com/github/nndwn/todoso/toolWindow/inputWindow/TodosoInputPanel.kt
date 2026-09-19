@@ -2,22 +2,30 @@ package com.github.nndwn.todoso.toolWindow.inputWindow
 
 import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoIcons
+import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.TextComponentEmptyText
+import com.intellij.ui.scale.JBUIScale
+import com.intellij.util.IconUtil
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
+import java.awt.Graphics
+import java.awt.Rectangle
 import java.awt.Toolkit
 import java.awt.event.ActionEvent
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
 import java.awt.event.KeyAdapter
@@ -26,9 +34,11 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.AbstractAction
 import javax.swing.JButton
+import javax.swing.JLayeredPane
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.KeyStroke
+import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
@@ -106,6 +116,16 @@ class TodosoInputPanel(
       preferredSize = Dimension(preferredSize.width, JBUI.scale(130))
     }
 
+  private val statusCountPanel = JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.RIGHT, JBUI.scale(10), 0)).apply {
+    isOpaque = false
+    isVisible = false
+  }
+
+  private val layeredPane = object : JLayeredPane() {
+    override fun getPreferredSize(): Dimension = mainContent.preferredSize
+  }
+  private val mainContent = JBPanel<JBPanel<*>>(BorderLayout())
+
   init {
     isFocusable = true
     inputTextArea.setFocusTraversalKeysEnabled(false)
@@ -145,9 +165,10 @@ class TodosoInputPanel(
     border = JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 1, 0, 0, 0)
     background = JBUI.CurrentTheme.ToolWindow.background()
 
+    mainContent.isOpaque = false
     val marginWrapper =
       JBPanel<JBPanel<*>>(BorderLayout()).apply {
-        border = JBUI.Borders.empty(16, 15, 4, 15)
+        border = JBUI.Borders.empty(21, 12, 4, 12)
         isOpaque = false
         add(inputWrapper, BorderLayout.CENTER)
       }
@@ -155,7 +176,7 @@ class TodosoInputPanel(
     val buttonsPanel =
       JBPanel<JBPanel<*>>(BorderLayout()).apply {
         isOpaque = false
-        border = JBUI.Borders.empty(0, 15, 5, 15)
+        border = JBUI.Borders.empty(0, 5, 5, 5)
 
         val leftButtons =
           JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.LEFT, 5, 0)).apply {
@@ -174,8 +195,20 @@ class TodosoInputPanel(
         add(rightWrapper, BorderLayout.EAST)
       }
 
-    add(marginWrapper, BorderLayout.CENTER)
-    add(buttonsPanel, BorderLayout.SOUTH)
+    mainContent.add(marginWrapper, BorderLayout.CENTER)
+    mainContent.add(buttonsPanel, BorderLayout.SOUTH)
+
+    layeredPane.add(mainContent, JLayeredPane.DEFAULT_LAYER)
+    layeredPane.add(statusCountPanel, JLayeredPane.PALETTE_LAYER)
+
+    add(layeredPane, BorderLayout.CENTER)
+
+    layeredPane.addComponentListener(object : ComponentAdapter() {
+      override fun componentResized(e: ComponentEvent?) {
+        mainContent.bounds = layeredPane.bounds
+        updateStatusPosition()
+      }
+    })
   }
 
   private fun setupListeners() {
@@ -364,6 +397,44 @@ class TodosoInputPanel(
 
   fun requestFocusToInput() {
     inputTextArea.requestFocusInWindow()
+  }
+
+  fun unfocus() {
+    hideOverlay()
+    this.requestFocusInWindow()
+  }
+
+  fun updateStatusCounts(counts: Map<TaskStatus, Int>) {
+    statusCountPanel.removeAll()
+    TaskStatus.entries.forEach { status ->
+      val count = counts[status] ?: 0
+      if (count > 0) {
+        val fontSize = 11f
+        val scaledIcon = IconUtil.scale(status.icon, null, JBUIScale.scale(fontSize) / status.icon.iconHeight)
+        
+        val labelColor = JBColor.namedColor("Label.infoForeground", JBColor(0x808080, 0x8C8C8C))
+        val colorizedIcon = IconUtil.colorize(scaledIcon, labelColor)
+
+        val label = JBLabel("$count", colorizedIcon, SwingConstants.LEFT).apply {
+          font = fontInput.deriveFont(Font.BOLD, JBUIScale.scale(fontSize))
+          foreground = labelColor
+          iconTextGap = JBUI.scale(4)
+        }
+        statusCountPanel.add(label)
+      }
+    }
+    statusCountPanel.isVisible = statusCountPanel.componentCount > 0
+    statusCountPanel.revalidate()
+    statusCountPanel.repaint()
+    updateStatusPosition()
+  }
+
+  private fun updateStatusPosition() {
+    if (!statusCountPanel.isVisible) return
+    val prefSize = statusCountPanel.preferredSize
+    val x = width - prefSize.width - JBUI.scale(3)
+    val y = JBUI.scale(3)
+    statusCountPanel.bounds = Rectangle(x, y, prefSize.width, prefSize.height)
   }
 
   internal fun showSuggestionsPopup(triggerChar: Char) {

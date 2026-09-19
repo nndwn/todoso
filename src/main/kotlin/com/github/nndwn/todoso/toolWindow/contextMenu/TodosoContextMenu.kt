@@ -107,7 +107,9 @@ class TodosoContextMenu(
       val recentVersions = TagParser.getRecentVersions(tasks = taskData)
 
       // 2. Popular Tags (Excluding Exclusives and Recent Versions)
-      val popularTags = TagParser.getPopularTags(taskData).filter { it !in exclusiveTags && it !in recentVersions }
+      val popularTags = TagParser.getPopularTags(taskData, limit = 50)
+        .filter { it !in exclusiveTags && it !in recentVersions }
+        .take(10)
 
       if (popularTags.isNotEmpty()) {
         subMenu(TodosoBundle.message("todo.suggestion.popular.tags")) {

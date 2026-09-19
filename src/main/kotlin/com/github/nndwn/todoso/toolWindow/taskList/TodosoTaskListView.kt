@@ -23,6 +23,8 @@ class TodosoTaskListView(
   private val onDelete: (TodoTask) -> Unit,
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
   private val onTabPressed: () -> Unit,
+  private val onSearch: (String) -> Unit,
+  private val onScroll: () -> Unit = {},
 ) : JBPanel<TodosoTaskListView>(BorderLayout()) {
 
   private val tasksContainer =
@@ -58,6 +60,10 @@ class TodosoTaskListView(
   init {
     isOpaque = false
     add(scrollPane, BorderLayout.CENTER)
+
+    scrollPane.verticalScrollBar.addAdjustmentListener {
+      onScroll()
+    }
   }
 
   fun updateTasks(sortedTasks: List<TodoTask>) {
@@ -83,6 +89,7 @@ class TodosoTaskListView(
             onContextMenu = { t, e -> onContextMenu(t, e) },
             onNavigate = { keyCode -> handleNavigation(keyCode) },
             onTabPressed = { onTabPressed() },
+            onSearch = { query -> onSearch(query) },
           )
         newComp.setSelected(isTaskSelected(task))
         newComponents.add(newComp)

@@ -3,6 +3,13 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- tidak banyak issue kali ini, tapi ku putuskan jangan update tiap hari mungkin reviewer akan bosan dengan mengatakan "dia lagi", kalau ada yang gunakan ini plugin (JIKA ADA) mungkin mengatakan "mungkin besok update lagi"
+- menyelesaikan issue suggestion seperti tidak bisa menekan keyboard esc dan enter tiba-tiba submit
+- semenjak aku suka lupa memasukan priority jadi kuputuskan menambahkan fitur suggestion priority
+- sekarang task dapat di klik seperti tags, id dan khusus link redirect ke browser
+- penambahan fitur info status task 
+- menyelesaikan issue minor dan menambah bug baru
+- I will back 🤖
 
 ## [2.0.4] - 2026-09-16
 

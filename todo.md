@@ -110,13 +110,18 @@
 - [x] ⏫ #remove hapus refress di klik kanan #feature sebagai gantinya di toolbar sebagai refress menjadi reset sehingga mematikan seluruh sort dan group by ke dalam defaut #v2.0.4 #production 🛫 2026-09-17 00:27 ✅ 2026-09-17 02:11 ➕ 2026-09-17 00:21 📝 2026-09-17 00:23 🆔 M0leJv
 - [x] ⏫ #issue untuk date waktu terbaru malah di bawah karena di utamakan done date , jika tidak ada done date, jadi start date , baru create date , ku bingung bagus nya seperti apa , tapi bagaimana dengan today kenapa kosong ? #v2.0.4 #production 🛫 2026-09-17 00:43 ✅ 2026-09-17 02:15 ➕ 2026-09-17 00:37 🆔 fjPP7s
 - [x] ⏫ #feature #suggestion #v2.0.5 #development priority perlu suggestion untuk di awal 🛫 2026-09-19 20:35 ✅ 2026-09-19 21:14 ➕ 2026-09-17 18:45 📝 2026-09-19 20:35 🆔 paA4BY
-- [/] ⏫ #issue #v2.0.5 terlihat task done dan canceled terlihat susah di baca karena ada strike line teks untuk mengatasi hal itu di tooltip diberikan deksripsi khusus untuk done dan canceled #production #item_task #tooltip 🛫 2026-09-19 21:14 ➕ 2026-09-17 18:47 📝 2026-09-19 08:08 🆔 SFQaiA
+- [x] ⏫ #issue #v2.0.5 terlihat task done dan canceled terlihat susah di baca karena ada strike line teks untuk mengatasi hal itu di tooltip diberikan deksripsi khusus untuk done dan canceled #production #item_task #tooltip 🛫 2026-09-19 21:14 ✅ 2026-09-20 02:10 ➕ 2026-09-17 18:47 📝 2026-09-19 08:08 🆔 SFQaiA
 - [x] 🔺 #Issue ketika suggestion muncul user menekan # muncul user ternyata perlu edit text seharus nya suggestion tombol esc di gunakan untuk close sementara suggestion #v2.0.5 #production #suggestion 🛫 2026-09-19 08:23 ✅ 2026-09-19 19:52 ➕ 2026-09-19 06:58 📝 2026-09-19 07:10 🆔 pXpZci
 <!-- - [ ] <b>test</b> ➕ 2026-09-19 07:04 🆔 wIFxDL -->
-- [ ] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 ➕ 2026-09-19 07:22 🆔 gfoJS4
+- [x] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 04:21 ➕ 2026-09-19 07:22 🆔 gfoJS4
 - [ ] 🔽 #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys
-- [/] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
+- [x] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ✅ 2026-09-20 01:35 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
 - [ ] 🔼 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ➕ 2026-09-19 08:02 🆔 5ewVz9
 - [x] 🔺 #issue ada masalah pada masalah di welcome text #v2.0.5 #production 🛫 2026-09-19 15:07 ✅ 2026-09-19 15:08 ➕ 2026-09-19 15:06 📝 2026-09-19 15:06 🆔 HOHXeq
 - [x] ⏫ #issue kenapa #toolbar pada search masih bisa di klik pada saat task kosong ? #production 🛫 2026-09-19 15:11 ✅ 2026-09-19 18:03 ➕ 2026-09-19 15:11 🆔 CflhNN
-- [ ] # ➕ 2026-09-19 15:35 🆔 7nZzDz
+<!-- - [ ] # ➕ 2026-09-19 15:35 🆔 7nZzDz -->
+- [x] ⏫ #feature #item_task ketika user menekan tag di task secara automatis akan search sesuai dengan nama tag , jika dia berupa link berikan warna khusus dan juga dapat di klik oleh #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 02:07 ➕ 2026-09-19 22:32 📝 2026-09-19 22:33 🆔 khzOeO
+- [ ] hanya test 🆔 kkWrqo https://github.com/nndwn/runtext ➕ 2026-09-20 01:57 🆔 sSXGZR
+- [ ] test doang ➕ 2026-09-20 02:59 🆔 vGQ1xQ
+- [ ] test doang ➕ 2026-09-20 03:00 🆔 u3UQCh
+- [ ] test lagi ➕ 2026-09-20 03:00 🆔 G0ZNOY

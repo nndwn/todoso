@@ -234,7 +234,9 @@ class TodosoToolbar(
         actions.add(Separator.getInstance()) // Garis Pemisah Polos
 
         val recentVersions = TagParser.getRecentVersions(tasks = tasks)
-        val popularTags = TagParser.getPopularTags(tasks).filter { it !in recentVersions }
+        val popularTags = TagParser.getPopularTags(tasks, 20)
+          .filter { it !in recentVersions }
+          .take(10)
 
         if (popularTags.isNotEmpty()) {
           actions.add(Separator(TodosoBundle.message("todo.suggestion.popular.tags")))

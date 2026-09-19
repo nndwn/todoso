@@ -296,6 +296,8 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       onDelete = { handler.handleDeleteAction() },
       onContextMenu = { task, e -> showContextMenu(task, e) },
       onTabPressed = { inputPanel.requestFocusToInput() },
+      onSearch = { query -> searchPanel.setSearchText(query) },
+      onScroll = { inputPanel.unfocus() }
     )
 
   internal val searchPanel: TodosoSearchPanel =
@@ -406,10 +408,15 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       taskListView.clear()
       noMatchPane.text = TodosoConstants.getNoMatchHtml()
       cardLayout.show(centerContainer, TodosoConstants.CARD_NO_MATCH)
+      inputPanel.updateStatusCounts(emptyMap())
       return
     }
 
     taskListView.updateTasks(filteredAndSorted)
+    
+    val counts = filteredAndSorted.groupBy { it.status }.mapValues { it.value.size }
+    inputPanel.updateStatusCounts(counts)
+
     cardLayout.show(centerContainer, TodosoConstants.CARD_TASK_LIST)
   }
 

@@ -49,6 +49,15 @@ class TodosoSearchPanel(private val onQueryChanged: (String) -> Unit) : JPanel(B
     }
   }
 
+  fun setSearchText(query: String) {
+    isVisible = true
+    searchField.text = query
+    onQueryChanged(query)
+    searchField.requestFocusInWindow()
+    revalidate()
+    repaint()
+  }
+
   fun requestSearchFocus() {
     searchField.requestFocusInWindow()
   }
