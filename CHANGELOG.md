@@ -3,6 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.0.5] - 2026-09-19
+
 - Not many issues this time, but I decided not to update every day; the reviewer might get bored and say "him again," and if anyone uses this plugin (IF ANYONE DOES), they might say "maybe there'll be another update tomorrow."
 - Fixed suggestion issues such as the Escape key not working and Enter suddenly submitting.
 - Since I often forget to enter priorities, I decided to add a priority suggestion feature.
@@ -131,7 +134,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.4...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.5...HEAD
+[2.0.5]: https://github.com/nndwn/todoso/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/nndwn/todoso/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/nndwn/todoso/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/nndwn/todoso/compare/2.0.1...2.0.2
