@@ -30,7 +30,6 @@ import javax.swing.Scrollable
 import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
 import javax.swing.event.HyperlinkEvent
-import javax.swing.text.AttributeSet
 import javax.swing.text.DefaultCaret
 import javax.swing.text.html.HTML
 import javax.swing.text.html.HTMLDocument

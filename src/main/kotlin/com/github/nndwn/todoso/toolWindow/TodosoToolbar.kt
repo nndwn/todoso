@@ -34,6 +34,7 @@ class TodosoToolbar(
   private val onSortChanged: (Set<SortOption>) -> Unit,
   private val filterState: FilterState,
   private val onFilterChanged: (FilterType, Any?) -> Unit,
+  private val isSearchVisible: () -> Boolean = { false },
 ) {
 
   companion object {
@@ -63,18 +64,21 @@ class TodosoToolbar(
     return toolbar.component
   }
 
-  private fun createSearchToggleAction(): AnAction =
+  private fun createSearchToggleAction(): ToggleAction =
     object :
-      AnAction(
+      ToggleAction(
         TodosoBundle.message("todo.filter.search"),
         TodosoBundle.message("todo.filter.search.desc"),
         AllIcons.Actions.Find,
       ) {
-      override fun actionPerformed(e: AnActionEvent) {
+      override fun isSelected(e: AnActionEvent): Boolean = isSearchVisible()
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
         onFilterChanged(FilterType.SEARCH, "TOGGLE")
       }
 
       override fun update(e: AnActionEvent) {
+        super.update(e)
         val project = e.project ?: return
         val service = project.service<TodosoService>()
         e.presentation.isEnabled = service.loadTask().isNotEmpty()

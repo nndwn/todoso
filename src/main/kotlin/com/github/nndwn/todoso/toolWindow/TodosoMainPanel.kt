@@ -93,6 +93,7 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       onSortChanged = ::setCurrentSortOption,
       filterState = filterState,
       onFilterChanged = ::onFilterChanged,
+      isSearchVisible = { searchPanel.isVisible }
     )
 
   internal val inputPanel: TodosoInputPanel =

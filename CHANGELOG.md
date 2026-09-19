@@ -3,13 +3,13 @@
 # Todoso Changelog
 
 ## [Unreleased]
-- tidak banyak issue kali ini, tapi ku putuskan jangan update tiap hari mungkin reviewer akan bosan dengan mengatakan "dia lagi", kalau ada yang gunakan ini plugin (JIKA ADA) mungkin mengatakan "mungkin besok update lagi"
-- menyelesaikan issue suggestion seperti tidak bisa menekan keyboard esc dan enter tiba-tiba submit
-- semenjak aku suka lupa memasukan priority jadi kuputuskan menambahkan fitur suggestion priority
-- sekarang task dapat di klik seperti tags, id dan khusus link redirect ke browser
-- penambahan fitur info status task 
-- menyelesaikan issue minor dan menambah bug baru
-- I will back 🤖
+- Not many issues this time, but I decided not to update every day; the reviewer might get bored and say "him again," and if anyone uses this plugin (IF ANYONE DOES), they might say "maybe there'll be another update tomorrow."
+- Fixed suggestion issues such as the Escape key not working and Enter suddenly submitting.
+- Since I often forget to enter priorities, I decided to add a priority suggestion feature.
+- Tasks are now clickable, including tags and IDs, with links specifically redirecting to the browser.
+- Added a task status info feature.
+- Fixed minor issues and added new bugs.
+- I will be back 🤖
 
 ## [2.0.4] - 2026-09-16
 

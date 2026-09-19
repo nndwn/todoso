@@ -83,7 +83,7 @@ class TodosoTaskListView(
             service,
             task,
             currentVisualEnabled,
-            onSelect = { t -> onTaskSelected(t, false) },
+            onSelect = { t -> onTaskSelected(t, true) },
             onDoubleClick = {},
             onDelete = { t -> onDelete(t) },
             onContextMenu = { t, e -> onContextMenu(t, e) },
