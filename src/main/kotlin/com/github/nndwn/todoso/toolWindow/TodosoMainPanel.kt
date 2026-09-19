@@ -1,15 +1,20 @@
 package com.github.nndwn.todoso.toolWindow
 
+import com.github.nndwn.todoso.TodosoBundle
 import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.TagParser
+import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.services.TodosoDataChangeListener
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoContextMenu
 import com.github.nndwn.todoso.toolWindow.contextMenu.toActionGroup
+import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionItem
+import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionNav
+import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionType
 import com.github.nndwn.todoso.toolWindow.inputWindow.TodosoInputPanel
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.github.nndwn.todoso.toolWindow.logic.TodoTaskFilterer
@@ -20,8 +25,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonShortcuts
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
@@ -73,26 +83,21 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
     TodosoToolbar(
       settings = settings,
       targetComponent = this,
-      onRefreshUI = { refreshUiState() },
-      onRefreshTasks = { handler.refreshTasks() },
-      onRandomTask = { handler.handleRandomTask() },
-      onErrorHandler = { msg -> handler.handleErrorNotification(msg) },
-      onSortChanged = { options -> setCurrentSortOption(options) },
+      onRefreshUI = ::refreshUiState,
+      onRefreshTasks = {
+        inputPanel.hideOverlay()
+        handler.refreshTasks()
+      },
+      onRandomTask = handler::handleRandomTask,
+      onErrorHandler = handler::handleErrorNotification,
+      onSortChanged = ::setCurrentSortOption,
       filterState = filterState,
-      onFilterChanged = { type, value -> onFilterChanged(type, value) },
+      onFilterChanged = ::onFilterChanged,
     )
 
   internal val inputPanel: TodosoInputPanel =
     TodosoInputPanel(
-      project = project,
-      onNewTask = { text ->
-        hideSearchPanel()
-        handler.handleAddTask(text)
-      },
-      onUpdateTask = { text ->
-        hideSearchPanel()
-        handler.handleUpdateTask(text)
-      },
+      onCancelEdit = { handler.handleCancelEdit() },
       onConfirmCancel = { note ->
         hideSearchPanel()
         handler.handleConfirmCancel(note)
@@ -101,10 +106,33 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
         hideSearchPanel()
         handler.handleUpdateNote(note)
       },
-      onCancelEdit = { handler.handleCancelEdit() },
+      onNewTask = { text ->
+        hideSearchPanel()
+        handler.handleAddTask(text)
+      },
+      onUpdateTask = { text ->
+        hideSearchPanel()
+        handler.handleUpdateTask(text)
+      },
       fontInput = uiFont,
-      getPopularTags = { TagParser.getPopularTags(service.loadTask()) },
-      getAllTasks = { service.loadTask() },
+      onSuggestionProvider = { prefix ->
+        val currentText = inputPanel.inputTextArea.text.trim()
+        if (currentText.isEmpty()) {
+          Priority.entries
+            .filter { it != Priority.NONE }
+            .map {
+              SuggestionItem(
+                text = "[${it.code}]",
+                category = TodosoBundle.message("todo.suggestion.priority"),
+                icon = it.icon,
+                type = SuggestionType.PRIORITY,
+                tagDisplay = it.displayName,
+              )
+            }
+        } else {
+          getSuggestions(prefix, TagParser.getPopularTags(service.loadTask()), service.loadTask())
+        }
+      },
       onSuggestionRequest = { items ->
         if (items != null) {
           suggestionOverlay.updateItems(items)
@@ -115,10 +143,9 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       },
       onNavigationRequest = { direction ->
         when (direction) {
-          "UP" -> suggestionOverlay.moveUp()
-          "DOWN" -> suggestionOverlay.moveDown()
-          "ENTER", "TAB" -> suggestionOverlay.confirmSelection()
-          "ESCAPE" -> suggestionOverlay.hideOverlay()
+          SuggestionNav.UP -> suggestionOverlay.moveUp()
+          SuggestionNav.DOWN -> suggestionOverlay.moveDown()
+          SuggestionNav.ENTER -> suggestionOverlay.confirmSelection()
         }
       },
       onTabPressed = {
@@ -128,11 +155,138 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
           ?: run {
             if (taskListView.taskComponents.isNotEmpty()) {
               val firstTask = taskListView.taskComponents.first().task
-              handleTaskSelection(firstTask, forceSelect = true) // Pilih dan fokus tugas pertama
+              handleTaskSelection(firstTask, forceSelect = true)
             }
           }
       },
+      onAttachFileRequest = { handleAttachFile() },
+      onTextValidator = { text -> TodoValidator.isContentValid(text) },
     )
+
+  private fun handleAttachFile() {
+    if (project.isDisposed) return
+
+    val descriptor =
+      FileChooserDescriptorFactory.createAllButJarContentsDescriptor()
+        .withTitle(TodosoBundle.message("todo.insert.file"))
+        .withDescription(TodosoBundle.message("todo.insert.file.desc"))
+
+    val selectedFile = FileChooser.chooseFile(descriptor, project, null) ?: return
+    insertMarkdownAttachment(selectedFile)
+  }
+
+  private fun insertMarkdownAttachment(file: VirtualFile) {
+    val projectDir = project.guessProjectDir()
+    val relativePath =
+      if (projectDir != null) {
+        VfsUtilCore.getRelativePath(file, projectDir) ?: file.path
+      } else {
+        file.path
+      }
+
+    val isImage = listOf("jpg", "jpeg", "png", "gif", "svg", "webp").any {
+      file.name.lowercase().endsWith(".$it")
+    }
+
+    val markdownSnippet =
+      if (isImage) {
+        "![${file.name}]($relativePath)"
+      } else {
+        "[${file.name}]($relativePath)"
+      }
+
+    SwingUtilities.invokeLater {
+      val currentText = inputPanel.inputTextArea.text
+      val newText = if (currentText.contains("//")) {
+        "$currentText $markdownSnippet"
+      } else {
+        "$currentText // $markdownSnippet"
+      }
+      inputPanel.inputTextArea.text = newText
+      inputPanel.requestFocusToInput()
+    }
+  }
+
+  private fun getSuggestions(
+    prefix: String,
+    popularTags: List<String>,
+    allTasks: List<TodoTask>,
+  ): List<SuggestionItem> {
+    val suggestions = mutableListOf<SuggestionItem>()
+
+    val tagItems: List<SuggestionItem> =
+      if (prefix.isEmpty()) {
+        if (popularTags.isEmpty()) {
+          TodosoConstants.DEFAULT_QUICK_TAGS.map {
+            SuggestionItem(
+              it,
+              TodosoBundle.message("todo.suggestion.quick.tags"),
+              tagDisplay = it,
+              type = SuggestionType.TAGS
+            )
+          }
+        } else {
+          popularTags.map {
+            SuggestionItem(
+              it,
+              TodosoBundle.message("todo.suggestion.popular.tags"),
+              tagDisplay = TagParser.formatTagWithCount(it, allTasks),
+              type = SuggestionType.TAGS
+            )
+          }
+        }
+      } else {
+        val rawTags = (allTasks.flatMap { it.tags } + popularTags + TodosoConstants.DEFAULT_QUICK_TAGS)
+          .map { it.removePrefix("#") }
+
+        val allAvailableTags = rawTags
+          .groupBy { it }
+          .keys
+          .groupBy { it.lowercase() }
+          .map { it.value.first() }
+
+        allAvailableTags
+          .filter { it.startsWith(prefix, ignoreCase = true) }
+          .map { tag ->
+            val isPopular = popularTags.contains(tag)
+            val isExclusive = TodosoConstants.DEFAULT_QUICK_TAGS.contains(tag)
+            val isVersion = tag.matches(TagParser.VERSION_REGEX)
+
+            SuggestionItem(
+              tag,
+              when {
+                isVersion -> TodosoBundle.message("todo.filter.group.versions")
+                isPopular -> TodosoBundle.message("todo.suggestion.popular.tags")
+                isExclusive -> TodosoBundle.message("todo.suggestion.quick.tags")
+                else -> TodosoBundle.message("todo.suggestion.all.tags")
+              },
+              tagDisplay = TagParser.formatTagWithCount(tag, allTasks) ,
+              type = SuggestionType.TAGS
+            )
+          }
+      }
+    suggestions.addAll(tagItems)
+
+    if (prefix.isNotEmpty()) {
+      val relatedTasks =
+        allTasks
+          .filter { task -> task.tags.any { it.equals(prefix, ignoreCase = true) } }
+          .sortedByDescending { it.metadata.createdDate ?: "" }
+
+      suggestions.addAll(
+        relatedTasks.map { task ->
+          SuggestionItem(
+            text = task.description.take(50) + (if (task.description.length > 50) "..." else ""),
+            category = TodosoBundle.message("todo.suggestion.related.tags"),
+            isTask = true,
+            taskId = task.id,
+            type = SuggestionType.TASK
+          )
+        }
+      )
+    }
+    return suggestions
+  }
 
   internal val taskListView: TodosoTaskListView =
     TodosoTaskListView(
@@ -148,7 +302,25 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
     TodosoSearchPanel(onQueryChanged = { query -> onSearchQueryChanged(query) })
 
   internal val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
-    inputPanel.insertItemAtCaret(if (item.isTask) "🆔 ${item.taskId}" else item.text, item.isTask)
+    val caretPos = inputPanel.inputTextArea.caretPosition
+    val text = inputPanel.inputTextArea.text
+    val prefix = inputPanel.getActivePrefix(text, caretPos) ?: ""
+
+    when (item.type) {
+      SuggestionType.PRIORITY -> {
+        inputPanel.insertItemAtCaret("${item.text} ", false)
+      }
+      SuggestionType.TAGS -> {
+        if (item.text.equals(prefix, ignoreCase = true)) {
+          inputPanel.insertItemAtCaret("${item.text} ", false)
+        } else {
+          inputPanel.insertItemAtCaret(item.text, false)
+        }
+      }
+      SuggestionType.TASK -> {
+        inputPanel.insertItemAtCaret("🆔 ${item.taskId}", true)
+      }
+    }
   }
 
   private val layeredPane = JLayeredPane()
@@ -240,8 +412,6 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
     taskListView.updateTasks(filteredAndSorted)
     cardLayout.show(centerContainer, TodosoConstants.CARD_TASK_LIST)
   }
-
-  // --- Action Handlers & View Actions ---
 
   override fun refreshTasks() {
     service.markCacheDirty()

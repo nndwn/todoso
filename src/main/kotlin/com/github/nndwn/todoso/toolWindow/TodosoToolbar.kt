@@ -73,6 +73,14 @@ class TodosoToolbar(
       override fun actionPerformed(e: AnActionEvent) {
         onFilterChanged(FilterType.SEARCH, "TOGGLE")
       }
+
+      override fun update(e: AnActionEvent) {
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+        e.presentation.isEnabled = service.loadTask().isNotEmpty()
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
     }
 
   private fun createRefreshAction(): AnAction =

@@ -32,7 +32,15 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
       isFocusable = false
 
       cellRenderer = ListCellRenderer { list, value, index, isSelected, _ ->
-        val rootPanel = JPanel(GridBagLayout())
+        val itemBackground = when {
+          isSelected && isSelectionActive -> list.selectionBackground
+          isSelected && !isSelectionActive -> JBColor.namedColor("List.hoverBackground", JBColor(0xDFE1E5, 0x4E5157))
+          else -> list.background
+        }
+
+        val rootPanel = JPanel(GridBagLayout()).apply {
+          background = list.background
+        }
         val gbc =
           GridBagConstraints().apply {
             fill = GridBagConstraints.HORIZONTAL
@@ -40,7 +48,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
             gridx = 0
           }
 
-        // 1. Header Logic (Show only if category changes)
+        // 1. Header Logic
         val showHeader = index == 0 || listModel.items[index - 1].category != value.category
         if (showHeader) {
           val headerLabel =
@@ -57,11 +65,7 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
         val itemPanel =
           JPanel(BorderLayout(8, 0)).apply {
             isOpaque = true
-            background = when {
-              isSelected && isSelectionActive -> list.selectionBackground
-              isSelected && !isSelectionActive -> JBColor.namedColor("List.hoverBackground", JBColor(0xDFE1E5, 0x4E5157))
-              else -> list.background
-            }
+            background = itemBackground
             border = JBUI.Borders.empty(4, 8)
 
             // Icon
@@ -72,8 +76,17 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
             // Text + Subtext
             val textContainer =
               SimpleColoredComponent().apply {
+                isOpaque = false // Pastikan teks transparan agar background itemPanel terlihat
                 val title = if (value.isTask) value.text else "${value.tagDisplay}"
-                append(title, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+                
+                // Gunakan foreground seleksi jika sedang dipilih agar kontras
+                val baseAttributes = if (isSelected && isSelectionActive) {
+                    SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, list.selectionForeground)
+                } else {
+                    SimpleTextAttributes.REGULAR_ATTRIBUTES
+                }
+                
+                append(title, baseAttributes)
 
                 if (!value.subText.isNullOrBlank()) {
                   append("  ${value.subText}", SimpleTextAttributes.GRAYED_ATTRIBUTES)
@@ -84,8 +97,6 @@ class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Uni
 
         gbc.gridy = 1
         rootPanel.add(itemPanel, gbc)
-
-        rootPanel.background = list.background
         rootPanel
       }
 

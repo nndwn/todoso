@@ -35,7 +35,7 @@
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
-- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #issue #test #development 📝 2026-09-14 15:58 🆔 E4TFhe // asdas
+- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #issue #development 📝 2026-09-19 08:11 🆔 E4TFhe
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
@@ -93,7 +93,7 @@
 - [ ] ⏬ mungkin ke depannya di inpunt ada perintah command #feature #development ➕ 2026-09-15 03:42 🆔 iszkMc
 - [-] 🔼 di descripsi task seperti nya perlu huruf awalan yang besar biar tampak rapi #feature #development #v2.0.2 ❌ 2026-09-15 06:54 ➕ 2026-09-15 03:46 🆔 MrooV4 // sepertnya tidak perlu hanya menambahk koplesitas , biarkan user berkreasi
 - [x] ⏫ #issue matikan scroll list task pada keyboard jika user menekan atas , tapi aktifikan select mengunakan scroll #production #v2.0.2 🛫 2026-09-15 11:34 ✅ 2026-09-15 11:46 ➕ 2026-09-15 03:47 🆔 FjNe3s // penambahan tab untuk navigasi antara input dan list
-- [ ] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #issue #development ➕ 2026-09-15 06:14 🆔 BSRA1a // perlu di pikirikan lagi bagaimana struktur nya , jika refaktoring secara pattern percuma juga hanya memotong beberapa baris
+- [x] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #issue #development #v2.0.5 #refactoring 🛫 2026-09-19 20:16 ✅ 2026-09-19 20:31 ➕ 2026-09-15 06:14 📝 2026-09-19 20:16 🆔 BSRA1a
 <!-- - [ ] test ➕ 2026-09-15 06:17 🆔 00cXx3 -->
 - [x] ⏫ seharus nya saat mode edit task seharus context menu editTask di tiadakan #v2.0.2 #issue #production 🛫 2026-09-15 06:44 ✅ 2026-09-15 10:57 ➕ 2026-09-15 06:34 🆔 VVlAVM
 <!-- - [ ] test ➕ 2026-09-15 06:39 🆔 7qbmV4 -->
@@ -109,5 +109,14 @@
 - [x] 🔺 #issue ## kenapa ini diaggap sebagai tag , pada dasar itu di perbolehkan sebagai tag ? #production #v2.0.4 🛫 2026-09-16 23:51 ✅ 2026-09-17 00:06 ➕ 2026-09-16 21:34 🆔 yunnM6 // boleh lakukan ## asalkan ada huruf lanjutannya seperti ##1, ##a yang tidak boleh nya hanya ### , ## , ####
 - [x] ⏫ #remove hapus refress di klik kanan #feature sebagai gantinya di toolbar sebagai refress menjadi reset sehingga mematikan seluruh sort dan group by ke dalam defaut #v2.0.4 #production 🛫 2026-09-17 00:27 ✅ 2026-09-17 02:11 ➕ 2026-09-17 00:21 📝 2026-09-17 00:23 🆔 M0leJv
 - [x] ⏫ #issue untuk date waktu terbaru malah di bawah karena di utamakan done date , jika tidak ada done date, jadi start date , baru create date , ku bingung bagus nya seperti apa , tapi bagaimana dengan today kenapa kosong ? #v2.0.4 #production 🛫 2026-09-17 00:43 ✅ 2026-09-17 02:15 ➕ 2026-09-17 00:37 🆔 fjPP7s
-- [ ] ⏫ #feature #suggestion #v2.0.5 #development saat user pertama ingin mengetik menambah task lagsung muncul suggestion priority setelah di pilih hasilnya di input adalah [H] lalu space ➕ 2026-09-17 18:45 🆔 paA4BY
-- [ ] ⏫ #issue #v2.0.5 terlihat task done dan canceled terlihat susah di baca karena ada strike line teks untuk mengatasi hal itu di tooltip diberikan deksripsi khusus untuk done dan canceled #production ➕ 2026-09-17 18:47 🆔 SFQaiA
+- [x] ⏫ #feature #suggestion #v2.0.5 #development priority perlu suggestion untuk di awal 🛫 2026-09-19 20:35 ✅ 2026-09-19 21:14 ➕ 2026-09-17 18:45 📝 2026-09-19 20:35 🆔 paA4BY
+- [/] ⏫ #issue #v2.0.5 terlihat task done dan canceled terlihat susah di baca karena ada strike line teks untuk mengatasi hal itu di tooltip diberikan deksripsi khusus untuk done dan canceled #production #item_task #tooltip 🛫 2026-09-19 21:14 ➕ 2026-09-17 18:47 📝 2026-09-19 08:08 🆔 SFQaiA
+- [x] 🔺 #Issue ketika suggestion muncul user menekan # muncul user ternyata perlu edit text seharus nya suggestion tombol esc di gunakan untuk close sementara suggestion #v2.0.5 #production #suggestion 🛫 2026-09-19 08:23 ✅ 2026-09-19 19:52 ➕ 2026-09-19 06:58 📝 2026-09-19 07:10 🆔 pXpZci
+<!-- - [ ] <b>test</b> ➕ 2026-09-19 07:04 🆔 wIFxDL -->
+- [ ] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 ➕ 2026-09-19 07:22 🆔 gfoJS4
+- [ ] 🔽 #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys
+- [/] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
+- [ ] 🔼 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ➕ 2026-09-19 08:02 🆔 5ewVz9
+- [x] 🔺 #issue ada masalah pada masalah di welcome text #v2.0.5 #production 🛫 2026-09-19 15:07 ✅ 2026-09-19 15:08 ➕ 2026-09-19 15:06 📝 2026-09-19 15:06 🆔 HOHXeq
+- [x] ⏫ #issue kenapa #toolbar pada search masih bisa di klik pada saat task kosong ? #production 🛫 2026-09-19 15:11 ✅ 2026-09-19 18:03 ➕ 2026-09-19 15:11 🆔 CflhNN
+- [ ] # ➕ 2026-09-19 15:35 🆔 7nZzDz

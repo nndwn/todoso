@@ -1,20 +1,10 @@
 package com.github.nndwn.todoso.toolWindow.inputWindow
 
 import com.github.nndwn.todoso.TodosoBundle
-import com.github.nndwn.todoso.TodosoConstants
 import com.github.nndwn.todoso.TodosoIcons
-import com.github.nndwn.todoso.domain.model.TodoTask
-import com.github.nndwn.todoso.domain.parser.TagParser
-import com.github.nndwn.todoso.domain.parser.TodoValidator
 import com.github.nndwn.todoso.toolWindow.inputWindow.components.RoundedInputPanel
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileChooser.FileChooser
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.vfs.VfsUtilCore
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
@@ -27,12 +17,14 @@ import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.Toolkit
+import java.awt.event.ActionEvent
 import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.swing.AbstractAction
 import javax.swing.JButton
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
@@ -41,18 +33,18 @@ import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
 class TodosoInputPanel(
-  private val project: Project,
   private val onNewTask: (String) -> Unit,
   private val onUpdateTask: (String) -> Unit,
   private val onConfirmCancel: (String) -> Unit,
   private val onCreateNote: (String) -> Unit,
   private val onCancelEdit: () -> Unit,
   private val fontInput: Font,
-  private val getPopularTags: () -> List<String>,
-  private val getAllTasks: () -> List<TodoTask>,
+  private val onSuggestionProvider: (prefix: String) -> List<SuggestionItem>,
   private val onSuggestionRequest: (List<SuggestionItem>?) -> Unit,
-  private val onNavigationRequest: (String) -> Unit,
+  private val onNavigationRequest: (SuggestionNav) -> Unit,
   private val onTabPressed: () -> Unit,
+  private val onAttachFileRequest: () -> Unit,
+  private val onTextValidator: (String) -> Boolean,
 ) : JBPanel<TodosoInputPanel>(BorderLayout()) {
 
   companion object {
@@ -63,8 +55,6 @@ class TodosoInputPanel(
     private const val BACKGROUND_COLOR_EDIT = "Todo.Input.EditBackground"
     private const val BACKGROUND_COLOR_CANCEL = "Todo.Input.CancelBackground"
     private const val BACKGROUND_COLOR_NORMAL = "Todo.Input.Background"
-
-    private val LIST_EXTENSION_INSERT = listOf("jpg", "jpeg", "png", "gif", "svg", "webp")
   }
 
   private var isOverlayVisible = false
@@ -108,7 +98,7 @@ class TodosoInputPanel(
       border = null
       preferredSize = Dimension(JBUI.scale(30), JBUI.scale(30))
       cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-      addActionListener { handleAttachFile() }
+      addActionListener { onAttachFileRequest() }
     }
 
   private val inputWrapper =
@@ -191,9 +181,19 @@ class TodosoInputPanel(
   private fun setupListeners() {
     inputTextArea.addFocusListener(
       object : FocusAdapter() {
-        override fun focusGained(e: FocusEvent?) = this@TodosoInputPanel.repaint()
+        override fun focusGained(e: FocusEvent?) {
+          this@TodosoInputPanel.repaint()
+          // Picu suggestion jika kosong (atau hanya berisi spasi) saat mendapatkan fokus
+          if (inputTextArea.text.trim().isEmpty()) {
+            showSuggestionsPopup('!')
+          }
+        }
 
-        override fun focusLost(e: FocusEvent?) = this@TodosoInputPanel.repaint()
+        override fun focusLost(e: FocusEvent?) {
+          this@TodosoInputPanel.repaint()
+          // Sembunyikan suggestion saat kehilangan fokus
+          hideOverlay()
+        }
       }
     )
 
@@ -203,16 +203,31 @@ class TodosoInputPanel(
           updateActionButtons()
 
           SwingUtilities.invokeLater {
-            val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition)
-            if (prefix != null) {
-              showSuggestionsPopup('#')
-            } else {
-              hideOverlay()
+            val text = inputTextArea.text
+            val prefix = getActivePrefix(text, inputTextArea.caretPosition)
+            
+            when {
+              prefix != null -> showSuggestionsPopup('#')
+              text.trim().isEmpty() -> showSuggestionsPopup('!') // '!' sebagai flag internal untuk Priority
+              else -> hideOverlay()
             }
           }
         }
       }
     )
+
+    // Aksi Escape di tingkat komponen menggunakan ActionMap (Cara Standar Swing)
+    val escapeStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
+    inputTextArea.getInputMap(WHEN_FOCUSED).put(escapeStroke, "hide-overlay-action")
+    inputTextArea.actionMap.put("hide-overlay-action", object : AbstractAction() {
+      override fun actionPerformed(e: ActionEvent?) {
+        if (isOverlayVisible) {
+          hideOverlay()
+        } else if (currentMode !is InputMode.Normal) {
+          onCancelEdit()
+        }
+      }
+    })
 
     inputTextArea.addKeyListener(
       object : KeyAdapter() {
@@ -225,26 +240,10 @@ class TodosoInputPanel(
           if (handlePopupNavigation(e)) return
 
           if (e.keyCode == KeyEvent.VK_TAB) {
-            if (isOverlayVisible) {
-              onNavigationRequest("TAB")
-            } else {
-              onTabPressed()
-            }
+            onTabPressed()
             e.consume()
             return
           }
-
-          if (e.keyCode == KeyEvent.VK_ESCAPE) {
-            if (isOverlayVisible) {
-              hideOverlay()
-              e.consume()
-              return
-            }
-            if (currentMode !is InputMode.Normal) {
-              onCancelEdit()
-            }
-          }
-          if (e.keyCode == KeyEvent.VK_ESCAPE) return
 
           if (e.keyCode == KeyEvent.VK_ENTER) {
             if (e.isShiftDown) {
@@ -266,26 +265,21 @@ class TodosoInputPanel(
     when (e.keyCode) {
       KeyEvent.VK_DOWN -> {
         isNavigationActive = true
-        onNavigationRequest("DOWN")
+        onNavigationRequest(SuggestionNav.DOWN)
         e.consume()
         return true
       }
       KeyEvent.VK_UP -> {
         isNavigationActive = true
-        onNavigationRequest("UP")
+        onNavigationRequest(SuggestionNav.UP)
         e.consume()
         return true
       }
-      KeyEvent.VK_ENTER -> {
-        if (isNavigationActive) {
-          onNavigationRequest("ENTER")
-          e.consume()
-          return true
-        } else {
-          hideOverlay()
-          // Biarkan event VK_ENTER berlanjut ke text area untuk mengirim (submit) tugas
-          return false
-        }
+      KeyEvent.VK_ENTER, KeyEvent.VK_TAB -> {
+        // Jika overlay muncul, Enter atau Tab selalu konfirmasi saran
+        onNavigationRequest(SuggestionNav.ENTER)
+        e.consume()
+        return true
       }
     }
     return false
@@ -361,13 +355,9 @@ class TodosoInputPanel(
     actionButton.isEnabled =
       when (val mode = currentMode) {
         is InputMode.Note -> currentText.removePrefix("//").trim().isNotEmpty()
-        is InputMode.Edit -> isInputValid(currentText) && currentText != mode.originalText.trim()
-        else -> isInputValid(currentText)
+        is InputMode.Edit -> onTextValidator(currentText) && currentText != mode.originalText.trim()
+        else -> onTextValidator(currentText)
       }
-  }
-
-  internal fun isInputValid(text: String): Boolean {
-    return TodoValidator.isContentValid(text)
   }
 
   fun clearInputText() = setMode(InputMode.Normal)
@@ -376,56 +366,11 @@ class TodosoInputPanel(
     inputTextArea.requestFocusInWindow()
   }
 
-  private fun handleAttachFile() {
-    if (project.isDisposed) return
-
-    val descriptor =
-      FileChooserDescriptorFactory.createAllButJarContentsDescriptor()
-        .withTitle(TodosoBundle.message("todo.insert.file"))
-        .withDescription(TodosoBundle.message("todo.insert.file.desc"))
-
-    val selectedFile = FileChooser.chooseFile(descriptor, this, project, null) ?: return
-    insertMarkdownAttachment(selectedFile)
-  }
-
-  internal fun insertMarkdownAttachment(file: VirtualFile) {
-    val projectDir = project.guessProjectDir()
-    val relativePath =
-      if (projectDir != null) {
-        VfsUtilCore.getRelativePath(file, projectDir) ?: file.path
-      } else {
-        file.path
-      }
-
-    val isImage = LIST_EXTENSION_INSERT.any {
-      file.name.lowercase().endsWith(".$it")
-    }
-
-    val markdownSnippet =
-      if (isImage) {
-        "![${file.name}]($relativePath)"
-      } else {
-        "[${file.name}]($relativePath)"
-      }
-
-    SwingUtilities.invokeLater {
-      val currentText = inputTextArea.text
-      if (currentText.contains("//")) {
-        inputTextArea.text = "$currentText $markdownSnippet"
-      } else {
-        inputTextArea.text = "$currentText // $markdownSnippet"
-      }
-      inputTextArea.requestFocusInWindow()
-    }
-  }
-
-  private fun showSuggestionsPopup(triggerChar: Char) {
+  internal fun showSuggestionsPopup(triggerChar: Char) {
     val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) ?: ""
 
-    val items =
-      if (triggerChar == '#') {
-        getSuggestions(prefix, getPopularTags(), getAllTasks())
-      } else emptyList()
+    // Panggil provider tanpa filter triggerChar agar Priority ('!') bisa lewat
+    val items = onSuggestionProvider(prefix)
 
     if (items.isEmpty()) {
       hideOverlay()
@@ -437,7 +382,7 @@ class TodosoInputPanel(
     onSuggestionRequest(items)
   }
 
-  private fun hideOverlay() {
+  internal fun hideOverlay() {
     isOverlayVisible = false
     isNavigationActive = false
     onSuggestionRequest(null)
@@ -464,80 +409,6 @@ class TodosoInputPanel(
     val text = inputTextArea.text
     if (text.isEmpty()) return true
     return (if (caretPos > 0) text[caretPos - 1] else ' ').isWhitespace()
-  }
-
-  internal fun getSuggestions(
-    prefix: String,
-    popularTags: List<String>,
-    allTasks: List<TodoTask>,
-  ): List<SuggestionItem> {
-    val suggestions = mutableListOf<SuggestionItem>()
-
-    // 1. Tag Suggestions
-    val tagItems =
-      if (prefix.isEmpty()) {
-        if (popularTags.isEmpty()) {
-          TodosoConstants.DEFAULT_QUICK_TAGS.map {
-            SuggestionItem(
-              it,
-              TodosoBundle.message("todo.suggestion.quick.tags"),
-              tagDisplay = TagParser.formatTagWithCount(it, allTasks),
-            )
-          }
-        } else {
-          popularTags.map {
-            SuggestionItem(
-              it,
-              TodosoBundle.message("todo.suggestion.popular.tags"),
-              tagDisplay = TagParser.formatTagWithCount(it, allTasks),
-            )
-          }
-        }
-      } else {
-        val allAvailableTags =
-          (allTasks.flatMap { it.tags } + popularTags + TodosoConstants.DEFAULT_QUICK_TAGS)
-            .map { it.removePrefix("#") }
-            .distinct()
-
-        allAvailableTags
-          .filter { it.startsWith(prefix, ignoreCase = true) }
-          .map { tag ->
-            val isPopular = popularTags.contains(tag)
-            val isExclusive = TodosoConstants.DEFAULT_QUICK_TAGS.contains(tag)
-            val isVersion = tag.matches(TagParser.VERSION_REGEX)
-
-            SuggestionItem(
-              tag,
-              when {
-                isVersion -> TodosoBundle.message("todo.filter.group.versions")
-                isPopular -> TodosoBundle.message("todo.suggestion.popular.tags")
-                isExclusive -> TodosoBundle.message("todo.suggestion.quick.tags")
-                else -> TodosoBundle.message("todo.suggestion.all.tags")
-              },
-              tagDisplay = TagParser.formatTagWithCount(tag, allTasks),
-            )
-          }
-      }
-    suggestions.addAll(tagItems)
-
-    if (prefix.isNotEmpty()) {
-      val relatedTasks =
-        allTasks
-          .filter { task -> task.tags.any { it.equals(prefix, ignoreCase = true) } }
-          .sortedByDescending { it.metadata.createdDate ?: "" }
-
-      suggestions.addAll(
-        relatedTasks.map { task ->
-          SuggestionItem(
-            text = task.description.take(50) + (if (task.description.length > 50) "..." else ""),
-            category = TodosoBundle.message("todo.suggestion.related.tags"),
-            isTask = true,
-            taskId = task.id,
-          )
-        }
-      )
-    }
-    return suggestions
   }
 
   internal fun getActivePrefix(text: String, caretPos: Int): String? {

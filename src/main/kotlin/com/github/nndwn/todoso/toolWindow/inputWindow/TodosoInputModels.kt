@@ -13,13 +13,23 @@ sealed class InputMode {
   object Note : InputMode()
 }
 
+enum class SuggestionType{
+  PRIORITY, TAGS , TASK
+}
+
 /** Representasi item dalam popup saran (Tags atau Tasks) */
 data class SuggestionItem(
   val text: String,
   val category: String,
   val icon: Icon? = null,
+  val type : SuggestionType,
   val subText: String? = null,
   val isTask: Boolean = false,
   val taskId: String? = null,
   val tagDisplay: String? = null,
 )
+
+/** Navigasi aksi untuk suggestion popup */
+enum class SuggestionNav {
+  UP, DOWN, ENTER
+}

@@ -39,7 +39,7 @@ object TodosoConstants {
                 <li>${TodosoBundle.message("instruction.step.context")}</li>
                 <li>
                     ${TodosoBundle.message("instruction.step.format")}<br/>
-                    <code style="background-color: rgba(128,128,128,0.2); padding: 2px 4px; border-radius: 3px;">[H] task description #feature #development #v0.0.1</code>
+                    <code style="font-family: monospace;">[H] task description #feature #development #v0.0.1</code>
                 </li>
                 <li>${TodosoBundle.message("instruction.step.file", FILENAME)}</li>
             </ul>
