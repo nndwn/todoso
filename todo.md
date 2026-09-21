@@ -5,40 +5,40 @@
 > 3. Only edit this file to add new tasks or update IDs/metadata as per technical requirements.
 
 
-- [x] ⏫ mengatasi masalah input plugin canceled dan add task 🆔 KOxC02
-- [x] ⏫ mengatasi masalah edit dan delete 🆔 Oe3IkG
-- [x] 🔼 ubah klik kanan menu edit menjadi change status, edit task , change priority, delete , sekarang untuk edit tags sudah termasuk dengan edit task 🆔 1IKIEH
-- [x] 🔽 untuk seluruh string rangkum dalam satu xml di folder values strings.xml 🆔 6nSToP
-- [x] ⏫ integrasikan fitur challage task 🆔 D0MOOf
-- [x] ⏫ jika user menambahkan task tapi tidak terdapat file todo.md maka create todo.md otomatis 🆔 IHNpQd
-- [x] ⏫ integrasi filter priority 🆔 NUPVRM
-- [x] ⏫ tambahkan dan integrasi filter status 🆔 BK18U9
-- [x] 🔽 tags jadi nya untuk apa ? 🆔 ZVQEzN
-- [x] ⏫ publish plugin 🆔 P9zCP5
-- [x] 🔼 ubah yang done sekarang bisa edit task dan tags #v1.0.5 #issue 🛫 2026-09-04 18:24 ✅ 2026-09-04 18:56 🆔 12rpUg
-- [x] 🔺 jika seandainya di tulis - [] data tidak terload #v1.0.4 #issue 🛫 2026-09-04 01:31 ✅ 2026-09-04 02:53 🆔 lEnnWI
-- [-] ⏫ apakah bisa setiap data todo.md tersimpan plugin todoso langsung ke refress ❌ 2026-09-04 02:56 🆔 2Qub9w // reason: fitur ini tidak perlu di terapkan karena tidak stabil karena pengunaan user diasumsikan sangat jarang sekali mengedit langsung ke editor pada todo.md
+- [x] ⏫ mengatasi masalah input plugin canceled dan add task 🆔 Q3qnSt
+- [x] ⏫ mengatasi masalah edit dan delete 🆔 W2QQ9y
+- [x] 🔼 ubah klik kanan menu edit menjadi change status, edit task , change priority, delete , sekarang untuk edit tags sudah termasuk dengan edit task 🆔 NgYdek
+- [x] 🔽 untuk seluruh string rangkum dalam satu xml di folder values strings.xml 🆔 N5itmr
+- [x] ⏫ integrasikan fitur challage task 🆔 y25pEy
+- [x] ⏫ jika user menambahkan task tapi tidak terdapat file todo.md maka create todo.md otomatis 🆔 ohHIuU
+- [x] ⏫ integrasi filter priority 🆔 V6MP6i
+- [x] ⏫ tambahkan dan integrasi filter status 🆔 uNHb63
+- [x] 🔽 tags jadi nya untuk apa ? 🆔 rTUrie
+- [x] ⏫ publish plugin 🆔 RWN2mg
+- [x] 🔼 ubah yang done sekarang bisa edit task dan tags #v1.0.5 #issue 🛫 2026-09-04 18:24 ✅ 2026-09-04 18:56 🆔 DGJbfB
+- [x] 🔺 jika seandainya di tulis - [] data tidak terload #v1.0.4 #issue 🛫 2026-09-04 01:31 ✅ 2026-09-04 02:53 🆔 5oYYd9
+- [-] ⏫ apakah bisa setiap data todo.md tersimpan plugin todoso langsung ke refress ❌ 2026-09-04 02:56 🆔 f0oHrI // reason: fitur ini tidak perlu di terapkan karena tidak stabil karena pengunaan user diasumsikan sangat jarang sekali mengedit langsung ke editor pada todo.md
 - [x] 🔼 jika tidak ada file todo.md lebih baik letakakan placeholder intruksi #v1.0.7 #feature 🆔 3RCtSK 🛫 2026-09-05 11:48 ✅ 2026-09-05 13:24
-- [x] 🔼 ubah nama challage taks menjadi random task agar jelas fungsinya #v1.0.4 #issue 🛫 2026-09-04 03:15 ✅ 2026-09-04 04:55 🆔 symtsV
+- [x] 🔼 ubah nama challage taks menjadi random task agar jelas fungsinya #v1.0.4 #issue 🛫 2026-09-04 03:15 ✅ 2026-09-04 04:55 🆔 mB63ny
 - [x] 🔽 mengatasi task tulisan panjang di tooltip #v1.0.5 #issue  🆔 UmOall 🛫 2026-09-05 03:28 ✅ 2026-09-05 03:28
-- [x] ⏫ tampilan task todo lebih baik tambahkan icon titik agar jelas sebagai list #v1.0.4 #issue 🛫 2026-09-04 05:29 ✅ 2026-09-04 05:38 🆔 TR24hl
-- [x] 🔺 hindarin penulisan task kosong disable button new task #v1.0.4 #issue 🛫 2026-09-04 00:32 ✅ 2026-09-04 01:31 🆔 i2OWkL
+- [x] ⏫ tampilan task todo lebih baik tambahkan icon titik agar jelas sebagai list #v1.0.4 #issue 🛫 2026-09-04 05:29 ✅ 2026-09-04 05:38 🆔 GwXaYN
+- [x] 🔺 hindarin penulisan task kosong disable button new task #v1.0.4 #issue 🛫 2026-09-04 00:32 ✅ 2026-09-04 01:31 🆔 eaW0Uh
 - [x] 🔺 tombol update dan canceled task tidak berfungsi pada saat editd mode di test ide android studio  2026.1.04 #v1.0.4 #issue 🛫 2026-09-04 04:59 ✅ 2026-09-04 05:29 🆔 Vxp2D7
-- [x] 🔼 pada saat edit mode jika tidak ada perubahan jangan aktifin tombol update task #v1.0.4 #issue 🛫 2026-09-04 01:14 ✅ 2026-09-04 01:31 🆔 wNHcR2
+- [x] 🔼 pada saat edit mode jika tidak ada perubahan jangan aktifin tombol update task #v1.0.4 #issue 🛫 2026-09-04 01:14 ✅ 2026-09-04 01:31 🆔 3n8Tnh
 - [x] 🔼 default terdapat tag khusus bawaan `#issue`, `#feature` dan ambil nama versi tag paling atas. #feature #v1.0.5 🆔 vwPxnj 🛫 2026-09-05 04:47 ✅ 2026-09-05 05:42
-- [x] ⏫ masih ada trouble penanganan hastag # tags #v1.0.5 #issue 🛫 2026-09-04 17:36 ✅ 2026-09-04 17:55 🆔 0uX5pL
-- [x] 🔼 seperti perlu penaganan reformat untuk id task #feature #v1.0.5 🛫 2026-09-05 00:51 ✅ 2026-09-05 01:38 🆔 f3XDez
-- [ ] ⏬ sepertinya perlu fitur history tapi mungkin next fitur nanti #feature 🆔 9n8VJk
-- [x] 🔼 icon logo untuk dark mode theme tidak berubah menjadi warna putih dan sebalik #issue #v1.0.4 🛫 2026-09-04 05:51 ✅ 2026-09-04 06:24 🆔 7KpYPK
+- [x] ⏫ masih ada trouble penanganan hastag # tags #v1.0.5 #issue 🛫 2026-09-04 17:36 ✅ 2026-09-04 17:55 🆔 LS2BSU
+- [x] 🔼 seperti perlu penaganan reformat untuk id task #feature #v1.0.5 🛫 2026-09-05 00:51 ✅ 2026-09-05 01:38 🆔 1NlyXM
+- [ ] ⏬ sepertinya perlu fitur history tapi mungkin next fitur nanti #feature 🆔 RCIbsN
+- [x] 🔼 icon logo untuk dark mode theme tidak berubah menjadi warna putih dan sebalik #issue #v1.0.4 🛫 2026-09-04 05:51 ✅ 2026-09-04 06:24 🆔 ZMAlaL
 - [x] 🔼 create screenshoot untuk market place dan tambahkan ke READE.md #feature #v1.0.5 🆔 iyjp16 🛫 2026-09-05 04:28 ✅ 2026-09-05 04:45
-- [x] 🔽 refactoring complesity MyProjectService.kt #issue #v1.0.5 🛫 2026-09-04 06:36 ✅ 2026-09-04 07:52 🆔 wcdMec
+- [x] 🔽 refactoring complesity MyProjectService.kt #issue #v1.0.5 🛫 2026-09-04 06:36 ✅ 2026-09-04 07:52 🆔 3HYvUG
 - [-] 🔽 bagaimana membuat semacam slide screenshoot agar tampak menarik #feature 🆔 rp8MEz ❌ 2026-09-05 08:45 // noted: ternyata upload secara langsung saja di marketplace secara bawaan dia slide untuk screenshoot yang di upload jika lebih dari 1
 - [ ] ⏫ di panel tags mungkin perlu panel dapat klik kanan seperti rename dan delete  #v1.0.7 🆔 lewDHb
 - [-] ⏬ terdapat bug priority ketika di tulis manual dengan style legacy lalu di edit maka akan tampil di list prioroty dalam bentuk emoticon #issue 🆔 aVn7Fb ❌ 2026-09-05 08:36 // noted: issue ini tidek terdeteksi
 - [ ] 🔼 untuk done apakah bisa untuk urutannya berdasarkan waktu penyelesaian ? #issue #v1.0.7 🆔 8j5Lqv
-- [x] 🔼 untuk README.MD susunan tulisannya berantakan sekali #issue 🛫 2026-09-04 17:55 ✅ 2026-09-04 18:21 🆔 iz5mvn
+- [x] 🔼 untuk README.MD susunan tulisannya berantakan sekali #issue 🛫 2026-09-04 17:55 ✅ 2026-09-04 18:21 🆔 K7noOP
 - [-] ⏬ ada issue ketika di atas tidak punya tag tapi punya priority lalu penambahan task baru maka task baru tersebut mengikutin priority sebelumnya #issue 🆔 PcivkY ❌ 2026-09-05 08:35 // noted: issue ini tidak terdeteksi lagi
-- [ ] ⏬ di beberapa versi yang di test ada terdapat depcrapted API #issue 🆔 mdnZHu
+- [ ] ⏬ di beberapa versi yang di test ada terdapat depcrapted API #issue 🆔 G4QDfF
 - [x] ⏫ terkadang ai agent mengedit ini secara langsung ketika task yang di tujukan sudah selesai #issue 🆔 quIOuL 🛫 2026-09-05 02:10 ✅ 2026-09-05 02:53
 - [x] ⏫ issue pada manage tags sama sekali tidak berfungsi di versi android studio 2026.1.4 #v1.0.7 #issue 🆔 Vj1U6Z 🛫 2026-09-05 11:01 ✅ 2026-09-05 11:11
 - [x] ⏫ untuk canceled task di balik seperti semula #v1.0.7 #issue 🆔 mC6CGX 🛫 2026-09-05 15:16 ✅ 2026-09-05 15:39

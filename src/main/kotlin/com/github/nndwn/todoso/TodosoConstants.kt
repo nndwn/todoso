@@ -1,0 +1,65 @@
+package com.github.nndwn.todoso
+
+object TodosoConstants {
+  const val GITHUB_REPO_URL = "https://github.com/nndwn/todoso"
+  const val PLUGIN_ID = "com.github.nndwn.todoso"
+  const val PLUGIN_NAME = "Todoso: Markdown Todo List"
+  const val FILENAME = "TODO.md"
+
+  const val CARD_INSTRUCTION = "EMPTY_STATE"
+  const val CARD_TASK_LIST = "TASK_LIST"
+  const val CARD_NO_MATCH = "NO_MATCH"
+  const val MIME_HTML = "text/html"
+
+  val EXCLUSIVE_RELATIONS =
+    listOf(
+      listOf("feature", "issue"),
+      listOf("development", "production"),
+    )
+
+  private val STANDALONE_TAGS = listOf("urgent")
+
+  val DEFAULT_QUICK_TAGS = EXCLUSIVE_RELATIONS.flatten() + STANDALONE_TAGS
+
+  val EXCLUSIVE_TAG_GROUPS: Map<String, List<String>> =
+    EXCLUSIVE_RELATIONS.flatMap { group ->
+        group.map { tag -> tag to group.filter { it != tag } }
+      }
+      .toMap()
+
+  fun getInstructionHtml(): String =
+    """
+        <html>
+        <body style="font-family: sans-serif; padding: 12px;">
+            <h1 style="margin-top: 0;">${TodosoBundle.message("instruction.welcome.title")}</h1>
+            <p>${TodosoBundle.message("instruction.empty.desc")}</p>
+            <ul>
+                <li>${TodosoBundle.message("instruction.step.open.file")}</li>
+                <li>${TodosoBundle.message("instruction.step.submit")}</li>
+                <li>${TodosoBundle.message("instruction.step.context")}</li>
+                <li>
+                    ${TodosoBundle.message("instruction.step.format")}<br/>
+                    <code style="font-family: monospace;">[H] task description #feature #development #v0.0.1</code>
+                </li>
+                <li>${TodosoBundle.message("instruction.step.file", FILENAME)}</li>
+            </ul>
+            <p>${TodosoBundle.message("instruction.doc.link", GITHUB_REPO_URL)}</p>
+        </body>
+        </html>
+    """
+      .trimIndent()
+
+  fun getNoMatchHtml(): String =
+    """
+        <html>
+        <body style="font-family: sans-serif; padding: 12px;">
+            <h2 style="margin-top: 0;">${TodosoBundle.message("todo.filter.no_match.title")}</h2>
+            <p>${TodosoBundle.message("todo.filter.no_match.desc")}</p>
+            <p style="margin-top: 10px;">
+                ${TodosoBundle.message("todo.filter.no_match.hint")}
+            </p>
+        </body>
+        </html>
+    """
+      .trimIndent()
+}

@@ -1,25 +1,31 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.nndwn.todoso</id>
-    <name>Todoso</name>
+    <name>Todoso: Markdown Todo List</name>
     <vendor email="nandawan.libya@gmail.com" url="https://github.com/nndwn/todoso">nndwn</vendor>
     <description><![CDATA[
         <p>An IntelliJ plugin to manage your todo list directly from a todo.md file in the project root. Designed for simplicity, it supports modern standards inspired by Obsidian and Notion.</p>
-        <p>I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.</p>
+        <p>I created Todoso: Markdown Todo List because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.</p>
         <p><a href="https://github.com/nndwn/todoso">Read more on GitHub</a></p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.TodosoBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-            factoryClass="com.github.nndwn.todoso.toolWindow.MyToolWindowFactory"
-            id="Todo"
-            icon="com.github.nndwn.todoso.MyIcons.Logo"
+            id="Todoso"
+            anchor="left"
+            icon="com.github.nndwn.todoso.TodosoIcons.Logo"
+            factoryClass="com.github.nndwn.todoso.toolWindow.TodosoToolWindowFactory"
         />
         <postStartupActivity implementation="com.github.nndwn.todoso.startup.MyProjectActivity" />
         <notificationGroup id="com.github.nndwn.todoso.notifications" displayType="BALLOON" />
     </extensions>
+    <projectListeners>
+        <listener
+            class="com.github.nndwn.todoso.listeners.TodosoVfsListener"
+            topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+    </projectListeners>
 </idea-plugin>

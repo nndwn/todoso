@@ -4,9 +4,58 @@
 
 ## [Unreleased]
 
+## [2.0.5] - 2026-09-19
+
+- Not many issues this time, but I decided not to update every day; the reviewer might get bored and say "him again," and if anyone uses this plugin (IF ANYONE DOES), they might say "maybe there'll be another update tomorrow."
+- Fixed suggestion issues such as the Escape key not working and Enter suddenly submitting.
+- Since I often forget to enter priorities, I decided to add a priority suggestion feature.
+- Tasks are now clickable, including tags and IDs, with links specifically redirecting to the browser.
+- Added a task status info feature.
+- Fixed minor issues and added new bugs.
+- I will be back 🤖
+
+## [2.0.4] - 2026-09-16
+
+- I thought the previous version was stable, but it wasn't. I really hope this version is final-final-final.
+- Fixed UX issues in tag suggestions; previously, Tab could not be used for quick selection.
+- Fixed tag parsing issues where '##' was incorrectly recognized as a tag. Now, any consecutive '#' (double, triple, etc.) are no longer treated as tags.
+- Fixed UX issues in sorting and filtering. Latest items are now shown at the top, and the date filter now prioritizes 'not done' and recent tasks.
+- Instead of just fixing issues, I added a new feature: todo tasks can now be copied to the changelog via the right-click menu (Add to Changelog).
+- I'm starting to wonder if the reviewer is actually human...
+
+## [2.0.3] - 2026-09-15
+
+- Seems like this version is stable enough.
+- Fixed a bug where the task selection would suddenly jump/scroll to the bottom.
+- Fixed a UX issue regarding the tag suggestion overlay popup.
+- Improved keyboard navigation handling within the task list view.
+- No new features added in this version; focused solely on bug fixes and UX improvements.
+
+## [2.0.2] - 2026-09-15
+
+- As I said before, I fixed some bugs and created new ones.
+- Fixed tag parsing bugs that were previously overlooked.
+- Resolved UX issues for better keyboard navigation.
+- No new features added in this version.
+
+## [2.0.1] - 2026-09-14
+
+- a complete overhaul of the previous rewrite, typed by an AI agent, it was really sad, now I'm trying to rewrite it, it's even sadder.
+- a complete overhaul of the parsing, previously found many parsing bugs, now there might be even more.
+- a complete overhaul of the UI/UX, previously looked plain, now it's full of colors, making it look absolutely tacky.
+- thank you, Android Studio's built-in AI agent makes my life even worse
+
+## [2.0.0] - 2026-09-14
+
+- a complete overhaul of the previous rewrite, typed by an AI agent, it was really sad, now I'm trying to rewrite it, it's even sadder.
+- a complete overhaul of the parsing, previously found many parsing bugs, now there might be even more.
+- a complete overhaul of the UI/UX, previously looked plain, now it's full of colors, making it look absolutely tacky.
+- thank you, Android Studio's built-in AI agent makes my life even worse
+
 ## [1.0.7] - 2026-09-05
 
 ### Added
+
 - **Integrated Cancel Flow**: Selecting "Cancelled" from the context menu now focuses the footer input, allowing users to provide a cancellation note directly without pop-ups.
 - **Contextual Footer Buttons**: A new "Cancel" button appears in the footer only during Edit or Cancellation modes to allow quick exit from those states.
 - **Copy for AI**: New context menu action to quickly copy the full task context (Status, ID, Tags, Metadata) for easy sharing with AI assistants.
@@ -14,23 +63,24 @@
 - **Project Setup Instructions**: Informative placeholder text and guidance links when the `todo.md` file is missing.
 
 ### Improved
+
 - **Footer UI Refactor**: Removed the permanent "Canceled Task" button to prevent accidental clicks, replacing it with a more focused "Update" flow for cancellations.
 - **Keyboard Shortcuts**: Added `Esc` key support to quickly exit Edit or Cancellation mode.
 - **Smarter Versioning**: Dynamic version tags in the context menu are now automatically sorted (descending) to show the most recent releases first.
 - **List Readability**: Task descriptions in the tool window are now truncated if they exceed 100 characters, maintaining a clean UI for long notes.
 - **Robustness**: Improved task selection stability using unique IDs during list refreshes.
 
-
-
-
 ## [1.0.6] - 2026-09-05
+
 ### Added
+
 - **Quick Tags Menu**: A new context menu sub-menu to toggle `#feature`, `#issue`, and the top 3 recently used version tags automatically detected from your file.
 - **Unique Task IDs**: Automatic generation and persistence of unique 6-character task IDs using the `🆔` emoji (Obsidian Tasks standard).
 - **Smart Tagging (Obsidian-style)**: Support for hierarchical tags (e.g., `#work/task`) and technical symbols (e.g., `#C#`).
 - **Done Task Editing**: You can now edit tasks marked as **Done** to add tags or adjust descriptions without losing metadata.
 
 ### Improved
+
 - **Hashtag Precision**: New regex ensures tags are only detected when preceded by a space and automatically cleans trailing punctuation (e.g., `#tag.` becomes `#tag`).
 - **Task Logic & Safety**:
     - **Cancelled** tasks are now read-only to preserve history and require a **noted** (formerly 'reason').
@@ -38,40 +88,63 @@
 - **Improved Tooltip**: Enhanced UI with HTML support for text wrapping, a clearer separator for metadata, and Task ID displayed at the front.
 - **AI Agent Protocol**: Automatic injection of an AI protocol instruction in `todo.md` to help AI assistants stay focused and avoid unwanted edits.
 
-
 ## [1.0.5] - 2026-09-05
+
 ### Internal
+
 - **Code Refactoring**: Major refactor of `MyProjectService.kt` to reduce cognitive complexity and eliminate code duplication using a centralized `modifyTaskLine` helper.
 
 ## [1.0.4] - 2026-09-04
 
 ### Added
+
 - **Automatic File Creation**: Now automatically creates `todo.md` in the project root if it doesn't exist when adding your first task.
 - **Visibility-based Refresh**: Improved performance by only refreshing the task list when the plugin panel is actually visible/opened.
 - **Enhanced UI Esthetics**: Tag Cloud chips now feature a modern rounded "pill" design.
 - **Visual List Markers**: Added a dot icon for tasks with **Todo** status to clearly distinguish them as list items.
 
 ### Improved
+
 - **Smart Input Validation**: The "New Task" button is now automatically disabled for empty inputs or inputs containing only Markdown prefixes (e.g., `- [ ]`).
 - **Optimized Edit Mode**: The "Update" button now stays disabled until actual changes are made to the task text.
 - **Parsing Flexibility**: Added support for `- []` (status brackets without a space) as a valid Todo status.
 
 ### Fixed
+
 - **UI Focus Fix**: Resolved an issue where buttons remained in a "hovered" state after being clicked.
 - **Robust Parsing**: Fixed a potential crash when encountering unconventional status bracket formats.
 
 ## [1.0.3] - 2026-09-03
+
 - initial release
 
 ## [1.0.2] - 2026-09-03
+
 - change logo icon
 
 ## [1.0.1] - 2026-09-01
+
 ### Added
+
 - **todo.md Integration**: Automatically reads tasks from the project root.
 - **Dynamic Tag Cloud**: Horizontal chips area above footer with task counts and filtering.
 - **Interactive Footer**: Rounded input area with specialized buttons for New Task and Canceled Task.
 - **Priority & Status Filters**: Persistent filters for prioritizing and focusing on tasks.
 - **Random Task**: Randomly pick a Todo task to start working on.
-- **Edit & Delete**: Full support for editing descriptions/tags and deleting tasks with confirmation.
+- **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
+
+[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.5...HEAD
+[2.0.5]: https://github.com/nndwn/todoso/compare/2.0.4...2.0.5
+[2.0.4]: https://github.com/nndwn/todoso/compare/2.0.3...2.0.4
+[2.0.3]: https://github.com/nndwn/todoso/compare/2.0.2...2.0.3
+[2.0.2]: https://github.com/nndwn/todoso/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/nndwn/todoso/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/nndwn/todoso/compare/1.0.7...2.0.0
+[1.0.7]: https://github.com/nndwn/todoso/compare/1.0.6...1.0.7
+[1.0.6]: https://github.com/nndwn/todoso/compare/1.0.5...1.0.6
+[1.0.5]: https://github.com/nndwn/todoso/compare/1.0.4...1.0.5
+[1.0.4]: https://github.com/nndwn/todoso/compare/1.0.3...1.0.4
+[1.0.3]: https://github.com/nndwn/todoso/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/nndwn/todoso/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/nndwn/todoso/commits/1.0.1

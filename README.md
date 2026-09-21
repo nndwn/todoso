@@ -1,108 +1,265 @@
-# Todoso - IntelliJ Todo Manager
+# Todoso: Markdown Todo List - IntelliJ Plugin
 
 An IntelliJ plugin to manage your todo list directly from a `todo.md` file in the project root. Designed for simplicity, it supports modern standards inspired by **Obsidian** and **Notion**.
+
+[![Version](https://img.shields.io/jetbrains/plugin/v/34048-todoso-markdown-todo-list.svg?logo=jetbrains&color=blue)](https://plugins.jetbrains.com/plugin/34048-todoso-markdown-todo-list)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/34048-todoso-markdown-todo-list.svg?logo=jetbrains&color=green)](https://plugins.jetbrains.com/plugin/34048-todoso-markdown-todo-list)
+[![Rating](https://img.shields.io/jetbrains/plugin/r/stars/34048-todoso-markdown-todo-list.svg?color=orange)](https://plugins.jetbrains.com/plugin/34048-todoso-markdown-todo-list)
 
 I created Todoso because I wanted a way to manage tasks without leaving my IDE. Instead of switching to external apps like Notion or Sticky Notes, you can keep your focus where you code. It's built for developers who appreciate clean Markdown and efficient workflows.
 
 ## Usage
-just type task in field and click right select priority and select tags or if you want fast
+Simply type your task in the field and right-click to select priority and tags. Alternatively, use the quick syntax for faster entry:
 ```txt
-[H] task description #tags1 #tag2 #v1.0.1
+[H] task description #feature #development #v0.0.1 
 ```
 
-I’m not good at typing in English but this AI agent typing is more pathetic than me
+I’m not good at typing in English but this AI agent typing is more pathetic than me, this ReadMe actually for my notes.
 
-##  Key Features
+### Preview
+Here is a look at the Todoso interface and features:
 
-### File-Based Workflow
-*   **Automatic Integration**: Reads from `todo.md` at your project root. If the file doesn't exist, it's created automatically when you add your first task.
-*   **Customizable**: You can change the filename and path in `.idea/TodosoSettings.xml`.
+
+<div align="center">
+  <img src="images/view.png" width="45%" />
+  <img src="images/menu.png" width="45%" />
+</div>
+
+<div align="center">
+  <img src="images/filter.png" width="45%" />
+  <img src="images/suggestion.png" width="45%" />
+</div>
+
+#### File-Based Workflow
+* **Automatic Integration**: Reads from `todo.md` at your project root by default.
+* **Flexible Casing**: Automatically detects `todo.md`, `TODO.md`, `Todo.md`, or any casing variation without issues.
+* **Absolute & Relative Path Support**: Select any Markdown file inside your project directory (relative path) or connect an external file from your personal **Obsidian Vault** anywhere on your system (absolute path).
+* **Customizable Settings**: Select your file interactively via the Toolbar search icon or specify its path in `.idea/TodosoSettings.xml`:
     ```xml
-    <component name="com.github.nndwn.todoso.services.MyProjectSettingsService">
-        <option name="todoFileName" value="todo.md"/>
+    <component name="com.github.nndwn.todoso.services.TodosoSettingsService">
+        <!-- Relative path inside project OR absolute path to external file -->
+        <option name="todoFilePath" value="docs/todo.md"/>
     </component>
     ```
-
+  
 > [!IMPORTANT]
-> **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues, we highly recommend adding `todo.md` (or your custom filename) to your **`.gitignore`** file.
+> **Personalized Tasks**: Since `todo.md` is stored in the project root, it may cause conflicts in shared repositories. To keep your tasks private and avoid merge issues, we highly recommend adding `todo.md` (or your custom path) to your `.gitignore` file.
 
-### Tagging System
-Todoso implements a robust tagging system inspired by Obsidian:
-*   **Boundary Awareness**: Tags must be preceded by a space or start at the beginning of a line (e.g., `#tag` is valid, but `word#tag` is not).
-*   **Hierarchy Support**: Use `/` to create nested tags (e.g., `#project/feature`).
-*   **Technical Tags**: Supports special symbols like `#C#`.
-*   **Clean Parsing**: Trailing punctuation (like `.`, `,`, `!`, `?`) is automatically excluded from the tag.
-*   **Tag Cloud**: A dynamic, scrollable tag cloud allows you to filter tasks instantly.
-*   **Recommended Tags**: `#issue` and `#feature` are suggested as default tags for consistency.
 
-### Task Management
-*   **Status Tracking**:
-    *   `[ ]` : **Todo** (Pending)
-    *   `[/]` : **Doing** (In Progress) — Highlights in green and moves to the top.
-    *   `[x]` : **Done** (Completed) — Strikethrough and grayed out.
-    *   `[-]` or `❌` : **Cancelled** (Requires a noted).
-*   **Dual Priority Support**:
-    *   **Emoji (Obsidian)**: `🔺`, `⏫`, `🔼`, `🔽`, `⏬`
-    *   **Text (Legacy)**: `[HH]`, `[H]`, `[M]`, `[L]`, `[LL]`
-*   **Auto-Sorting**: Tasks are automatically ordered: **Doing > Todo (by Priority) > Done**.
-*   **Business Logic & Safety**: 
-    *   **Status Transitions**: 
-        *   `TODO` -> `DOING`: Automatically adds Start Date (`🛫`).
-        *   `DOING` -> `DONE`: Automatically adds Completion Date (`✅`).
-        *   `ANY` -> `CANCELLED`: Requires a **mandatory noted**, adds `❌`, and clears working dates to preserve history.
-        *   `DONE` -> `CANCELLED`: **Blocked**. A completed task cannot be logically cancelled.
-    *   **Edit Restrictions**: 
-        *   **Done Tasks**: Can be edited (to add tags), but priority is locked as urgency is no longer relevant.
-        *   **Cancelled Tasks**: Strictly read-only to prevent accidental history modification.
-    *   **Deletion**: Requires manual confirmation to prevent accidental loss of data.
-*   **Quick Labels & Dynamic Versions**: 
-    *   Easily toggle essential tags via the context menu:
-        *   **`#feature`**: Used for new ideas, enhancements, or planned improvements.
-        *   **`#issue`**: Used for bugs, code debt, or visual glitches.
-    *   **Exclusivity**: Adding `#feature` automatically removes `#issue` (and vice versa) to maintain a clear distinction between new work and fixes.
-    *   **Smart Versioning**: The plugin scans your `todo.md` for any tags starting with **`#v`** (e.g., `#v1.0.5`). It automatically picks the top 3 unique versions and offers them as quick-select options in the menu.
+#### Flexible Input Field Behavior
+A smart single-input field that intelligently processes plain text, Markdown syntax, and dynamic suggestions:
+*    **Modern Overlay UI**: Instead of standard IntelliJ popups, Todoso features a sleek, agent-like overlay that floats above the input field for a responsive and modern typing experience.
+*    **Contextual Suggestions**:
+        * **# Symbol (Tags & Task Search)**: 
+            * Typing `#` triggers a categorized overlay showing your most popular tags.
+            * **New User Experience**: If a project has no tags yet, Todoso suggests **Quick Tags** (`#feature`, `#issue`, `#production`, `#development`, `#urgent`) to help you get started.
+            * **Deep Search**: Typing after `#` searches through *all* tags ever used in the project, not just the top 10.
+            * Selecting a task from the suggestions instantly inserts its unique `🆔 ID` for easy cross-referencing.
+            * **Keyboard Navigation Support**: Use the up and down arrow keys to navigate suggestions. Press **Enter** to select a task, or use **Tab** for quick selection when suggestions appear.
+*    **Input Modes**:
+        *   **Normal**: Default state for creating new tasks.
+        *   **Edit**: Triggered when modifying existing tasks (Blue background).
+        *   **Cancel**: Triggered when marking a task as `CANCELLED` without a note. It features a **Pink/Red background** and requires a mandatory justification note before the status is updated.
+        *   **Note**: Specifically for adding or appending metadata notes (`//`). It features a **Blue background** and an **Update** button. The `//` prefix is managed automatically.
+*    **Input Styles**:
+        * **Plain Text**: Type a description like `Update layout navbar`.
+        * **Quick Syntax**: Use shortcodes like `[H] Fix bug #ui` to assign priority and tags instantly.
+*    **Submission & Navigation**:
+        * **Instant Submit**: Press **Enter** to instantly create or update a task.
+        * **Line Breaks**: Use **Shift + Enter** if you need to add a manual line break within the input field. (Stored as `\n` literal in the file to maintain one-line-per-task integrity).
+*    **Empty Checkbox Protection**: Prevents creation of blank tasks.
+*    **Automatic Note Prefixing**: Note Mode injects the `//` prefix automatically.
+*    **Insert File & Image (Attachment)**:
+        * **Relative Path Mapping**: Automatically calculates the path relative to your **Project Root**. If `todo.md` is outside the project, it still prioritizes relative paths for files within the current project.
+        * **Markdown Formatting**: 
+            * **Images**: `![filename](path)` (Supports `jpg, png, gif, svg, webp`).
+            * **Other Files**: `[filename](path)`.
+        * **Smart Injection**: Appends the attachment to the **Note** section (`//`). It automatically adds the `//` separator if it's missing.
+        * **In-List Preview (Tooltip)**: Displays the file location clearly as text in the task tooltip. Visual image rendering is disabled by design to prevent tooltip bloat.
+        * **Integrity Check**: Adding an attachment alone does not enable the submit button; a task description is always required to prevent empty tasks.
 
-### Interactive Tool Window
-*   **Seamless Sync**: Auto-refreshes when you open the tool window or edit the file.
-*   **Navigation**: Double-click any task to jump directly to its line in `todo.md`.
-*   **Gamification**: Use the **Random Task** feature to pick your next item and beat procrastination.
-*   **Visual Mode**: Toggle priority colors and emojis via the toolbar for a cleaner look.
-*   **Duration Tracking**: Automatically calculates how long a task took once marked as Done.
-*   **Copy Task**: Right-click any task and select "Copy Task" to copy the full Markdown line (including ID and tags) to your clipboard—perfect for sharing context with AI assistants.
 
-### AI-Ready Context
-Todoso is designed to bridge the gap between your intent and AI assistance. By maintaining a structured `todo.md` file at the project root, you provide AI coding assistants with a clear map of your goals.
-*   **Unique Task IDs**: Every task is assigned a unique 6-character ID (`🆔`). This allows AI to reference specific tasks accurately, even if their descriptions change.
-*   **Intent Mapping**: Helps AI understand the "why" and "when" behind your code, not just the "what".
-*   **Roadmap Clarity**: AI can scan your roadmap to provide suggestions that align with your current `#feature` or `#issue` focus.
-*   **Seamless Debugging**: Structured tags help AI assistants quickly identify and relate tasks to your codebase context.
+####  Multi-Criteria Toolbar & Sorting Features
+Todoso provides an interactive toolbar with dynamic view options and multi-criteria sorting to help you organize your tasks effortlessly:
 
-### Task Metadata
-Todoso uses the `🆔` emoji to store unique identifiers for each task, following the Obsidian Tasks convention.
-*   **Automatic Management**: IDs are generated automatically by the plugin. You don't need to type them manually.
-*   **Lazy Persistence**: For existing tasks without IDs, an ID is created **in-memory** first. It is only written permanently to your `todo.md` file the first time you interact with that task (e.g., changing status, editing text, or updating priority).
-*   **New Tasks**: Tasks created via the plugin's "New Task" input will have an ID assigned and saved immediately.
-*   **Safe for Collaboration**: Duplicate IDs (e.g., from copy-pasting lines in the Markdown file) are automatically detected and resolved by assigning a new unique ID to the duplicate.
+* **File Selection**: Click the file search icon on the toolbar to choose any Markdown file directly from your project directory or your computer
+*   **Dynamic Chain Sorting (Power Feature)**:
+      * Unlike other apps with fixed sorting, Todoso uses a **selection-based hierarchy**. The order in which you enable sorting options determines the priority of the rules.
+      * **How it works**:
+          1. Enable **Status** → All tasks are grouped by their progress (Doing, Todo, etc.).
+          2. Enable **Priority** (while Status is active) → Inside each status group, tasks are now sorted by urgency.
+          3. Enable **Date** (third) → Tasks with the *same status* AND *same priority* will then be ordered by date.
+      * **Pro Tip**: To change the hierarchy, simply click "Default" to clear the chain and re-enable them in your preferred order!
+      * **Recommended**: Choose `Status` first, then `Priority`.
+*   **Date Sorting Hierarchy**: When sorting by date, Todoso applies a smart lifecycle-based priority:
+          1. **Active Due Dates**: Tasks with deadlines that are not yet completed.
+          2. **In Progress (Doing)**: Tasks currently being worked on.
+          3. **New (Todo)**: Tasks that are yet to start.
+          4. **Completed (Done/Cancelled)**: Finished tasks are moved to the bottom to keep your focus on active work.
+*   **Manual Reset**: Click the **Reset** (Refresh) icon to instantly clear all active filters, reset sorting to default, and re-enable visual mode settings in one click.
+*   **Persistent Sort State**: Your custom sorting chain is automatically saved and restored across IDE restarts.
+*   **Visual Mode Toggle**: Toggle custom priority background colors and emoji highlights on demand for a clean list presentation.
+*   **Random Task Picker**: Click the lightning action button to randomly select an available `TODO` task and mark it `DOING` to beat procrastination.
 
-## Writing Rules
 
-You can write directly in `todo.md` or use the plugin's UI. The format is:
-```txt
-- [status] [Priority] Task Description #tag1 #tag2 [Date Emoji] // Metadata
-```
 
-### Time & Metadata
-*   **Date Emojis**: `🛫` (Start), `📅` (Due), `⏳` (Scheduled), `✅` (Completed), `➕` (Created).
-*   **Metadata**: Add notes at the end of a line using ` // your notes`.
+#### Enhanced Context Menu
+A comprehensive right-click menu for lightning-fast task management:
+*   **Smart Status & Priority**: Only valid transitions are enabled, with icons matching the UI.
+*   **Edit Task**: Instantly load the task description into the input panel for modification.
+*   **Add Note**: Open the input panel in **Note Mode** to add or update metadata notes (after the `//` separator) specifically for the selected task.
+*   **Manage Tags (Intelligent Sub-Menu)**:
+    *   **Exclusive Groups**: Automatically handles mutually exclusive tags (e.g., toggling `#feature` will remove `#issue`).
+    *   **Popular Tags**: Suggests your 10 most used tags from the current file for quick access.
+    *   **Version Tracking**: Dedicated sub-menu for version-related tags (`v*`).
+    *   **Inline Integrity**: Adding tags via the menu preserves your existing "inline" tags within the description, appending new ones only if they don't already exist.
+*   **Copy Context**: Copies the task description and its relevant metadata to the clipboard for sharing.
+*   **Delete Task**: Deleting a task does not immediately remove it from `todo.md`. Instead, it is commented out, requiring manual deletion if you wish to clear the line entirely.
+*   **Navigate to Source**: Instantly jumps to the exact line in your Markdown file.
+*   **Add to Changelog**: 
+    * **One-Click Publishing**: Quickly copy a task description (including tags) to your `CHANGELOG.md` file.
+    * **Smart File Management**: Automatically creates `CHANGELOG.md` if missing or inserts a `## [Unreleased]` section above the latest version.
+    * **Non-Destructive**: Only copies the description to the changelog without modifying the original task in `todo.md`.
 
-### Usage Example:
-```markdown
-- [/] ⏫ Fix SlideUpPanel layout bug #ui #bug 🛫 2026-09-01
-- [ ] 🔺 Migration to Navigation3 #migration ⏳ 2026-09-05 14:00
-- [x] 🔼 Finished cleaning up icons #design ✅ 2026-08-30 18:00
-- [ ] [HH] Urgent legacy task #refactor
-- [ ] Regular task with metadata // additional notes here
-```
+####  Comprehensive Filtering & Search System
+Manage large task lists with precision using the new integrated filtering engine:
+*   **Integrated Search Bar**:
+    *   **Toggle Interface**: A dedicated search button on the toolbar opens/closes the search panel to save space.
+    *   **Quick Shortcut**: Press **`Ctrl + F`** (Windows/Linux) or **`Cmd + F`** (Mac) to instantly focus on the search field.
+    *   **Context-Aware**: The search panel automatically hides when you start interacting with the Input Panel to keep your workspace focused.
+    *   **Deep Search**: Searches through description text, metadata notes, and Task IDs.
+*   **Filter by Priority & Status**: Quickly isolate critical bugs or focus only on tasks currently in progress.
+*   **Smart Date Explorer**:
+    *   **Today**: View tasks created, edited, started, or due exactly today.
+    *   **This Week**: Plan your week with a dynamic view of upcoming tasks.
+    *   **Has Date**: Filter out tasks that lack any scheduling metadata.
+*   **Dynamic Tag Explorer**:
+    *   **Popular Tags**: Instantly filter by your 10 most used tags.
+    *   **Version Tracking**: Automatically identifies and groups tasks by project versions (tags starting with `v`).
+*   **Integrated Reset Action**: Use the toolbar's Reset button to clear all search queries and active filters, returning the view to the full project state.
+*   **Session-Based Integrity**: To prevent confusion (e.g., "Where did my data go?"), filters are stored **in-memory only**. They reset on every IDE restart or when the manual Reset button is pressed.
+     
+#### Strict Line Parsing Rules
+
+To ensure reliable parsing and prevent false positives, Todoso enforces strict syntax rules when scanning your `todo.md` file:
+
+1. **Valid Task Prefixes**:
+    * A line is recognized as a valid task **only** if it begins with a dash (`-`), optionally preceded by indentation (spaces or tabs).
+    * Allowed status markers inside brackets are strictly limited to:
+        * `- [ ]` or `-[]` : **Todo**
+        * `- [/]` : **Doing**
+        * `- [x]` or `- [X]` : **Done**
+        * `- [-]` : **Cancelled**
+
+2. **Rejected Formats (Ignored Lines)**:
+    * **Blockquotes (`> - [ ]`)**: Lines wrapped in Markdown blockquotes are treated as plain text quote references and will not be parsed as active tasks.
+    * **Escaped Syntax (`\- [ ]`)**: Lines starting with a backslash escape character are explicitly ignored.
+    * **Unknown Status Codes (`- [?]`, `- [a]`)**: Any brackets containing unrecognized symbols or arbitrary characters will be rejected.
+    * **Embedded Brackets**: Bracket syntax appearing in the middle or end of a sentence (e.g., `Fix bug - [x] in module`) will be preserved as part of the task description text, not parsed as a status marker.
+
+
+#### Strict Priority Parsing Rules
+
+To deliver accurate priority detection and support both Obsidian standards and legacy code formats, Todoso applies strict rules when parsing task priorities:
+
+1. **Strict Positioning (Prefix-Only)**:
+   * Priority markers (either Obsidian emojis or bracketed text) **must appear immediately after the task status bracket** (e.g., `- [ ] 🔺` or `- [ ] [H]`).
+   * Spacing between the status bracket and the priority marker is optional (e.g., `- [ ]🔺` and `- [ ] 🔺` are both valid).
+   * Any priority emoji appearing in the middle or end of a sentence (e.g., `- [ ] Fix graph 🔺 bug`) will be treated as plain description text, not a priority token.
+
+2. **First-Match Precedence**:
+   * If a task line accidentally contains multiple priority emojis, only the **first priority emoji appearing right after the status** is captured. Subsequent priority emojis are ignored.
+
+3. **Fallback for Unrecognized Bracket Codes**:
+   * Standard supported codes: `[HH]`, `[H]`, `[M]`, `[L]`, `[LL]` (case-insensitive, padding space tolerant e.g., `[  h  ]`, `[HIGHEST]`).
+   * If brackets contain an unrecognized code (e.g., `[URGENT]`, `[ABC]`), the parser will **not** fail or strip the text. It gracefully falls back to `Priority.NONE` and preserves `[URGENT]` as part of the normal task description
+
+#### Strict Tag Parsing Rules
+
+Todoso adheres strictly to the Obsidian tag standard with enhanced sanitization and edge-case safety:
+
+1. **Word Boundary Awareness**:
+   * Tags must start with a `#` preceded by a whitespace or a line boundary (e.g., `#feature`, `#project/ui`).
+   * Embedded hash symbols in URLs (`https://site.com#readme`) or email addresses (`user#domain`) are automatically ignored.
+
+2. **Hierarchical & Technical Tag Support**:
+   * Supports nested tag hierarchy using slashes (e.g., `#project/feature/v1`).
+   * **Flexible Hash Symbols**: Tags can contain additional hash symbols (e.g., `##a`, `##1`, `#C#`, `#F#`) as long as the tag contains at least one non-hash character. Tags consisting purely of hash symbols (e.g., `##`, `###`) are ignored to prevent confusion with Markdown headers.
+
+3. **No Pure Numeric Tags**:
+   * Tags consisting purely of digits (e.g., `#123`) are rejected to avoid conflicts with issue numbers or ticket IDs.
+   * Version tags containing numbers alongside letters or punctuation (e.g., `#v1.0.1`, `#v1`) remain fully valid.
+
+4. **Metadata Comment Isolation**:
+   * Any tags located after the metadata comment separator `//` (e.g., `- [ ] Task #ui // review #note`) are ignored by the task tag parser and reserved for metadata notes.
+
+5. **Mutual Exclusive Tag Groups (Automation)**:
+   * To keep task categorization logical, certain tags are programmed to be mutually exclusive when applied via automated tools (like the context menu):
+      * `#feature` ↔ `#issue`
+      * `#development` ↔ `#production`
+   * Applying one tag from these groups will automatically remove its "opposite" tag, preventing contradictory labels.
+6. **Tag Versioning**: Version tags must start with `#v[Number]`, following the Semantic Versioning rules defined at [semver.org](https://semver.org/).
+#### Unique Task ID & Persistence Rules
+
+Todoso follows the Obsidian Tasks convention for unique task identification:
+
+1. **Obsidian Compatibility**:
+   * Reads task IDs prefixed with the `🆔` emoji (e.g., `🆔 8x2k1a`).
+   * Supports flexible ID lengths (3–12 alphanumeric characters) to ensure seamless import of external Obsidian Markdown files.
+
+2. **Collision Resolution**:
+   * If duplicate IDs exist in `todo.md` (e.g., from manual copy-pasting), Todoso automatically resolves the conflict by generating a new temporary in-memory ID for the duplicate line.
+
+3. **Auto-Persistence**:
+   * Tasks lacking a physical `🆔` in `todo.md` are automatically assigned a 6-character unique ID.
+   * **Instant Save**: Unlike older versions, IDs are now automatically written to the `todo.md` file as soon as the file is loaded. This ensures that IDs remain consistent across IDE restarts and that cross-references (`🆔`) never break.
+     Todoso extracts standard Obsidian Tasks date emojis to track task lifecycles and completion duration:
+4. **Line Drift Safety Net**:
+   File mutations include an automatic ID fallback check (`findTaskIndex`) to prevent accidental line overwrites if external edits shift line positions before background VFS listeners trigger.
+
+#### Date Metadata & Duration Tracking Rules
+
+1. **Supported Date Emojis**:
+   * 🛫 **Start Date** (`startDate`): Recorded when a task transitions to `DOING`.
+   * 📅 **Due Date** (`dueDate`): Optional deadline date for the task.
+   * ✅ **Completion Date** (`endDate`): Recorded when a task is marked `DONE`.
+   * ❌ **Cancelled Date** (`cancelDate`): Recorded when a task is marked `CANCELLED`. **Note Protection**: Cancellation via the context menu requires a mandatory note. If no note is provided in the input field, the plugin enters **Cancel Mode** to prompt the user for a reason.
+   * ➕ **Created Date** (`createdDate`): Optional task creation timestamp.
+
+2. **Flexible DateTime Format**:
+   * Supports full timestamps (`YYYY-MM-DD HH:mm`) and date-only formats (`YYYY-MM-DD`).
+   * Date-only strings automatically fall back to `00:00` for time calculation safety.
+
+3. **Smart Lifecycle Tracking (Emojis)**:
+   Todoso automatically tracks every stage of a task's life using dynamic emojis:
+   *   ➕ **Created**: Injected automatically when a task is first added.
+   *   📝 **Edited**: Updated every time you modify the task description or its tags.
+   *   🛫 **Started**: Recorded when a task transitions to the `DOING` state.
+   *   ✅ **Completed**: Captured when marked as `DONE`, triggering duration calculation.
+   *   ❌ **Cancelled**: Logged when a task is moved to the `CANCELLED` state.
+
+4. **Execution Duration Calculation**:
+   * Automatically calculates execution duration between Start Date (🛫) and Completion Date (✅) upon completion (e.g., `1h 45m` or `30m`).
+
+#### Intelligent Status Transitions
+To maintain logical workflow integrity, Todoso enforces strict business rules for changing task status:
+*   **Sequential Workflow**: A task can only be marked as **Done** (`[x]`) if its current status is **Doing** (`[/]`). This encourages a proper "Start before Finish" habit.
+*   **Irreversibility of Completion**: Tasks that are already **Done** cannot be marked as **Cancelled** (`[-]`).
+*   **Smart Context Menu**: The right-click menu automatically disables invalid transition options based on these rules, preventing accidental data inconsistency.
+*   **Note Integrity**: Transitioning to **Cancelled** requires a mandatory note, ensuring every abandoned task has a documented reason.
+
+#### Strict Content Integrity & Validation
+To keep your `todo.md` clean and professional, Todoso enforces a **Strict Validator** across both the UI and Service layers:
+*   **No Ghost Tasks**: You cannot create or save a task that only contains metadata (e.g., just tags, dates, or priority). A real description is always required.
+*   **Intelligent Stripping**: During validation, the system "peels off" all status brackets, priority markers, tags, and date emojis to ensure that actual human-readable content is present before enabling the submit button.
+
+
+#### Metadata Comment Isolation (//)
+1.   Any text placed after the metadata comment separator `//` is isolated as `metadata.notes` (e.g.,` - [ ] Fix UI #ui // check details`).
+2.   URL protocol slashes (such as `http://` or `https://`) are protected and will never be falsely parsed as comment separators
+
 
 ---
 *Developed with focus and UX in mind. If you have suggestions, feel free to open an issue!*
+
+

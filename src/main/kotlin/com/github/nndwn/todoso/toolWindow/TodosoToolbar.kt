@@ -1,0 +1,434 @@
+package com.github.nndwn.todoso.toolWindow
+
+import com.github.nndwn.todoso.TodosoBundle
+import com.github.nndwn.todoso.TodosoIcons
+import com.github.nndwn.todoso.domain.model.Priority
+import com.github.nndwn.todoso.domain.model.TaskStatus
+import com.github.nndwn.todoso.domain.parser.TagParser
+import com.github.nndwn.todoso.services.TodosoService
+import com.github.nndwn.todoso.services.TodosoSettingsService
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.Separator
+import com.intellij.openapi.actionSystem.ToggleAction
+import com.intellij.openapi.components.service
+import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.vfs.VirtualFile
+import javax.swing.JComponent
+
+class TodosoToolbar(
+  private val settings: TodosoSettingsService,
+  private val targetComponent: JComponent,
+  private val onRefreshUI: () -> Unit,
+  private val onRefreshTasks: () -> Unit,
+  private val onRandomTask: () -> Unit,
+  private val onErrorHandler: (String) -> Unit,
+  private val onSortChanged: (Set<SortOption>) -> Unit,
+  private val filterState: FilterState,
+  private val onFilterChanged: (FilterType, Any?) -> Unit,
+  private val isSearchVisible: () -> Boolean = { false },
+) {
+
+  companion object {
+    private const val EXTENSION_MD = "md"
+  }
+
+  private val currentSort: MutableSet<SortOption> =
+    settings.state.sortOption.split(",").mapNotNull { SortOption.fromKey(it.trim()) }.toMutableSet()
+
+  fun createComponent(): JComponent {
+    val actionGroup =
+      DefaultActionGroup().apply {
+        add(createSearchToggleAction())
+        addSeparator()
+        add(createRefreshAction())
+        add(createSelectFileAction())
+        add(createRandomTaskAction())
+        addSeparator()
+        add(createFilterActionGroup())
+        add(createTagsFilterActionGroup())
+        add(createViewOptionsActionGroup())
+      }
+
+    val toolbar = ActionManager.getInstance().createActionToolbar("TodoToolbar", actionGroup, true)
+
+    toolbar.targetComponent = targetComponent
+    return toolbar.component
+  }
+
+  private fun createSearchToggleAction(): ToggleAction =
+    object :
+      ToggleAction(
+        TodosoBundle.message("todo.filter.search"),
+        TodosoBundle.message("todo.filter.search.desc"),
+        AllIcons.Actions.Find,
+      ) {
+      override fun isSelected(e: AnActionEvent): Boolean = isSearchVisible()
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.SEARCH, "TOGGLE")
+      }
+
+      override fun update(e: AnActionEvent) {
+        super.update(e)
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+        e.presentation.isEnabled = service.loadTask().isNotEmpty()
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+
+  private fun createRefreshAction(): AnAction =
+    object :
+      AnAction(
+        TodosoBundle.message("todo.action.reset"),
+        TodosoBundle.message("todo.action.reset.desc"),
+        AllIcons.Actions.Refresh,
+      ) {
+      override fun actionPerformed(e: AnActionEvent) {
+        onFilterChanged(FilterType.RESET_ALL, null)
+        currentSort.clear()
+        settings.state.sortOption = ""
+        onSortChanged(emptySet())
+        settings.state.visualEnabled = true
+        onRefreshTasks()
+      }
+    }
+
+  private fun createRandomTaskAction(): AnAction =
+    object :
+      AnAction(
+        TodosoBundle.message("todo.menu.random"),
+        TodosoBundle.message("todo.action.random.desc"),
+        AllIcons.Actions.Lightning,
+      ) {
+      override fun actionPerformed(e: AnActionEvent) = onRandomTask()
+
+      override fun update(e: AnActionEvent) {
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+        val hasTodoTasks = service.loadTask().any { it.status == TaskStatus.TODO }
+        e.presentation.isEnabled = hasTodoTasks
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+
+  private fun createViewOptionsActionGroup(): ActionGroup {
+    val group =
+      DefaultActionGroup().apply {
+        addSeparator(TodosoBundle.message("todo.view.group.by"))
+        add(createDefaultSortToggleAction())
+        add(createSortToggleAction(TodosoBundle.message("todo.sort.by.priority"), SortOption.PRIORITY))
+        add(createSortToggleAction(TodosoBundle.message("todo.sort.by.status"), SortOption.STATUS))
+        add(createSortToggleAction(TodosoBundle.message("todo.sort.by.date"), SortOption.DATE))
+
+        addSeparator(TodosoBundle.message("todo.view.color"))
+        add(createVisualModeToggleAction())
+      }
+
+    return object : DefaultActionGroup(TodosoBundle.message("todo.view.options"), true) {
+      init {
+        templatePresentation.icon = AllIcons.Actions.Show
+        templatePresentation.text = TodosoBundle.message("todo.view.options")
+      }
+
+      override fun update(e: AnActionEvent) {
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+
+        e.presentation.isEnabled = service.loadTask().isNotEmpty()
+      }
+
+      override fun getChildren(e: AnActionEvent?): Array<AnAction> = group.getChildren(e)
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createFilterActionGroup(): ActionGroup {
+    return object : DefaultActionGroup(TodosoBundle.message("todo.filter.title"), true) {
+      init {
+        templatePresentation.icon = AllIcons.General.Filter
+      }
+
+      override fun update(e: AnActionEvent) {
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+        e.presentation.isEnabled = service.loadTask().isNotEmpty()
+      }
+
+      override fun getChildren(e: AnActionEvent?): Array<AnAction> {
+        val project = e?.project ?: return EMPTY_ARRAY
+        val service = project.service<TodosoService>()
+        val tasks = service.loadTask()
+
+        val actions = mutableListOf<AnAction>()
+
+        // 0. Global Reset
+        actions.add(createClearAllAction())
+        actions.add(Separator.getInstance()) // Pemisah Garis Polos
+
+        // 1. Priority Header & Items
+        actions.add(Separator(TodosoBundle.message("todo.filter.group.priority"))) // Pemisah Ber-Header
+        Priority.entries.filter { it != Priority.NONE }.forEach { actions.add(createPriorityFilterAction(it)) }
+
+        // 2. Status Header & Items
+        actions.add(Separator(TodosoBundle.message("todo.filter.group.status")))
+        TaskStatus.entries.forEach { actions.add(createStatusFilterAction(it)) }
+
+        // 3. Date Header & Items
+        val hasAnyDate = tasks.any {
+          it.metadata.dueDate != null || it.metadata.startDate != null || it.metadata.createdDate != null
+        }
+        if (hasAnyDate) {
+          actions.add(Separator(TodosoBundle.message("todo.filter.date.title")))
+          actions.add(createDateFilterAction(DateFilter.TODAY))
+          actions.add(createDateFilterAction(DateFilter.THIS_WEEK))
+          actions.add(createDateFilterAction(DateFilter.WITH_DATE))
+        }
+
+        return actions.toTypedArray()
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createTagsFilterActionGroup(): ActionGroup {
+    return object : DefaultActionGroup(TodosoBundle.message("todo.filter.group.tags_title"), true) {
+      init {
+        templatePresentation.icon = AllIcons.Nodes.Tag
+      }
+
+      override fun update(e: AnActionEvent) {
+        val project = e.project ?: return
+        val service = project.service<TodosoService>()
+        e.presentation.isEnabled = service.loadTask().any { it.tags.isNotEmpty() }
+      }
+
+      override fun getChildren(e: AnActionEvent?): Array<AnAction> {
+        val project = e?.project ?: return EMPTY_ARRAY
+        val service = project.service<TodosoService>()
+        val tasks = service.loadTask()
+
+        val actions = mutableListOf<AnAction>()
+
+        // 0. Reset Tag Filter
+        actions.add(
+          object : ToggleAction(TodosoBundle.message("todo.common.all"), null, AllIcons.Actions.GC) {
+            override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == null
+
+            override fun setSelected(e: AnActionEvent, state: Boolean) {
+              if (state) onFilterChanged(FilterType.TAG, null)
+            }
+
+            override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+          }
+        )
+        actions.add(Separator.getInstance()) // Garis Pemisah Polos
+
+        val recentVersions = TagParser.getRecentVersions(tasks = tasks)
+        val popularTags = TagParser.getPopularTags(tasks, 20)
+          .filter { it !in recentVersions }
+          .take(10)
+
+        if (popularTags.isNotEmpty()) {
+          actions.add(Separator(TodosoBundle.message("todo.suggestion.popular.tags")))
+          popularTags.forEach { tag ->
+            val label = TagParser.formatTagWithCount(tag, tasks, isTruncated = true)
+            actions.add(createTagFilterAction(tag, label))
+          }
+        }
+
+        if (recentVersions.isNotEmpty()) {
+          actions.add(Separator(TodosoBundle.message("todo.filter.group.versions")))
+          recentVersions.forEach { tag ->
+            val label = TagParser.formatTagWithCount(tag, tasks)
+            actions.add(createTagFilterAction(tag, label))
+          }
+        }
+
+        return actions.toTypedArray()
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createClearAllAction(): AnAction =
+    object :
+      AnAction(
+        TodosoBundle.message("todo.filter.clear.all"),
+        TodosoBundle.message("todo.filter.clear.all.desc"),
+        null,
+      ) {
+      override fun actionPerformed(e: AnActionEvent) = onFilterChanged(FilterType.RESET_ALL, null)
+
+      override fun update(e: AnActionEvent) {
+        val hasActiveFilter =
+          filterState.priority != null ||
+            filterState.status != null ||
+            filterState.date != null ||
+            filterState.tag != null ||
+            !filterState.query.isNullOrBlank()
+        e.presentation.isEnabled = hasActiveFilter
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+
+  private fun createPriorityFilterAction(priority: Priority): ToggleAction {
+    val text = priority.displayName
+    return object : ToggleAction(text) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.priority == priority
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.PRIORITY, if (state) priority else null)
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createStatusFilterAction(status: TaskStatus): ToggleAction {
+    val text = status.displayName
+    return object : ToggleAction(text) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.status == status
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.STATUS, if (state) status else null)
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createDateFilterAction(filter: DateFilter): ToggleAction {
+    val text =
+      when (filter) {
+        DateFilter.TODAY -> TodosoBundle.message("todo.filter.date.today")
+        DateFilter.THIS_WEEK -> TodosoBundle.message("todo.filter.date.this_week")
+        DateFilter.WITH_DATE -> TodosoBundle.message("todo.filter.date.has_date")
+      }
+    return object : ToggleAction(text) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.date == filter
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.DATE, if (state) filter else null)
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createTagFilterAction(tag: String, label: String): ToggleAction {
+    return object : ToggleAction(label) {
+      override fun isSelected(e: AnActionEvent): Boolean = filterState.tag == tag
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        onFilterChanged(FilterType.TAG, if (state) tag else null)
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createDefaultSortToggleAction(): ToggleAction {
+    return object : ToggleAction(TodosoBundle.message("todo.common.default")) {
+      override fun isSelected(e: AnActionEvent): Boolean = currentSort.isEmpty()
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        if (state) {
+          currentSort.clear()
+          settings.state.sortOption = ""
+          onSortChanged(emptySet())
+        }
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createSortToggleAction(label: String, option: SortOption): ToggleAction {
+    return object : ToggleAction(label) {
+      override fun isSelected(e: AnActionEvent): Boolean = currentSort.contains(option)
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        if (state) {
+          currentSort.add(option)
+        } else {
+          currentSort.remove(option)
+        }
+        settings.state.sortOption = currentSort.joinToString(",") { it.key }
+        onSortChanged(currentSort.toSet())
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+  }
+
+  private fun createVisualModeToggleAction(): ToggleAction =
+    object :
+      ToggleAction(
+        TodosoBundle.message("todo.view.visual.mode"),
+        TodosoBundle.message("todo.action.visual.mode.desc"),
+        AllIcons.Actions.Show,
+      ) {
+      override fun isSelected(e: AnActionEvent): Boolean = settings.state.visualEnabled
+
+      override fun setSelected(e: AnActionEvent, state: Boolean) {
+        settings.state.visualEnabled = state
+        onRefreshUI()
+      }
+
+      override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+    }
+
+  private fun createSelectFileAction(): AnAction =
+    object :
+      AnAction(
+        TodosoBundle.message("todo.open.file"),
+        TodosoBundle.message("todo.open.file.desc"),
+        TodosoIcons.FolderMd,
+      ) {
+      override fun actionPerformed(e: AnActionEvent) {
+        val project = e.project ?: return
+        val descriptor =
+          FileChooserDescriptorFactory.createSingleFileDescriptor(EXTENSION_MD)
+            .withTitle(TodosoBundle.message("todo.open.file"))
+            .withDescription(TodosoBundle.message("todo.open.file.desc"))
+
+        val selectedFile: VirtualFile? = FileChooser.chooseFile(descriptor, project, null)
+
+        if (selectedFile != null) {
+
+          if (!selectedFile.isValid) {
+
+            onErrorHandler(TodosoBundle.message("todo.action.file.error.message", selectedFile))
+            return
+          }
+          val projectDir = project.guessProjectDir()
+          val pathToSave =
+            if (projectDir != null && VfsUtilCore.isAncestor(projectDir, selectedFile, false)) {
+              VfsUtilCore.getRelativePath(selectedFile, projectDir) ?: selectedFile.path
+            } else {
+              selectedFile.path
+            }
+
+          val settings = TodosoSettingsService.getInstance(project)
+          settings.state.todoFilePath = pathToSave
+          onRefreshUI()
+        }
+      }
+    }
+}

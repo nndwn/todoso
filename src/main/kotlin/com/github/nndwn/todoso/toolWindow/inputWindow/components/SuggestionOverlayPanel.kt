@@ -1,0 +1,210 @@
+package com.github.nndwn.todoso.toolWindow.inputWindow.components
+
+import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionItem
+import com.intellij.ui.CollectionListModel
+import com.intellij.ui.JBColor
+import com.intellij.ui.SimpleColoredComponent
+import com.intellij.ui.SimpleTextAttributes
+import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBPanel
+import com.intellij.ui.components.JBScrollPane
+import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.UIUtil
+import java.awt.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseMotionAdapter
+import javax.swing.*
+
+/**
+ * Modern overlay panel for suggestions, integrated directly into the main panel hierarchy. Uses a fully custom renderer
+ * to avoid deprecated APIs and achieve modern look.
+ */
+class SuggestionOverlayPanel(private val onItemSelected: (SuggestionItem) -> Unit) :
+  JBPanel<SuggestionOverlayPanel>(BorderLayout()) {
+
+  private var isSelectionActive = false
+  private val listModel = CollectionListModel<SuggestionItem>()
+  private val list =
+    JBList(listModel).apply {
+      selectionMode = ListSelectionModel.SINGLE_SELECTION
+      isFocusable = false
+
+      cellRenderer = ListCellRenderer { list, value, index, isSelected, _ ->
+        val itemBackground = when {
+          isSelected && isSelectionActive -> list.selectionBackground
+          isSelected && !isSelectionActive -> JBColor.namedColor("List.hoverBackground", JBColor(0xDFE1E5, 0x4E5157))
+          else -> list.background
+        }
+
+        val rootPanel = JPanel(GridBagLayout()).apply {
+          background = list.background
+        }
+        val gbc =
+          GridBagConstraints().apply {
+            fill = GridBagConstraints.HORIZONTAL
+            weightx = 1.0
+            gridx = 0
+          }
+
+        // 1. Header Logic
+        val showHeader = index == 0 || listModel.items[index - 1].category != value.category
+        if (showHeader) {
+          val headerLabel =
+            JBLabel(value.category).apply {
+              font = JBUI.Fonts.label().deriveFont(Font.BOLD, 10f)
+              foreground = UIUtil.getLabelDisabledForeground()
+              border = JBUI.Borders.empty(10, 10, 4, 0)
+            }
+          gbc.gridy = 0
+          rootPanel.add(headerLabel, gbc)
+        }
+
+        // 2. Item Content
+        val itemPanel =
+          JPanel(BorderLayout(8, 0)).apply {
+            isOpaque = true
+            background = itemBackground
+            border = JBUI.Borders.empty(4, 8)
+
+            // Icon
+            if (value.icon != null) {
+              add(JLabel(value.icon), BorderLayout.WEST)
+            }
+
+            // Text + Subtext
+            val textContainer =
+              SimpleColoredComponent().apply {
+                isOpaque = false // Pastikan teks transparan agar background itemPanel terlihat
+                val title = if (value.isTask) value.text else "${value.tagDisplay}"
+                
+                // Gunakan foreground seleksi jika sedang dipilih agar kontras
+                val baseAttributes = if (isSelected && isSelectionActive) {
+                    SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, list.selectionForeground)
+                } else {
+                    SimpleTextAttributes.REGULAR_ATTRIBUTES
+                }
+                
+                append(title, baseAttributes)
+
+                if (!value.subText.isNullOrBlank()) {
+                  append("  ${value.subText}", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+                }
+              }
+            add(textContainer, BorderLayout.CENTER)
+          }
+
+        gbc.gridy = 1
+        rootPanel.add(itemPanel, gbc)
+        rootPanel
+      }
+
+      addMouseListener(
+        object : MouseAdapter() {
+          override fun mousePressed(e: MouseEvent) {
+            val index = locationToIndex(e.point)
+            if (index != -1) {
+              isSelectionActive = true
+              selectedIndex = index
+              confirmSelection()
+            }
+          }
+        }
+      )
+
+      addMouseMotionListener(
+        object : MouseMotionAdapter() {
+          override fun mouseMoved(e: MouseEvent) {
+            val index = locationToIndex(e.point)
+            if (index != -1) {
+              if (index != selectedIndex || !isSelectionActive) {
+                isSelectionActive = true
+                selectedIndex = index
+              }
+            }
+          }
+        }
+      )
+    }
+
+  init {
+    isOpaque = false
+    isVisible = false
+    // Berikan sedikit padding internal agar isi tidak mepet ke border bulat
+    border = JBUI.Borders.empty(4)
+
+    val scrollPane =
+      JBScrollPane(list).apply {
+        border = BorderFactory.createEmptyBorder()
+        viewport.isOpaque = false
+        isOpaque = false
+      }
+
+    add(scrollPane, BorderLayout.CENTER)
+  }
+
+  override fun paintComponent(g: Graphics) {
+    val g2 = g.create() as Graphics2D
+    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+
+    val arc = 12
+    // Background dengan 4 sudut bulat
+    g2.color = list.background
+    g2.fillRoundRect(0, 0, width, height, arc, arc)
+
+    // Border keliling dengan 4 sudut bulat
+    g2.color = JBUI.CurrentTheme.Popup.borderColor(true)
+    g2.stroke = BasicStroke(1.0f)
+    g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
+    g2.dispose()
+  }
+
+  fun updateItems(items: List<SuggestionItem>) {
+    listModel.replaceAll(items)
+    if (items.isNotEmpty()) {
+      isSelectionActive = false
+      list.selectedIndex = 0
+      isVisible = true
+
+      // Gunakan tinggi asli dari list untuk menghindari gap kosong di bawah
+      val listHeight = list.preferredSize.height
+      val maxHeight = JBUI.scale(400)
+
+      // Tambahkan sedikit buffer (10px) untuk border dan internal padding
+      preferredSize = Dimension(width, (listHeight + JBUI.scale(10)).coerceAtMost(maxHeight))
+    } else {
+      hideOverlay()
+    }
+    revalidate()
+    repaint()
+  }
+
+  fun hideOverlay() {
+    isVisible = false
+    listModel.removeAll()
+  }
+
+  fun moveUp() {
+    if (listModel.size == 0) return
+    isSelectionActive = true
+    val newIndex = (list.selectedIndex - 1).coerceAtLeast(0)
+    list.selectedIndex = newIndex
+    list.ensureIndexIsVisible(newIndex)
+  }
+
+  fun moveDown() {
+    if (listModel.size == 0) return
+    isSelectionActive = true
+    val newIndex = (list.selectedIndex + 1).coerceAtMost(listModel.size - 1)
+    list.selectedIndex = newIndex
+    list.ensureIndexIsVisible(newIndex)
+  }
+
+  fun getSelected(): SuggestionItem? = list.selectedValue
+
+  fun confirmSelection() {
+    getSelected()?.let { onItemSelected(it) }
+    hideOverlay()
+  }
+}
