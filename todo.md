@@ -121,7 +121,7 @@
 - [x] ⏫ #issue kenapa #toolbar pada search masih bisa di klik pada saat task kosong ? #production 🛫 2026-09-19 15:11 ✅ 2026-09-19 18:03 ➕ 2026-09-19 15:11 🆔 CflhNN
 <!-- - [ ] # ➕ 2026-09-19 15:35 🆔 7nZzDz -->
 - [x] ⏫ #feature #item_task ketika user menekan tag di task secara automatis akan search sesuai dengan nama tag , jika dia berupa link berikan warna khusus dan juga dapat di klik oleh #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 02:07 ➕ 2026-09-19 22:32 📝 2026-09-19 22:33 🆔 khzOeO
-- [ ] hanya test 🆔 kkWrqo https://github.com/nndwn/runtext ➕ 2026-09-20 01:57 🆔 sSXGZR
-- [ ] test doang ➕ 2026-09-20 02:59 🆔 vGQ1xQ
-- [ ] test doang ➕ 2026-09-20 03:00 🆔 u3UQCh
-- [ ] test lagi ➕ 2026-09-20 03:00 🆔 G0ZNOY
+<!-- - [ ] hanya test 🆔 kkWrqo https://github.com/nndwn/runtext ➕ 2026-09-20 01:57 🆔 sSXGZR -->
+<!-- - [ ] test doang ➕ 2026-09-20 02:59 🆔 vGQ1xQ -->
+<!-- - [ ] test doang ➕ 2026-09-20 03:00 🆔 u3UQCh -->
+<!-- - [ ] test lagi ➕ 2026-09-20 03:00 🆔 G0ZNOY -->
