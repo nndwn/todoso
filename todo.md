@@ -31,7 +31,7 @@
 - [x] ⏫ untuk font ada yang tidak support dengan emoticon tertentu itu dapat memperusak ui lebih baik font custom 🆔 7QbMeF 🛫 2026-09-09 16:51 ✅ 2026-09-09 17:03
 - [x] 🔼 untuk layout header group sepertinya perlu di perbaikin kembali 🆔 tqBZR0 🛫 2026-09-09 09:13 ✅ 2026-09-09 21:39
 - [x] 🔼 lakukan refactoring TodosoInputPanel sudah terlalu besar sekarang 🆔 8cvWay 🛫 2026-09-09 18:20 ✅ 2026-09-09 18:20
-- [ ] ⏬ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? #development #feature 🆔 w7tKwD
+- [x] ⏬ ku merasa Todosocell perlu di tingkatkan kembali seperti dapat link ke relasi yang terkait seperti jika di descripsi terdapat id referesi taks maka dapat di tampilkan ke sana jika ada tags maka tampilin task tag daftar terkait tapi pertayaan bagaimana untuk kembali ? #development #feature #v2.0.5 🛫 2026-09-22 21:19 ✅ 2026-09-22 21:20 🆔 w7tKwD
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
@@ -116,12 +116,16 @@
 - [x] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 04:21 ➕ 2026-09-19 07:22 🆔 gfoJS4
 - [ ] 🔽 #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys
 - [x] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ✅ 2026-09-20 01:35 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
-- [ ] 🔼 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ➕ 2026-09-19 08:02 🆔 5ewVz9
+- [ ] 🔽 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ➕ 2026-09-19 08:02 🆔 5ewVz9
 - [x] 🔺 #issue ada masalah pada masalah di welcome text #v2.0.5 #production 🛫 2026-09-19 15:07 ✅ 2026-09-19 15:08 ➕ 2026-09-19 15:06 📝 2026-09-19 15:06 🆔 HOHXeq
 - [x] ⏫ #issue kenapa #toolbar pada search masih bisa di klik pada saat task kosong ? #production 🛫 2026-09-19 15:11 ✅ 2026-09-19 18:03 ➕ 2026-09-19 15:11 🆔 CflhNN
 <!-- - [ ] # ➕ 2026-09-19 15:35 🆔 7nZzDz -->
 - [x] ⏫ #feature #item_task ketika user menekan tag di task secara automatis akan search sesuai dengan nama tag , jika dia berupa link berikan warna khusus dan juga dapat di klik oleh #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 02:07 ➕ 2026-09-19 22:32 📝 2026-09-19 22:33 🆔 khzOeO
-- [ ] hanya test 🆔 kkWrqo https://github.com/nndwn/runtext ➕ 2026-09-20 01:57 🆔 sSXGZR
-- [ ] test doang ➕ 2026-09-20 02:59 🆔 vGQ1xQ
-- [ ] test doang ➕ 2026-09-20 03:00 🆔 u3UQCh
-- [ ] test lagi ➕ 2026-09-20 03:00 🆔 G0ZNOY
+<!-- - [ ] hanya test 🆔 kkWrqo https://github.com/nndwn/runtext ➕ 2026-09-20 01:57 🆔 sSXGZR -->
+<!-- - [ ] test doang ➕ 2026-09-20 02:59 🆔 vGQ1xQ -->
+<!-- - [ ] test doang ➕ 2026-09-20 03:00 🆔 u3UQCh -->
+<!-- - [ ] test lagi ➕ 2026-09-20 03:00 🆔 G0ZNOY -->
+- [ ] ⏫ #issue 🆔 khzOeO pada #item_task terlalu mudah untuk di klik solusi buat dia hanya bisa di klik 2 kali #v2.1.0 #production ➕ 2026-09-22 21:23 🆔 vwybuP
+- [ ] ⏫ #issue 🆔 5ewVz9 #suggestion #input_task seharus nya suggestion priority hanya tampil di input bagian new task #v2.1.0 #production ➕ 2026-09-22 21:25 📝 2026-09-22 21:28 🆔 ixGfpO // salah reference ini akibat related task kurang efisien
+- [ ] ⏫ #issue #suggestion pada bagian related apakah bisa list nya di ganti seperti list pada item task hanya menampilkan deskripsi secara lengkap #v2.1.0 #production ➕ 2026-09-22 21:27 📝 2026-09-22 21:27 🆔 dOgO3e
+- [ ] ⏫ #issue untuk ux ketika khusus bagian newtask fokus ke input ketika enter tapi untuk yang tidak perlu #v2.1.0 #production ➕ 2026-09-22 21:32 🆔 3irZBL
