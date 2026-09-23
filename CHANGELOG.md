@@ -3,11 +3,15 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.0.7] - 2026-09-23
+
 - I'm back! Fixing several issues from previously added features. All these issues were fixed by Android Studio's built-in AI agent using its latest Gemini 3.6 Flash model. The results are super satisfying, even though the daily quota runs out way too fast.
 - The single-click issue on tasks was super annoying (kept accidentally clicking links/tags when just selecting a task). Now IDs, tags, and URLs in task items require a double click (2x click) to activate.
 - Minor UX improvements to the input panel for a smoother workflow.
 - Related tasks in the suggestion overlay now display full task descriptions without truncation.
 - Thanks to Android Studio's latest built-in AI agent—hopefully no new bugs were created! 🤖
+
 ## [2.0.5] - 2026-09-19
 
 - Not many issues this time, but I decided not to update every day; the reviewer might get bored and say "him again," and if anyone uses this plugin (IF ANYONE DOES), they might say "maybe there'll be another update tomorrow."
@@ -138,7 +142,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.5...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.7...HEAD
+[2.0.7]: https://github.com/nndwn/todoso/compare/2.0.5...2.0.7
 [2.0.5]: https://github.com/nndwn/todoso/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/nndwn/todoso/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/nndwn/todoso/compare/2.0.2...2.0.3
