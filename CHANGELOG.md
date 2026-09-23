@@ -3,6 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.0.8] - 2026-09-23
+
 - I made the mistake of trusting the AI agent to fix the bug instead it made a write error in the latest version of IntelliJ IDEA, arggggghhhhhhhhhhhhhargh! Don't make me rack my brain over this again.
 - The single-click issue on tasks was super annoying (kept accidentally clicking links/tags when just selecting a task). Now IDs, tags, and URLs in task items require a double click (2x click) to activate.
 - Minor UX improvements to the input panel for a smoother workflow.
@@ -146,7 +149,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.7...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.8...HEAD
+[2.0.8]: https://github.com/nndwn/todoso/compare/2.0.7...2.0.8
 [2.0.7]: https://github.com/nndwn/todoso/compare/2.0.5...2.0.7
 [2.0.5]: https://github.com/nndwn/todoso/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/nndwn/todoso/compare/2.0.3...2.0.4
