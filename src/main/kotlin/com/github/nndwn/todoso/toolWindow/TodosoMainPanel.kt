@@ -282,7 +282,7 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       suggestions.addAll(
         relatedTasks.map { task ->
           SuggestionItem(
-            text = task.description.take(50) + (if (task.description.length > 50) "..." else ""),
+            text = task.description,
             category = TodosoBundle.message("todo.suggestion.related.tags"),
             isTask = true,
             taskId = task.id,

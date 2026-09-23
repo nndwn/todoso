@@ -1,5 +1,6 @@
 package com.github.nndwn.todoso.toolWindow.inputWindow
 
+import com.github.nndwn.todoso.toolWindow.inputWindow.components.SuggestionOverlayPanel
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.ui.UIUtil
 import java.awt.Font
@@ -206,5 +207,30 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
     UIUtil.dispatchAllInvocationEvents()
     assertNotNull("Overlay harus terpicu di NormalMode saat teks kosong", requestedItems)
     assertTrue(requestedItems!!.any { it.type == SuggestionType.PRIORITY })
+  }
+
+  fun testUntruncatedRelatedTaskSuggestions() {
+    val longDescription =
+      "Ini adalah deskripsi task yang sangat panjang lebih dari lima puluh karakter untuk memastikan tidak terpotong sama sekali"
+    var selectedItem: SuggestionItem? = null
+
+    val overlay = SuggestionOverlayPanel { item ->
+      selectedItem = item
+    }
+
+    val relatedTaskItem = SuggestionItem(
+      text = longDescription,
+      category = "Related Tasks",
+      isTask = true,
+      taskId = "abc123",
+      type = SuggestionType.TASK
+    )
+
+    overlay.updateItems(listOf(relatedTaskItem))
+    UIUtil.dispatchAllInvocationEvents()
+
+    assertEquals(longDescription, overlay.getSelected()?.text)
+    overlay.confirmSelection()
+    assertEquals(longDescription, selectedItem?.text)
   }
 }

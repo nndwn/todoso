@@ -127,7 +127,7 @@
 <!-- - [ ] test lagi ➕ 2026-09-20 03:00 🆔 G0ZNOY -->
 - [x] ⏫ #issue 🆔 khzOeO pada #item_task terlalu mudah untuk di klik solusi buat dia hanya bisa di klik 2 kali #v2.0.7 #production 🛫 2026-09-23 22:28 ✅ 2026-09-23 22:38 ➕ 2026-09-22 21:23 🆔 vwybuP
 - [x] ⏫ #issue 🆔 5ewVz9 #suggestion #input_task seharus nya suggestion priority hanya tampil di input bagian new task #v2.0.7 #production 🛫 2026-09-23 21:44 ✅ 2026-09-23 22:26 ➕ 2026-09-22 21:25 📝 2026-09-22 21:28 🆔 ixGfpO // salah reference ini akibat related task kurang efisien
-- [ ] ⏫ #issue #suggestion pada bagian related apakah bisa list nya di ganti seperti list pada item task hanya menampilkan deskripsi secara lengkap #v2.0.7 #production ➕ 2026-09-22 21:27 📝 2026-09-22 21:27 🆔 dOgO3e
+- [x] ⏫ #issue #suggestion pada bagian related apakah bisa list nya di ganti seperti list pada item task hanya menampilkan deskripsi secara lengkap #v2.0.7 #production 🛫 2026-09-23 23:38 ✅ 2026-09-23 23:38 ➕ 2026-09-22 21:27 📝 2026-09-22 21:27 🆔 dOgO3e
 - [x] ⏫ #issue untuk ux ketika khusus bagian newtask fokus ke input ketika enter tapi untuk yang tidak perlu #v2.0.7 #production #input_task 🛫 2026-09-23 21:44 ✅ 2026-09-23 22:23 ➕ 2026-09-22 21:32 🆔 3irZBL
 - [x] 🔺 terkadang input menghilang di awal tolong di periksa kenapa, pada dasarnya ini tetap harus tampil meskipun list task tidak ada #issue #production #input_task 🛫 2026-09-23 19:23 ✅ 2026-09-23 21:53 ➕ 2026-09-23 02:49 🆔 bUE18R
 - [x] 🔼 untuk feature sebelum nya di readme belum di tambahkan #issue #production #v2.0.7 🛫 2026-09-23 22:38 ✅ 2026-09-23 22:38 ➕ 2026-09-23 21:36 🆔 fCfBp7
