@@ -12,6 +12,7 @@ import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.services.TodosoSettingsService
 import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoContextMenu
 import com.github.nndwn.todoso.toolWindow.contextMenu.toActionGroup
+import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionItem
 import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionNav
 import com.github.nndwn.todoso.toolWindow.inputWindow.SuggestionType
@@ -119,17 +120,21 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       onSuggestionProvider = { prefix ->
         val currentText = inputPanel.inputTextArea.text.trim()
         if (currentText.isEmpty()) {
-          Priority.entries
-            .filter { it != Priority.NONE }
-            .map {
-              SuggestionItem(
-                text = "[${it.code}]",
-                category = TodosoBundle.message("todo.suggestion.priority"),
-                icon = it.icon,
-                type = SuggestionType.PRIORITY,
-                tagDisplay = it.displayName,
-              )
-            }
+          if (inputPanel.currentMode is InputMode.Normal) {
+            Priority.entries
+              .filter { it != Priority.NONE }
+              .map {
+                SuggestionItem(
+                  text = "[${it.code}]",
+                  category = TodosoBundle.message("todo.suggestion.priority"),
+                  icon = it.icon,
+                  type = SuggestionType.PRIORITY,
+                  tagDisplay = it.displayName,
+                )
+              }
+          } else {
+            emptyList()
+          }
         } else {
           getSuggestions(prefix, TagParser.getPopularTags(service.loadTask()), service.loadTask())
         }
@@ -326,7 +331,13 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
     }
   }
 
-  private val layeredPane = JLayeredPane()
+  private val layeredPane = object : JLayeredPane() {
+    override fun doLayout() {
+      super.doLayout()
+      mainContent.bounds = Rectangle(0, 0, width, height)
+      updateOverlayPosition()
+    }
+  }
   private val mainContent = JPanel(BorderLayout())
 
   init {
@@ -399,6 +410,7 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
     val allTasks = service.loadTask()
     if (allTasks.isEmpty()) {
       taskListView.clear()
+      inputPanel.updateStatusCounts(emptyMap())
       cardLayout.show(centerContainer, TodosoConstants.CARD_INSTRUCTION)
       return
     }

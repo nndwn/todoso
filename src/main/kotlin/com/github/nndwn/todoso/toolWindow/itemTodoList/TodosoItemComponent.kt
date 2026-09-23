@@ -29,7 +29,7 @@ import javax.swing.JTextPane
 import javax.swing.Scrollable
 import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
-import javax.swing.event.HyperlinkEvent
+import javax.swing.text.AttributeSet
 import javax.swing.text.DefaultCaret
 import javax.swing.text.html.HTML
 import javax.swing.text.html.HTMLDocument
@@ -63,16 +63,26 @@ class TodosoItemComponent(
       override fun getScrollableTracksViewportWidth(): Boolean = true
 
       override fun processMouseEvent(e: MouseEvent) {
-        val isLink = isLinkAt(e.point)
-        super.processMouseEvent(e)
-
-        if (isLink && (e.id == MouseEvent.MOUSE_PRESSED || e.id == MouseEvent.MOUSE_RELEASED || e.id == MouseEvent.MOUSE_CLICKED)) {
-          if (e.id == MouseEvent.MOUSE_PRESSED) {
-            requestFocusInWindow()
-          }
-        } else {
-          dispatchToParent(e)
+        if (e.id == MouseEvent.MOUSE_PRESSED) {
+          requestFocusInWindow()
         }
+
+        val url = getLinkUrlAt(e.point)
+
+        if (url != null && e.clickCount >= 2) {
+          if (e.id == MouseEvent.MOUSE_CLICKED && e.button == MouseEvent.BUTTON1) {
+            when {
+              url.startsWith("tag:") -> onSearch("#" + url.removePrefix("tag:"))
+              url.startsWith("id:") -> onSearch(url.removePrefix("id:"))
+              else -> BrowserUtil.browse(url)
+            }
+          }
+          super.processMouseEvent(e)
+          return
+        }
+
+        super.processMouseEvent(e)
+        dispatchToParent(e)
       }
 
       override fun processMouseMotionEvent(e: MouseEvent) {
@@ -80,15 +90,17 @@ class TodosoItemComponent(
         dispatchToParent(e)
       }
 
-      private fun isLinkAt(p: Point): Boolean {
+      private fun getLinkUrlAt(p: Point): String? {
         val pos = viewToModel2D(p)
         if (pos >= 0) {
           val doc = document as? HTMLDocument
           val elem = doc?.getCharacterElement(pos)
-          val a = elem?.attributes?.getAttribute(HTML.Tag.A)
-          return a != null
+          val a = elem?.attributes?.getAttribute(HTML.Tag.A) as? AttributeSet
+          if (a != null) {
+            return a.getAttribute(HTML.Attribute.HREF) as? String
+          }
         }
-        return false
+        return null
       }
     }
       .apply {
@@ -97,17 +109,6 @@ class TodosoItemComponent(
         isEditable = false
         isOpaque = false
         isFocusable = false
-
-        addHyperlinkListener { e ->
-          if (e.eventType == HyperlinkEvent.EventType.ACTIVATED) {
-            val desc = e.description
-            when {
-              desc.startsWith("tag:") -> onSearch("#" + desc.removePrefix("tag:"))
-              desc.startsWith("id:") -> onSearch(desc.removePrefix("id:"))
-              else -> BrowserUtil.browse(desc)
-            }
-          }
-        }
 
         highlighter = null
         (caret as? DefaultCaret)?.apply {

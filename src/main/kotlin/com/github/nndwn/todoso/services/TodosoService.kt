@@ -198,6 +198,8 @@ class TodosoService(private val project: Project) {
           return emptyList()
         }
 
+    todoFile.refresh(false, false)
+
     val content =
       try {
         VfsUtil.loadText(todoFile)

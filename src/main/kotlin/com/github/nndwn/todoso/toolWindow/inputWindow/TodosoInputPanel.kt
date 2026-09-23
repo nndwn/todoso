@@ -123,6 +123,11 @@ class TodosoInputPanel(
 
   private val layeredPane = object : JLayeredPane() {
     override fun getPreferredSize(): Dimension = mainContent.preferredSize
+    override fun doLayout() {
+      super.doLayout()
+      mainContent.bounds = Rectangle(0, 0, width, height)
+      updateStatusPosition()
+    }
   }
   private val mainContent = JBPanel<JBPanel<*>>(BorderLayout())
 
@@ -216,8 +221,8 @@ class TodosoInputPanel(
       object : FocusAdapter() {
         override fun focusGained(e: FocusEvent?) {
           this@TodosoInputPanel.repaint()
-          // Picu suggestion jika kosong (atau hanya berisi spasi) saat mendapatkan fokus
-          if (inputTextArea.text.trim().isEmpty()) {
+          // Picu suggestion jika kosong (atau hanya berisi spasi) saat mendapatkan fokus hanya di InputMode.Normal
+          if (inputTextArea.text.trim().isEmpty() && currentMode is InputMode.Normal) {
             showSuggestionsPopup('!')
           }
         }
@@ -241,7 +246,7 @@ class TodosoInputPanel(
             
             when {
               prefix != null -> showSuggestionsPopup('#')
-              text.trim().isEmpty() -> showSuggestionsPopup('!') // '!' sebagai flag internal untuk Priority
+              text.trim().isEmpty() && currentMode is InputMode.Normal -> showSuggestionsPopup('!') // Priority hanya di Normal
               else -> hideOverlay()
             }
           }
@@ -320,20 +325,24 @@ class TodosoInputPanel(
 
   private fun handleMainAction() {
     val text = inputTextArea.text
-    when (currentMode) {
+    val mode = currentMode
+    when (mode) {
       is InputMode.Edit -> onUpdateTask(text)
       is InputMode.Cancel -> onConfirmCancel(text)
       is InputMode.Note -> onCreateNote(ensureNotePrefix(text))
       is InputMode.Normal -> onNewTask(text)
     }
 
-    ApplicationManager.getApplication().invokeLater {
-      inputTextArea.requestFocusInWindow()
+    if (mode is InputMode.Normal) {
+      ApplicationManager.getApplication().invokeLater {
+        inputTextArea.requestFocusInWindow()
+      }
     }
   }
 
   fun setMode(mode: InputMode, initialText: String = "") {
     currentMode = mode
+    hideOverlay()
     when (mode) {
       is InputMode.Normal -> {
         inputTextArea.text = ""

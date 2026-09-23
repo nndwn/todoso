@@ -157,4 +157,54 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
       lastRequestedItems!!.find { it.text == nonPopularTag }?.category,
     )
   }
+
+  fun testPrioritySuggestionOnlyInNormalMode() {
+    var requestedItems: List<SuggestionItem>? = null
+
+    lateinit var testPanel: TodosoInputPanel
+    testPanel = TodosoInputPanel(
+      onNewTask = {},
+      onUpdateTask = {},
+      onConfirmCancel = {},
+      onCreateNote = {},
+      onCancelEdit = {},
+      fontInput = Font("Monospaced", Font.PLAIN, 12),
+      onSuggestionProvider = { _ ->
+        val currentText = testPanel.inputTextArea.text.trim()
+        if (currentText.isEmpty()) {
+          if (testPanel.currentMode is InputMode.Normal) {
+            listOf(SuggestionItem("[H]", "Priority", type = SuggestionType.PRIORITY, tagDisplay = "HIGH"))
+          } else {
+            emptyList()
+          }
+        } else {
+          emptyList()
+        }
+      },
+      onSuggestionRequest = { requestedItems = it },
+      onNavigationRequest = {},
+      onTabPressed = {},
+      onAttachFileRequest = {},
+      onTextValidator = { true }
+    )
+
+    // Mode Edit: saat teks kosong, tidak boleh ada suggestion priority
+    testPanel.setEditMode(true, "Task Lama")
+    testPanel.inputTextArea.text = ""
+    UIUtil.dispatchAllInvocationEvents()
+    assertNull("Overlay tidak boleh terpicu untuk Priority di EditMode saat teks kosong", requestedItems)
+
+    // Mode Note: saat teks kosong, tidak boleh ada suggestion priority
+    testPanel.setNoteMode(true)
+    testPanel.inputTextArea.text = ""
+    UIUtil.dispatchAllInvocationEvents()
+    assertNull("Overlay tidak boleh terpicu untuk Priority di NoteMode saat teks kosong", requestedItems)
+
+    // Mode Normal: saat dikembalikan ke NormalMode dan teks kosong, suggestion priority harus terpicu
+    testPanel.setMode(InputMode.Normal)
+    testPanel.showSuggestionsPopup('!')
+    UIUtil.dispatchAllInvocationEvents()
+    assertNotNull("Overlay harus terpicu di NormalMode saat teks kosong", requestedItems)
+    assertTrue(requestedItems!!.any { it.type == SuggestionType.PRIORITY })
+  }
 }

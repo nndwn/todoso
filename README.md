@@ -56,6 +56,9 @@ A smart single-input field that intelligently processes plain text, Markdown syn
             * **Deep Search**: Typing after `#` searches through *all* tags ever used in the project, not just the top 10.
             * Selecting a task from the suggestions instantly inserts its unique `🆔 ID` for easy cross-referencing.
             * **Keyboard Navigation Support**: Use the up and down arrow keys to navigate suggestions. Press **Enter** to select a task, or use **Tab** for quick selection when suggestions appear.
+        * **Priority Suggestions (Normal Mode Only)**:
+            * When the input field is empty in **Normal Mode**, Todoso presents priority shortcodes (`[HH]`, `[H]`, `[M]`, `[L]`, `[LL]`) for instant priority assignment before typing.
+            * This priority suggestion overlay is active exclusively in **Normal Mode** (creating new tasks) and is automatically disabled in Edit, Note, or Cancel modes to keep your editing workflow clean.
 *    **Input Modes**:
         *   **Normal**: Default state for creating new tasks.
         *   **Edit**: Triggered when modifying existing tasks (Blue background).
@@ -138,6 +141,15 @@ Manage large task lists with precision using the new integrated filtering engine
     *   **Version Tracking**: Automatically identifies and groups tasks by project versions (tags starting with `v`).
 *   **Integrated Reset Action**: Use the toolbar's Reset button to clear all search queries and active filters, returning the view to the full project state.
 *   **Session-Based Integrity**: To prevent confusion (e.g., "Where did my data go?"), filters are stored **in-memory only**. They reset on every IDE restart or when the manual Reset button is pressed.
+
+#### Interactive Task List & 2x Click Protection
+Task items in the list feature rich interactive elements (Tags, Task IDs, and Web URLs) designed for intuitive navigation:
+* **Double-Click (2x Click) Activation**: To prevent accidental clicks when selecting a task item, interactive elements require a **double-click (2x click)** to activate:
+    * **2x Click on `#tag`**: Instantly filters the task list by that tag in the search panel.
+    * **2x Click on `🆔 ID` / `id:xxx`**: Triggers a search for the referenced Task ID to explore cross-referenced tasks.
+    * **2x Click on Web URL**: Opens the web link directly in your default browser (`https://...`).
+* **Single-Click (1x Click) Safety**: Single-clicking anywhere on a task item—including directly over a tag, ID, or link—safely selects the task without activating the link or interrupting your workspace.
+* **Keyboard Navigation**: Use **Up / Down** arrow keys to navigate between tasks, **Enter** to select, **Delete** to delete, and **Tab** to switch focus back to the input panel.
      
 #### Strict Line Parsing Rules
 

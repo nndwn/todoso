@@ -35,7 +35,7 @@
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
-- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #issue #development 📝 2026-09-19 08:11 🆔 E4TFhe
+- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #development #feature 📝 2026-09-19 08:11 🆔 E4TFhe
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
@@ -125,7 +125,9 @@
 <!-- - [ ] test doang ➕ 2026-09-20 02:59 🆔 vGQ1xQ -->
 <!-- - [ ] test doang ➕ 2026-09-20 03:00 🆔 u3UQCh -->
 <!-- - [ ] test lagi ➕ 2026-09-20 03:00 🆔 G0ZNOY -->
-- [ ] ⏫ #issue 🆔 khzOeO pada #item_task terlalu mudah untuk di klik solusi buat dia hanya bisa di klik 2 kali #v2.1.0 #production ➕ 2026-09-22 21:23 🆔 vwybuP
-- [ ] ⏫ #issue 🆔 5ewVz9 #suggestion #input_task seharus nya suggestion priority hanya tampil di input bagian new task #v2.1.0 #production ➕ 2026-09-22 21:25 📝 2026-09-22 21:28 🆔 ixGfpO // salah reference ini akibat related task kurang efisien
-- [ ] ⏫ #issue #suggestion pada bagian related apakah bisa list nya di ganti seperti list pada item task hanya menampilkan deskripsi secara lengkap #v2.1.0 #production ➕ 2026-09-22 21:27 📝 2026-09-22 21:27 🆔 dOgO3e
-- [ ] ⏫ #issue untuk ux ketika khusus bagian newtask fokus ke input ketika enter tapi untuk yang tidak perlu #v2.1.0 #production ➕ 2026-09-22 21:32 🆔 3irZBL
+- [x] ⏫ #issue 🆔 khzOeO pada #item_task terlalu mudah untuk di klik solusi buat dia hanya bisa di klik 2 kali #v2.0.7 #production 🛫 2026-09-23 22:28 ✅ 2026-09-23 22:38 ➕ 2026-09-22 21:23 🆔 vwybuP
+- [x] ⏫ #issue 🆔 5ewVz9 #suggestion #input_task seharus nya suggestion priority hanya tampil di input bagian new task #v2.0.7 #production 🛫 2026-09-23 21:44 ✅ 2026-09-23 22:26 ➕ 2026-09-22 21:25 📝 2026-09-22 21:28 🆔 ixGfpO // salah reference ini akibat related task kurang efisien
+- [ ] ⏫ #issue #suggestion pada bagian related apakah bisa list nya di ganti seperti list pada item task hanya menampilkan deskripsi secara lengkap #v2.0.7 #production ➕ 2026-09-22 21:27 📝 2026-09-22 21:27 🆔 dOgO3e
+- [x] ⏫ #issue untuk ux ketika khusus bagian newtask fokus ke input ketika enter tapi untuk yang tidak perlu #v2.0.7 #production #input_task 🛫 2026-09-23 21:44 ✅ 2026-09-23 22:23 ➕ 2026-09-22 21:32 🆔 3irZBL
+- [x] 🔺 terkadang input menghilang di awal tolong di periksa kenapa, pada dasarnya ini tetap harus tampil meskipun list task tidak ada #issue #production #input_task 🛫 2026-09-23 19:23 ✅ 2026-09-23 21:53 ➕ 2026-09-23 02:49 🆔 bUE18R
+- [x] 🔼 untuk feature sebelum nya di readme belum di tambahkan #issue #production #v2.0.7 🛫 2026-09-23 22:38 ✅ 2026-09-23 22:38 ➕ 2026-09-23 21:36 🆔 fCfBp7
