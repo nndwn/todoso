@@ -3,6 +3,10 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- I made the mistake of trusting the AI agent to fix the bug instead it made a write error in the latest version of IntelliJ IDEA, arggggghhhhhhhhhhhhh
+- The single-click issue on tasks was super annoying (kept accidentally clicking links/tags when just selecting a task). Now IDs, tags, and URLs in task items require a double click (2x click) to activate.
+- Minor UX improvements to the input panel for a smoother workflow.
+- Related tasks in the suggestion overlay now display full task descriptions without truncation.
 
 ## [2.0.7] - 2026-09-23
 
