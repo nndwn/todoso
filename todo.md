@@ -24,7 +24,7 @@
 - [x] untut @TodosoInputPanel.kt ini uda cukup terlalu panjang mungkin perlu di refactoring 🆔 PHxgc4 🛫 2026-09-08 21:27 ✅ 2026-09-08 21:48
 - [x] 🔺 untuk model ternyata ada yang kurang, untuk edit tambahkan waktu edited 🛫 2026-09-09 09:27 🆔 Kepi8h ✅ 2026-09-09 18:03
 - [x] 🔺 untuk tag jika user menulis lengkap perlu tampilin task yang terhubung dengan tags dengan urutan yang terbaru 🛫 2026-09-09 06:55 🆔 NeimBU ✅ 2026-09-09 07:51
-- [x] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya 🆔 Pjxkcd 🛫 2026-09-09 17:38 ✅ 2026-09-09 18:04
+- [x] 🔺 di field memiliki issue validasi button input perlu di perketat lagi bukan hanya berdasarkan teks kosong saja nantinya #issue #production 🛫 2026-09-09 17:38 ✅ 2026-09-09 18:04 🆔 Pjxkcd
 - [x] 🔼 jadi sanitazi itu untuk apa ? 🆔 qfocgi 🛫 2026-09-09 18:19 ✅ 2026-09-09 18:19
 - [x] 🔺 perbaikan script depcrapted dan car tahu masalah pengunaan script internal #issue #production 🛫 2026-09-13 14:04 ✅ 2026-09-14 01:50 📝 2026-09-15 00:34 🆔 K0CGIt
 - [x] 🔼 ada beberapa issue di tag ketika user memilih tag langsung enter tag langsung di spasi jadi tidak dapat menampilkan related tag , solusi mungkin jangan berikan spasi pada saat enter 🆔 U9AcPT 🛫 2026-09-09 08:04 ✅ 2026-09-09 09:18
@@ -35,23 +35,23 @@
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
-- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti #development #feature 📝 2026-09-19 08:11 🆔 E4TFhe
+- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti tes #development #feature 📝 2026-09-24 07:10 🆔 E4TFhe
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
-- [x] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout 🆔 xxvh6P 🛫 2026-09-10 18:12 ✅ 2026-09-11 10:17
+- [x] 🔺 di bagian todosoCell apakah bisa panjang teks wraping mengikutin lebar layout #feature #development 🛫 2026-09-10 18:12 ✅ 2026-09-11 10:17 🆔 xxvh6P
 - [x] tooltip di todoItem 🆔 ZBXy14 🛫 2026-09-11 11:06 ✅ 2026-09-11 11:24
 - [-] rewrite icon with icon-collection repository 🆔 oQ1Frv ❌ 2026-09-12 12:28 // noted: lebih nyesuaikan template icon ide yang sudah ada, tapi tetap tambahkan icon yang pada dasarnya tidak ada di ide
 - [x] ⏫ ada issue di showSuggestion ketika muncul ui bertabrakan dengan ui component item #issue 🛫 2026-09-11 14:36 ✅ 2026-09-11 14:57 🆔 ETF4bH // today kosong karena dia berdasarkan waktu 1 hari sementara ku periksa di jam 00:37 di pastikan kosong , tapi bagaimana date dia menapilkan create date sementara create bisa saja done di tampilkan di atas
-- [x] 🔺 buat klik kanan untuk ubah status 🆔 ZshZWF 🛫 2026-09-12 15:42 ✅ 2026-09-13 13:58
+- [x] 🔺 buat klik kanan untuk ubah status #feature #development 🛫 2026-09-12 15:42 ✅ 2026-09-13 13:58 🆔 ZshZWF
 - [x] ⏫ mmebuat hide visual berdasarkan status, prioriy , latest , berdasarkan 10 tah populer , bersarkan 4 tag version paling atas #feature 🛫 2026-09-11 18:16 🆔 xdNreu ✅ 2026-09-12 14:54
 - [x] 🔼 terkadang membingungkan ketika lihat task yang sudah di short , tiba -tiba ketik task baru task tidak tampak sama sekali di pilihan #issue 🛫 2026-09-11 17:32 🆔 q9YqEa ✅ 2026-09-11 18:10
 - [x] taks tidak bewarna hijau ketia doing #issue 🆔 diZ97U 🛫 2026-09-11 17:35 ✅ 2026-09-11 18:09
 - [x] 🔼 No Match Panel kurang rapi selalu tengah coba ambil teknik yang sama ketika no list task #Issue 🆔 iuBekw 🛫 2026-09-12 14:55 ✅ 2026-09-12 17:32
 - [-] ⏬ Item component ketika di klik id dan descripsi akan menuju ke line file line nya  🆔 dfeotS ❌ 2026-09-14 01:52 // noted: bagusnya di letakan di klik kanan saja
 - [x] ⏫ membuat sistem tooltip yang lebih informatif jika seandai nya di descripsi memiliki id yang terhubung maka tampikan detail descripsi task di tooltip 🛫 2026-09-12 18:05 🆔 t954Ej ✅ 2026-09-13 00:13
-- [x] 🔺 posible buat search ? 🆔 gDcVlJ 🛫 2026-09-12 23:00 ✅ 2026-09-13 01:31
-- [x] 🔼 untuk tool task context menu refres task , random task, go line number, search, copy task 🆔 rQNGh5 🛫 2026-09-13 14:04 ✅ 2026-09-14 13:27
+- [x] 🔺 posible buat search ? #feature 🛫 2026-09-12 23:00 ✅ 2026-09-13 01:31 🆔 gDcVlJ
+- [x] 🔼 untuk tool task context menu refres task , random task, go line number, search, copy task #feature #context_menu 🛫 2026-09-13 14:04 ✅ 2026-09-14 13:27 🆔 rQNGh5
 - [-] lalu bagaimana jika seandainya user lakukan doing lalu ingin pause kan lalu contionue task sehingga start waktu tidak menghilang 🆔 5g78qS ❌ 2026-09-13 04:03 // noted: hanya memperumit kalkulasi waktu penyelesaian
 - [x] ⏫ kenapa ketika di klik select item task lalu di klik kanan , yang di select menjadi unselect ? #Issue 🆔 MfVeDz 🛫 2026-09-13 14:05 ✅ 2026-09-13 14:19
 - [x] ⏫ priority sekaran memiliki iconnya sendiri terapkan ke pada klik kanan #feature 🆔 phJ6Fe 🛫 2026-09-13 14:32 ✅ 2026-09-13 15:08
@@ -75,7 +75,7 @@
 - [ ] 🔽 sepertinya perlu icon hastag #feature #development 🆔 e63jJq
 - [x] ⏫ penaganan tags panjang pada context menu #issue 🆔 eFHX7j 🛫 2026-09-14 05:15 ✅ 2026-09-14 05:15
 - [x] ⏫ #issue todosoItem tidak support tombol delete 🆔 EN3Y03 🛫 2026-09-14 05:18 ✅ 2026-09-14 06:08
-- [x] 🔼 TodosoItem support delete tombol 🆔 491Soj 🛫 2026-09-14 06:10 ✅ 2026-09-14 06:10
+- [x] 🔼 TodosoItem support delete tombol #feature #development #item_task 🛫 2026-09-14 06:10 ✅ 2026-09-14 06:10 🆔 491Soj
 - [x] 🔼 dialog delete komfirmasi delete tidak begitu informatif #issue 🆔 JtSdzg 🛫 2026-09-14 13:42 ✅ 2026-09-14 13:49
 - [x] ⏫ tag di klik kanan perlu sebuah informasi number jumlah #issue #v2.0.1 🆔 H8rMow
 <!-- - [ ] hanya sebauh test ➕ 2026-09-14 15:59 🆔 an5FdC -->
@@ -114,7 +114,7 @@
 - [x] 🔺 #Issue ketika suggestion muncul user menekan # muncul user ternyata perlu edit text seharus nya suggestion tombol esc di gunakan untuk close sementara suggestion #v2.0.5 #production #suggestion 🛫 2026-09-19 08:23 ✅ 2026-09-19 19:52 ➕ 2026-09-19 06:58 📝 2026-09-19 07:10 🆔 pXpZci
 <!-- - [ ] <b>test</b> ➕ 2026-09-19 07:04 🆔 wIFxDL -->
 - [x] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 04:21 ➕ 2026-09-19 07:22 🆔 gfoJS4
-- [ ] 🔽 #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys
+- [ ] #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys // [HH] h
 - [x] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ✅ 2026-09-20 01:35 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
 - [ ] 🔽 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ➕ 2026-09-19 08:02 🆔 5ewVz9
 - [x] 🔺 #issue ada masalah pada masalah di welcome text #v2.0.5 #production 🛫 2026-09-19 15:07 ✅ 2026-09-19 15:08 ➕ 2026-09-19 15:06 📝 2026-09-19 15:06 🆔 HOHXeq
@@ -131,3 +131,7 @@
 - [x] ⏫ #issue untuk ux ketika khusus bagian newtask fokus ke input ketika enter tapi untuk yang tidak perlu #v2.0.7 #production #input_task 🛫 2026-09-23 21:44 ✅ 2026-09-23 22:23 ➕ 2026-09-22 21:32 🆔 3irZBL
 - [x] 🔺 terkadang input menghilang di awal tolong di periksa kenapa, pada dasarnya ini tetap harus tampil meskipun list task tidak ada #issue #production #input_task 🛫 2026-09-23 19:23 ✅ 2026-09-23 21:53 ➕ 2026-09-23 02:49 🆔 bUE18R
 - [x] 🔼 untuk feature sebelum nya di readme belum di tambahkan #issue #production #v2.0.7 🛫 2026-09-23 22:38 ✅ 2026-09-23 22:38 ➕ 2026-09-23 21:36 🆔 fCfBp7
+- [-] test ❌ 2026-09-26 07:38 ➕ 2026-09-24 06:47 🆔 g3AztU // test
+- [ ] 🔼 penambahan #feature integrasikan ke bookmark bawaan intellig pada #context_menu todoso #v2.0.9 #development ➕ 2026-09-24 21:15 🆔 NVsy0j
+- [ ] ⏫ #issue saat lakukan update atau edit sudah benar unfocus ke list namun untuk #suggestion masih tampil #v2.0.9 ➕ 2026-09-26 07:34 🆔 tYkosS
+- [ ] ⏫ #issue saat cancelled atau edit unfocus ke input masih berlaku #v2.0.9 #input_task ➕ 2026-09-26 07:35 📝 2026-09-26 07:37 🆔 RIWEn8
