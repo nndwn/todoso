@@ -131,7 +131,13 @@
 - [x] ⏫ #issue untuk ux ketika khusus bagian newtask fokus ke input ketika enter tapi untuk yang tidak perlu #v2.0.7 #production #input_task 🛫 2026-09-23 21:44 ✅ 2026-09-23 22:23 ➕ 2026-09-22 21:32 🆔 3irZBL
 - [x] 🔺 terkadang input menghilang di awal tolong di periksa kenapa, pada dasarnya ini tetap harus tampil meskipun list task tidak ada #issue #production #input_task 🛫 2026-09-23 19:23 ✅ 2026-09-23 21:53 ➕ 2026-09-23 02:49 🆔 bUE18R
 - [x] 🔼 untuk feature sebelum nya di readme belum di tambahkan #issue #production #v2.0.7 🛫 2026-09-23 22:38 ✅ 2026-09-23 22:38 ➕ 2026-09-23 21:36 🆔 fCfBp7
-- [-] test ❌ 2026-09-26 07:38 ➕ 2026-09-24 06:47 🆔 g3AztU // test
-- [ ] 🔼 penambahan #feature integrasikan ke bookmark bawaan intellig pada #context_menu todoso #v2.0.9 #development ➕ 2026-09-24 21:15 🆔 NVsy0j
-- [ ] ⏫ #issue saat lakukan update atau edit sudah benar unfocus ke list namun untuk #suggestion masih tampil #v2.0.9 ➕ 2026-09-26 07:34 🆔 tYkosS
-- [ ] ⏫ #issue saat cancelled atau edit unfocus ke input masih berlaku #v2.0.9 #input_task ➕ 2026-09-26 07:35 📝 2026-09-26 07:37 🆔 RIWEn8
+- [ ] test yestd s ➕ 2026-09-24 06:47 📝 2026-09-30 04:54 🆔 g3AztU
+- [x] 🔼 penambahan #feature integrasikan ke bookmark bawaan intellig pada #context_menu todoso #v2.0.9 #development 🛫 2026-09-30 07:29 ✅ 2026-09-30 07:35 ➕ 2026-09-24 21:15 🆔 NVsy0j
+- [x] ⏫ #issue saat lakukan update atau edit sudah benar unfocus ke list namun untuk #suggestion masih tampil #v2.0.9 🛫 2026-09-30 04:22 ✅ 2026-09-30 05:25 ➕ 2026-09-26 07:34 🆔 tYkosS
+- [x] ⏫ #issue saat cancelled atau edit unfocus ke input masih berlaku #v2.0.9 #input_task 🛫 2026-09-30 04:23 ✅ 2026-09-30 05:31 ➕ 2026-09-26 07:35 📝 2026-09-26 07:37 🆔 RIWEn8
+- [-] ⏫ di #ReadMe tambahkan spesifikasi #production #v2.0.9 #feature ❌ 2026-09-30 05:28 ➕ 2026-09-30 04:09 🆔 mLg60x // sepertinya tidak perlu pengujian lagi untuk mendapatkan nilai pastinya
+- [x] ⏫ #suggestion pada saat menekan # lalu user menekan tombol kiri dan kanan suggestion masih muncul seharus nya tidak perlu #issue #production #v2.0.9 🛫 2026-09-30 04:22 ✅ 2026-09-30 05:36 ➕ 2026-09-30 04:20 🆔 T6E0ds
+- [x] ⏫ ubah urutan uraran dari status di atas dan priority dii bawah #toolbar #issue #production #v2.0.9 #sort 🛫 2026-09-30 05:38 ✅ 2026-09-30 05:44 ➕ 2026-09-30 05:02 📝 2026-09-30 05:43 🆔 1hrN4q
+- [x] ⏫ #remove attact file lalu pindah count dari kanan ke kiri #development #v2.0.9 🛫 2026-09-30 06:24 ✅ 2026-09-30 07:03 ➕ 2026-09-30 05:07 🆔 pSxmm7 // jika count di ppindah dari kanan ke kiri kurang tepat seakan count menyatu dengan task
+- [x] ⏫ #issue #input_task saat edit mode, add note, canceled , focus input masih ada di input pada saat menekan enter #v2.0.9 #production 🛫 2026-09-30 05:49 ✅ 2026-09-30 06:00 ➕ 2026-09-30 05:49 🆔 KgGOjY
+- [x] ⏫ #issue #context_menu #sort pada kenapa tidak melakukan sorting ? #production #v2.0.9 🛫 2026-09-30 06:21 ✅ 2026-09-30 06:24 ➕ 2026-09-30 06:02 🆔 t7N8MM

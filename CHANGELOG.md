@@ -3,6 +3,13 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- perbaikin bug pada context menu sebelumnya tidak dapat lakukan sorting disana
+- Minor UX improvements 
+- penambahan fitur baru sekarang dapat di integrasikan dengan bookmark bawaan intellij IDEA/Android Studio
+- satu task untuk satu bookmark untuk menambahkan klik kanan pada task > attact Bookmark lalu pilih 
+- untuk pergi ke bookmark dari task klik kanan go bookmark
+- remove insert file pada input , seperti tidak berguna 
+- update SDK 2025.3.6.1
 
 ## [2.0.8] - 2026-09-23
 

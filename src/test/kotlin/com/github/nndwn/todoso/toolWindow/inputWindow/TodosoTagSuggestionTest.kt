@@ -71,6 +71,18 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
     assertEquals("New task #feature", inputPanel.inputTextArea.text)
   }
 
+  fun testOverlayHidesWhenCaretMovesAwayFromHash() {
+    inputPanel.inputTextArea.text = "Task #feature"
+    inputPanel.inputTextArea.caretPosition = 13
+    UIUtil.dispatchAllInvocationEvents()
+    assertNotNull("Overlay harus muncul saat kursor berada setelah #feature", lastRequestedItems)
+
+    // Pindahkan kursor ke posisi sebelum '#'
+    inputPanel.inputTextArea.caretPosition = 4
+    UIUtil.dispatchAllInvocationEvents()
+    assertNull("Overlay harus tersembunyi saat kursor dipindahkan menjauh dari tag", lastRequestedItems)
+  }
+
   fun testOverlayHidesWhenHashIsRemoved() {
     // 1. Ketik '#' untuk memicu overlay
     inputPanel.inputTextArea.text = "#"

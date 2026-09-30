@@ -303,7 +303,10 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       onContextMenu = { task, e -> showContextMenu(task, e) },
       onTabPressed = { inputPanel.requestFocusToInput() },
       onSearch = { query -> searchPanel.setSearchText(query) },
-      onScroll = { inputPanel.unfocus() }
+      onScroll = {
+        inputPanel.unfocus()
+        suggestionOverlay.hideOverlay()
+      }
     )
 
   internal val searchPanel: TodosoSearchPanel =
@@ -406,7 +409,7 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       )
   }
 
-  fun refreshUiState() {
+  override fun refreshUiState() {
     val allTasks = service.loadTask()
     if (allTasks.isEmpty()) {
       taskListView.clear()
@@ -551,10 +554,15 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
 
   fun getCurrentSortOption() = currentSortOption
 
-  fun setCurrentSortOption(options: Set<SortOption>) {
+  override fun getSortOption(): Set<SortOption> = currentSortOption
+
+  override fun setSortOption(options: Set<SortOption>) {
     currentSortOption = options
-    refreshTasks()
+    settings.state.sortOption = options.joinToString(",") { it.key }
+    refreshUiState()
   }
+
+  fun setCurrentSortOption(options: Set<SortOption>) = setSortOption(options)
 
   fun getSuggestionOverlay() = suggestionOverlay
 

@@ -96,10 +96,6 @@ class TodosoToolbar(
       ) {
       override fun actionPerformed(e: AnActionEvent) {
         onFilterChanged(FilterType.RESET_ALL, null)
-        currentSort.clear()
-        settings.state.sortOption = ""
-        onSortChanged(emptySet())
-        settings.state.visualEnabled = true
         onRefreshTasks()
       }
     }
@@ -128,8 +124,8 @@ class TodosoToolbar(
       DefaultActionGroup().apply {
         addSeparator(TodosoBundle.message("todo.view.group.by"))
         add(createDefaultSortToggleAction())
-        add(createSortToggleAction(TodosoBundle.message("todo.sort.by.priority"), SortOption.PRIORITY))
         add(createSortToggleAction(TodosoBundle.message("todo.sort.by.status"), SortOption.STATUS))
+        add(createSortToggleAction(TodosoBundle.message("todo.sort.by.priority"), SortOption.PRIORITY))
         add(createSortToggleAction(TodosoBundle.message("todo.sort.by.date"), SortOption.DATE))
 
         addSeparator(TodosoBundle.message("todo.view.color"))
@@ -345,7 +341,8 @@ class TodosoToolbar(
 
   private fun createDefaultSortToggleAction(): ToggleAction {
     return object : ToggleAction(TodosoBundle.message("todo.common.default")) {
-      override fun isSelected(e: AnActionEvent): Boolean = currentSort.isEmpty()
+      override fun isSelected(e: AnActionEvent): Boolean =
+        settings.state.sortOption.isBlank()
 
       override fun setSelected(e: AnActionEvent, state: Boolean) {
         if (state) {
@@ -361,14 +358,18 @@ class TodosoToolbar(
 
   private fun createSortToggleAction(label: String, option: SortOption): ToggleAction {
     return object : ToggleAction(label) {
-      override fun isSelected(e: AnActionEvent): Boolean = currentSort.contains(option)
+      override fun isSelected(e: AnActionEvent): Boolean =
+        settings.state.sortOption.split(",").mapNotNull { SortOption.fromKey(it.trim()) }.contains(option)
 
       override fun setSelected(e: AnActionEvent, state: Boolean) {
+        val current = settings.state.sortOption.split(",").mapNotNull { SortOption.fromKey(it.trim()) }.toMutableSet()
         if (state) {
-          currentSort.add(option)
+          current.add(option)
         } else {
-          currentSort.remove(option)
+          current.remove(option)
         }
+        currentSort.clear()
+        currentSort.addAll(current)
         settings.state.sortOption = currentSort.joinToString(",") { it.key }
         onSortChanged(currentSort.toSet())
       }

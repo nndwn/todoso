@@ -12,6 +12,7 @@ import com.github.nndwn.todoso.toolWindow.SortOption
 import com.github.nndwn.todoso.toolWindow.TodosoActionHandler
 import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.intellij.icons.AllIcons
+import com.intellij.ide.bookmark.LineBookmark
 import com.intellij.openapi.actionSystem.CommonShortcuts
 
 class TodosoContextMenu(
@@ -27,12 +28,60 @@ class TodosoContextMenu(
         editorTask(selected)
         separator()
       }
+      bookmarks()
+      separator()
       toolTask()
       separator()
       visualTask()
       separator()
       sortTask()
     }
+  }
+
+  private fun TodoMenuBuilder.bookmarks() {
+    val selected = handler.getSelectedTask()
+    val isNormalMode = { handler.getCurrentMode() is InputMode.Normal }
+    val projectBookmarks = TodosoBookmarkHelper.getProjectBookmarks(service.project)
+    val hasBookmarks = projectBookmarks.isNotEmpty()
+    val isBookmarkValid = TodosoBookmarkHelper.isAttachedBookmarkValid(selected, service.project)
+
+    subMenu(
+      text = TodosoBundle.message("todo.menu.bookmark.Insert"),
+      icon = AllIcons.Nodes.BookmarkGroup,
+      isEnabled = { selected != null && hasBookmarks },
+      isVisible = isNormalMode,
+    ) {
+      projectBookmarks.forEach { bookmark ->
+        val lineBookmark = bookmark as? LineBookmark
+        val file = lineBookmark?.file
+        val lineDisplay = lineBookmark?.line?.plus(1) ?: 1
+        val label = if (file != null) "${file.name}:$lineDisplay" else "Bookmark"
+
+        item(
+          text = label,
+          icon = AllIcons.Nodes.BookmarkGroup,
+          onAction = {
+            val currentTask = handler.getSelectedTask() ?: selected
+            if (currentTask != null) {
+              handler.handleAttachBookmark(currentTask, bookmark)
+            }
+          },
+        )
+      }
+    }
+
+    item(
+      text = TodosoBundle.message("todo.menu.bookmark.go"),
+      icon = AllIcons.Actions.TraceInto,
+      isEnabled = { selected != null && isBookmarkValid },
+      isVisible = isNormalMode,
+      onAction = {
+        val currentTask = handler.getSelectedTask() ?: selected
+        if (currentTask != null) {
+          handler.handleGoToBookmark(currentTask)
+        }
+      },
+    )
   }
 
   private fun TodoMenuBuilder.editorTask(initialTask: TodoTask) {
@@ -217,18 +266,20 @@ class TodosoContextMenu(
       isSelected = { settings.state.visualEnabled },
       onToggle = {
         settings.state.visualEnabled = it
-        handler.refreshTasks()
+        handler.refreshUiState()
       },
     )
   }
 
   private fun TodoMenuBuilder.sortTask() {
     subMenu(TodosoBundle.message("todo.common.sort"), AllIcons.Actions.GroupBy) {
-      item(
+      toggle(
         text = TodosoBundle.message("todo.common.default"),
-        onAction = {
-          settings.state.sortOption = ""
-          handler.refreshTasks()
+        isSelected = { handler.getSortOption().isEmpty() },
+        onToggle = { active ->
+          if (active) {
+            handler.setSortOption(emptySet())
+          }
         },
       )
       separator()
@@ -241,12 +292,11 @@ class TodosoContextMenu(
           }
         toggle(
           text = label,
-          isSelected = { settings.state.sortOption.split(",").contains(option.key) },
+          isSelected = { handler.getSortOption().contains(option) },
           onToggle = { active ->
-            val current = settings.state.sortOption.split(",").filter { it.isNotBlank() }.toMutableList()
-            if (active) current.add(option.key) else current.remove(option.key)
-            settings.state.sortOption = current.distinct().joinToString(",")
-            handler.refreshTasks()
+            val current = handler.getSortOption().toMutableSet()
+            if (active) current.add(option) else current.remove(option)
+            handler.setSortOption(current)
           },
         )
       }

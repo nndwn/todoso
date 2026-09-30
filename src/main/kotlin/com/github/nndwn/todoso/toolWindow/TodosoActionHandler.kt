@@ -6,7 +6,9 @@ import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.services.TodosoService
+import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoBookmarkHelper
 import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
+import com.intellij.ide.bookmark.Bookmark
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
@@ -23,6 +25,12 @@ class TodosoActionHandler(
 ) {
   interface TodoViewActions {
     fun refreshTasks()
+
+    fun refreshUiState()
+
+    fun getSortOption(): Set<SortOption>
+
+    fun setSortOption(options: Set<SortOption>)
 
     fun setEditMode(enabled: Boolean, text: String = "")
 
@@ -66,6 +74,12 @@ class TodosoActionHandler(
   fun getCurrentMode() = view.getCurrentMode()
 
   fun refreshTasks() = view.refreshTasks()
+
+  fun refreshUiState() = view.refreshUiState()
+
+  fun getSortOption(): Set<SortOption> = view.getSortOption()
+
+  fun setSortOption(options: Set<SortOption>) = view.setSortOption(options)
 
   fun setPriorityFilter(priority: Priority?) = view.setPriorityFilter(priority)
 
@@ -219,6 +233,18 @@ class TodosoActionHandler(
   }
 
   fun handleToggleSearch() = view.toggleSearch()
+
+  fun handleAttachBookmark(task: TodoTask, bookmark: Bookmark) {
+    TodosoBookmarkHelper.attachBookmark(task, bookmark, project, service)
+    ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+  }
+
+  fun handleGoToBookmark(task: TodoTask) {
+    val success = TodosoBookmarkHelper.navigateToBookmark(task, project, service)
+    if (!success) {
+      handleErrorNotification(TodosoBundle.message("todo.menu.bookmark.not_found"))
+    }
+  }
 
   fun canTransitionTo(task: TodoTask?, newStatus: TaskStatus): Boolean {
     if (task == null) return false

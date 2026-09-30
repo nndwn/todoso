@@ -20,7 +20,6 @@ import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Font
-import java.awt.Graphics
 import java.awt.Rectangle
 import java.awt.Toolkit
 import java.awt.event.ActionEvent
@@ -69,6 +68,7 @@ class TodosoInputPanel(
 
   private var isOverlayVisible = false
   private var isNavigationActive = false
+  private var isProgrammaticChange = false
 
   var currentMode: InputMode = InputMode.Normal
     private set
@@ -93,7 +93,7 @@ class TodosoInputPanel(
       isVisible = false
       addActionListener {
         onCancelEdit()
-        inputTextArea.requestFocusInWindow()
+        unfocus()
       }
     }
 
@@ -193,7 +193,7 @@ class TodosoInputPanel(
         val rightWrapper =
           JBPanel<JBPanel<*>>(FlowLayout(FlowLayout.RIGHT, 0, 0)).apply {
             isOpaque = false
-            add(attachButton)
+            //add(attachButton)
           }
 
         add(leftButtons, BorderLayout.WEST)
@@ -221,7 +221,6 @@ class TodosoInputPanel(
       object : FocusAdapter() {
         override fun focusGained(e: FocusEvent?) {
           this@TodosoInputPanel.repaint()
-          // Picu suggestion jika kosong (atau hanya berisi spasi) saat mendapatkan fokus hanya di InputMode.Normal
           if (inputTextArea.text.trim().isEmpty() && currentMode is InputMode.Normal) {
             showSuggestionsPopup('!')
           }
@@ -229,7 +228,6 @@ class TodosoInputPanel(
 
         override fun focusLost(e: FocusEvent?) {
           this@TodosoInputPanel.repaint()
-          // Sembunyikan suggestion saat kehilangan fokus
           hideOverlay()
         }
       }
@@ -240,10 +238,20 @@ class TodosoInputPanel(
         override fun textChanged(e: DocumentEvent) {
           updateActionButtons()
 
+          if (isProgrammaticChange) {
+            hideOverlay()
+            return
+          }
+
           SwingUtilities.invokeLater {
+            if (isProgrammaticChange || !isInputFocused()) {
+              hideOverlay()
+              return@invokeLater
+            }
+
             val text = inputTextArea.text
             val prefix = getActivePrefix(text, inputTextArea.caretPosition)
-            
+
             when {
               prefix != null -> showSuggestionsPopup('#')
               text.trim().isEmpty() && currentMode is InputMode.Normal -> showSuggestionsPopup('!') // Priority hanya di Normal
@@ -254,6 +262,25 @@ class TodosoInputPanel(
       }
     )
 
+    inputTextArea.addCaretListener {
+      if (isProgrammaticChange) return@addCaretListener
+
+      SwingUtilities.invokeLater {
+        if (isProgrammaticChange || !isInputFocused()) {
+          return@invokeLater
+        }
+
+        val text = inputTextArea.text
+        val prefix = getActivePrefix(text, inputTextArea.caretPosition)
+
+        when {
+          prefix != null -> showSuggestionsPopup('#')
+          text.trim().isEmpty() && currentMode is InputMode.Normal -> showSuggestionsPopup('!')
+          else -> hideOverlay()
+        }
+      }
+    }
+
     // Aksi Escape di tingkat komponen menggunakan ActionMap (Cara Standar Swing)
     val escapeStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
     inputTextArea.getInputMap(WHEN_FOCUSED).put(escapeStroke, "hide-overlay-action")
@@ -263,6 +290,7 @@ class TodosoInputPanel(
           hideOverlay()
         } else if (currentMode !is InputMode.Normal) {
           onCancelEdit()
+          unfocus()
         }
       }
     })
@@ -324,6 +352,7 @@ class TodosoInputPanel(
   }
 
   private fun handleMainAction() {
+    hideOverlay()
     val text = inputTextArea.text
     val mode = currentMode
     when (mode) {
@@ -337,41 +366,48 @@ class TodosoInputPanel(
       ApplicationManager.getApplication().invokeLater {
         inputTextArea.requestFocusInWindow()
       }
+    } else {
+      unfocus()
     }
   }
 
   fun setMode(mode: InputMode, initialText: String = "") {
     currentMode = mode
     hideOverlay()
-    when (mode) {
-      is InputMode.Normal -> {
-        inputTextArea.text = ""
-        inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_NORMAL, JBColor(0xF2F2F2, 0x1E1F22))
-        actionButton.text = TodosoBundle.message(NEW_TASK_BUTTON)
-        cancelButton.isVisible = false
+    try {
+      isProgrammaticChange = true
+      when (mode) {
+        is InputMode.Normal -> {
+          inputTextArea.text = ""
+          inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
+          inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_NORMAL, JBColor(0xF2F2F2, 0x1E1F22))
+          actionButton.text = TodosoBundle.message(NEW_TASK_BUTTON)
+          cancelButton.isVisible = false
+        }
+        is InputMode.Edit -> {
+          inputTextArea.text = initialText
+          inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
+          inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
+          actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
+          cancelButton.isVisible = true
+        }
+        is InputMode.Cancel -> {
+          inputTextArea.text = initialText
+          inputTextArea.emptyText.text = TodosoBundle.message("todo.action.cancel.noted.required")
+          inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_CANCEL, JBColor(0xFFE6E6, 0x482D2D))
+          actionButton.text = TodosoBundle.message("todo.button.cancel.task")
+          cancelButton.isVisible = true
+        }
+        is InputMode.Note -> {
+          inputTextArea.text = if (initialText.isBlank()) "// " else ensureNotePrefix(initialText)
+          inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
+          inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
+          actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
+          cancelButton.isVisible = true
+        }
       }
-      is InputMode.Edit -> {
-        inputTextArea.text = initialText
-        inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
-        actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
-        cancelButton.isVisible = true
-      }
-      is InputMode.Cancel -> {
-        inputTextArea.text = initialText
-        inputTextArea.emptyText.text = TodosoBundle.message("todo.action.cancel.noted.required")
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_CANCEL, JBColor(0xFFE6E6, 0x482D2D))
-        actionButton.text = TodosoBundle.message("todo.button.cancel.task")
-        cancelButton.isVisible = true
-      }
-      is InputMode.Note -> {
-        inputTextArea.text = if (initialText.isBlank()) "// " else ensureNotePrefix(initialText)
-        inputTextArea.emptyText.text = TodosoBundle.message("todo.input.placeholder")
-        inputTextArea.background = JBColor.namedColor(BACKGROUND_COLOR_EDIT, JBColor(0xE6F2FF, 0x2D3548))
-        actionButton.text = TodosoBundle.message(UPDATE_BUTTON)
-        cancelButton.isVisible = true
-      }
+    } finally {
+      isProgrammaticChange = false
     }
     if (mode !is InputMode.Normal) inputTextArea.requestFocusInWindow()
     updateActionButtons()
@@ -409,7 +445,6 @@ class TodosoInputPanel(
   }
 
   fun unfocus() {
-    hideOverlay()
     this.requestFocusInWindow()
   }
 
@@ -425,7 +460,7 @@ class TodosoInputPanel(
         val colorizedIcon = IconUtil.colorize(scaledIcon, labelColor)
 
         val label = JBLabel("$count", colorizedIcon, SwingConstants.LEFT).apply {
-          font = fontInput.deriveFont(Font.BOLD, JBUIScale.scale(fontSize))
+          font = fontInput.deriveFont(Font.PLAIN, JBUIScale.scale(fontSize))
           foreground = labelColor
           iconTextGap = JBUI.scale(4)
         }
@@ -446,10 +481,18 @@ class TodosoInputPanel(
     statusCountPanel.bounds = Rectangle(x, y, prefSize.width, prefSize.height)
   }
 
+  private fun isInputFocused(): Boolean {
+    return inputTextArea.hasFocus() || ApplicationManager.getApplication().isUnitTestMode
+  }
+
   internal fun showSuggestionsPopup(triggerChar: Char) {
+    if (!isInputFocused()) {
+      hideOverlay()
+      return
+    }
+
     val prefix = getActivePrefix(inputTextArea.text, inputTextArea.caretPosition) ?: ""
 
-    // Panggil provider tanpa filter triggerChar agar Priority ('!') bisa lewat
     val items = onSuggestionProvider(prefix)
 
     if (items.isEmpty()) {
@@ -458,7 +501,7 @@ class TodosoInputPanel(
     }
 
     isOverlayVisible = true
-    isNavigationActive = false // Reset status navigasi setiap kali pop-up baru muncul
+    isNavigationActive = false
     onSuggestionRequest(items)
   }
 
@@ -498,7 +541,6 @@ class TodosoInputPanel(
     if (lastHash == -1) return null
 
     val sub = text.substring(lastHash + 1, caretPos)
-    // Jangan anggap prefix jika mengandung spasi, tab, atau baris baru (whitespace)
     return if (sub.any { it.isWhitespace() }) null else sub
   }
 }

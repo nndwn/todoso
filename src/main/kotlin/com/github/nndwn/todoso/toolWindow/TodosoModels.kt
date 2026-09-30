@@ -4,8 +4,8 @@ import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 
 enum class SortOption(val key: String) {
-  PRIORITY("PRIORITY"),
   STATUS("STATUS"),
+  PRIORITY("PRIORITY"),
   DATE("DATE");
 
   companion object {

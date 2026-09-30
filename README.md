@@ -119,6 +119,9 @@ A comprehensive right-click menu for lightning-fast task management:
 *   **Copy Context**: Copies the task description and its relevant metadata to the clipboard for sharing.
 *   **Delete Task**: Deleting a task does not immediately remove it from `todo.md`. Instead, it is commented out, requiring manual deletion if you wish to clear the line entirely.
 *   **Navigate to Source**: Instantly jumps to the exact line in your Markdown file.
+*   **Bookmark Integration**:
+    *   **Insert Bookmark**: Right-click > **Insert Bookmark** to select any active IntelliJ IDE bookmark in the project and attach it to the task.
+    *   **Go to Bookmark**: Jump directly to the bookmarked file and line in your IDE editor.
 *   **Add to Changelog**: 
     * **One-Click Publishing**: Quickly copy a task description (including tags) to your `CHANGELOG.md` file.
     * **Smart File Management**: Automatically creates `CHANGELOG.md` if missing or inserts a `## [Unreleased]` section above the latest version.
@@ -228,6 +231,24 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
      Todoso extracts standard Obsidian Tasks date emojis to track task lifecycles and completion duration:
 4. **Line Drift Safety Net**:
    File mutations include an automatic ID fallback check (`findTaskIndex`) to prevent accidental line overwrites if external edits shift line positions before background VFS listeners trigger.
+
+#### IntelliJ Bookmark Integration Rules
+
+Todoso seamlessly integrates with IntelliJ IDEA's native Bookmarks System (`com.intellij.ide.bookmark.BookmarksManager`):
+
+1. **1 Task = 1 Bookmark Contract**:
+   * Each task supports a maximum of **one attached bookmark** stored in its note section (`// ... 🔖 relativePath:line`).
+   * Attaching a new bookmark to a task automatically replaces any previously attached bookmark token.
+
+2. **Live Validity Protection**:
+   * **Go to Bookmark** is enabled **only if** the attached bookmark is currently active and valid in IntelliJ's `BookmarksManager`.
+   * If a bookmark is deleted in the IDE editor, "Go to Bookmark" is automatically disabled in the context menu to prevent navigation errors.
+
+3. **Line Shift & Auto-Sync**:
+   * If code edits shift the line number of a bookmarked location in the IDE editor, Todoso dynamically resolves the updated line number from `BookmarksManager` upon navigation and automatically updates the `🔖 relativePath:line` token in `todo.md`.
+
+4. **Automatic Cleanup Listener**:
+   * Todoso subscribes to `BookmarksListener.TOPIC`. When a bookmark is removed from the IDE editor (via gutter icon, shortcut, or Bookmarks tool window), Todoso automatically cleans up the `🔖 relativePath:line` token from the task note in `todo.md`.
 
 #### Date Metadata & Duration Tracking Rules
 

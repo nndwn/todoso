@@ -9,6 +9,11 @@ import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
+import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoBookmarkHelper
+import com.intellij.ide.bookmark.Bookmark
+import com.intellij.ide.bookmark.BookmarkGroup
+import com.intellij.ide.bookmark.BookmarksListener
+import com.intellij.ide.bookmark.LineBookmark
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction
 import com.intellij.openapi.components.Service
@@ -36,7 +41,7 @@ fun interface TodosoDataChangeListener {
 }
 
 @Service(Service.Level.PROJECT)
-class TodosoService(private val project: Project) {
+class TodosoService(val project: Project) {
 
   init {
     val connection = project.messageBus.connect()
@@ -49,6 +54,24 @@ class TodosoService(private val project: Project) {
             if (!isInternalWriting) {
               markCacheDirty()
             }
+          }
+        }
+      },
+    )
+
+    connection.subscribe(
+      BookmarksListener.TOPIC,
+      object : BookmarksListener {
+        override fun bookmarkRemoved(group: BookmarkGroup, bookmark: Bookmark) {
+          val lineBookmark = bookmark as? LineBookmark ?: return
+          val file = lineBookmark.file
+          val line = lineBookmark.line + 1
+          val relativePath = TodosoBookmarkHelper.getRelativePath(project, file)
+          val targetToken = "🔖 $relativePath:$line"
+
+          val tasks = loadTask()
+          tasks.filter { it.metadata.notes.contains(targetToken) }.forEach { task ->
+            TodosoBookmarkHelper.removeBookmarkFromNote(task, this@TodosoService)
           }
         }
       },
