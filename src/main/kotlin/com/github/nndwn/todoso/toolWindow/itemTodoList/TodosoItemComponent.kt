@@ -149,7 +149,7 @@ class TodosoItemComponent(
       object : MouseAdapter() {
         override fun mouseEntered(e: MouseEvent) {
           if (!isSelected) {
-            background = JBColor.namedColor("List.hoverBackground", Color(0xEDF6FF))
+            background = JBColor.namedColor("List.hoverBackground", JBColor(Color(0xEDF6FF), Color(0x2F323A)))
             repaint()
           }
         }
