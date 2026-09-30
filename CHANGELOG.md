@@ -3,6 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.0.9] - 2026-09-30
+
 - Fixed a bug in the context menu where sorting options could not be selected directly.
 - Minor UX improvements across tool window components.
 - Added native IntelliJ IDEA / Android Studio Bookmarks integration:
@@ -160,19 +163,20 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/2.0.8...HEAD
-[2.0.8]: https://github.com/nndwn/todoso/compare/2.0.7...2.0.8
-[2.0.7]: https://github.com/nndwn/todoso/compare/2.0.5...2.0.7
-[2.0.5]: https://github.com/nndwn/todoso/compare/2.0.4...2.0.5
-[2.0.4]: https://github.com/nndwn/todoso/compare/2.0.3...2.0.4
-[2.0.3]: https://github.com/nndwn/todoso/compare/2.0.2...2.0.3
-[2.0.2]: https://github.com/nndwn/todoso/compare/2.0.1...2.0.2
-[2.0.1]: https://github.com/nndwn/todoso/compare/2.0.0...2.0.1
-[2.0.0]: https://github.com/nndwn/todoso/compare/1.0.7...2.0.0
-[1.0.7]: https://github.com/nndwn/todoso/compare/1.0.6...1.0.7
-[1.0.6]: https://github.com/nndwn/todoso/compare/1.0.5...1.0.6
-[1.0.5]: https://github.com/nndwn/todoso/compare/1.0.4...1.0.5
-[1.0.4]: https://github.com/nndwn/todoso/compare/1.0.3...1.0.4
-[1.0.3]: https://github.com/nndwn/todoso/compare/1.0.2...1.0.3
-[1.0.2]: https://github.com/nndwn/todoso/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/nndwn/todoso/commits/1.0.1
+[Unreleased]: https://github.com/nndwn/todoso/compare/v2.0.9...HEAD
+[2.0.9]: https://github.com/nndwn/todoso/compare/v2.0.8...v2.0.9
+[2.0.8]: https://github.com/nndwn/todoso/compare/v2.0.7...v2.0.8
+[2.0.7]: https://github.com/nndwn/todoso/compare/v2.0.5...v2.0.7
+[2.0.5]: https://github.com/nndwn/todoso/compare/v2.0.4...v2.0.5
+[2.0.4]: https://github.com/nndwn/todoso/compare/v2.0.3...v2.0.4
+[2.0.3]: https://github.com/nndwn/todoso/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/nndwn/todoso/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/nndwn/todoso/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/nndwn/todoso/compare/v1.0.7...v2.0.0
+[1.0.7]: https://github.com/nndwn/todoso/compare/v1.0.6...v1.0.7
+[1.0.6]: https://github.com/nndwn/todoso/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/nndwn/todoso/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/nndwn/todoso/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/nndwn/todoso/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/nndwn/todoso/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/nndwn/todoso/commits/v1.0.1
