@@ -27,6 +27,12 @@ object TodosoBookmarkHelper {
     return match.groupValues[1].trim()
   }
 
+  fun getNotesWithoutBookmark(task: TodoTask?): String {
+    if (task == null) return ""
+    val notes = task.metadata.notes
+    return BOOKMARK_REGEX.replace(notes, "").trim()
+  }
+
   fun findMatchingBookmark(task: TodoTask?, project: Project): LineBookmark? {
     val attached = getAttachedBookmarkString(task) ?: return null
     val parts = attached.split(":")

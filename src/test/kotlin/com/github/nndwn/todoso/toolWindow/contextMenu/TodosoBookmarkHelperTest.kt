@@ -47,4 +47,12 @@ class TodosoBookmarkHelperTest : BasePlatformTestCase() {
     val cleaned = note.replace(regex, "").trim().replace(Regex("""\s+"""), " ")
     assertEquals("My note extra info", cleaned)
   }
+
+  fun testGetNotesWithoutBookmark() {
+    val taskPureBookmark = createTaskWithNote("🔖 src/App.kt:100")
+    assertEquals("", TodosoBookmarkHelper.getNotesWithoutBookmark(taskPureBookmark))
+
+    val taskWithExtraNotes = createTaskWithNote("Review this code 🔖 src/App.kt:100")
+    assertEquals("Review this code", TodosoBookmarkHelper.getNotesWithoutBookmark(taskWithExtraNotes))
+  }
 }

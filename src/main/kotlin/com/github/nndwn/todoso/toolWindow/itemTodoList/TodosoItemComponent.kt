@@ -6,6 +6,7 @@ import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.services.TodosoService
+import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoBookmarkHelper
 import com.intellij.ide.BrowserUtil
 import com.intellij.ide.HelpTooltip
 import com.intellij.openapi.util.text.HtmlChunk
@@ -249,7 +250,19 @@ class TodosoItemComponent(
       }
   }
 
+  private fun updateBorder() {
+    val hasBookmark = TodosoBookmarkHelper.getAttachedBookmarkString(task) != null
+    border =
+      if (hasBookmark) {
+        val bookmarkColor = JBColor.namedColor("Bookmark.iconBackground", JBColor(0xF59E0B, 0xE2A43B))
+        JBUI.Borders.customLine(bookmarkColor, 0, 3, 0, 0)
+      } else {
+        JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 0, 0, 0, 0)
+      }
+  }
+
   private fun updateContent() {
+    updateBorder()
     val foreground = if (isSelected) UIUtil.getListSelectionForeground(true) else UIUtil.getLabelForeground()
     val newHtml = TodosoHtmlBuilder.build(task, isSelected, isVisualEnabled, foreground)
 
@@ -325,6 +338,12 @@ class TodosoItemComponent(
       chunks.add(HtmlChunk.text(dateLines.joinToString("\n")))
     }
 
+    val bookmarkStr = TodosoBookmarkHelper.getAttachedBookmarkString(task)
+    if (bookmarkStr != null) {
+      if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
+      chunks.add(HtmlChunk.text("🔖 Bookmark: $bookmarkStr"))
+    }
+
     if (task.status == TaskStatus.DONE) {
       DateParser.calculateDuration(meta)?.let { duration ->
         if (chunks.isNotEmpty()) chunks.add(HtmlChunk.br())
@@ -332,12 +351,13 @@ class TodosoItemComponent(
       }
     }
 
-    if (meta.notes.isNotBlank()) {
+    val notesWithoutBookmark = TodosoBookmarkHelper.getNotesWithoutBookmark(task)
+    if (notesWithoutBookmark.isNotBlank()) {
       chunks.add(HtmlChunk.br())
       chunks.add(HtmlChunk.br())
       chunks.add(HtmlChunk.tag("b").addText(TodosoBundle.message("todo.tooltip.note")))
       chunks.add(HtmlChunk.br())
-      chunks.add(HtmlChunk.text(processMarkdownLinksForTooltip(meta.notes)))
+      chunks.add(HtmlChunk.text(processMarkdownLinksForTooltip(notesWithoutBookmark)))
     }
   }
 

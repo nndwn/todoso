@@ -3,13 +3,17 @@
 # Todoso Changelog
 
 ## [Unreleased]
-- perbaikin bug pada context menu sebelumnya tidak dapat lakukan sorting disana
-- Minor UX improvements 
-- penambahan fitur baru sekarang dapat di integrasikan dengan bookmark bawaan intellij IDEA/Android Studio
-- satu task untuk satu bookmark untuk menambahkan klik kanan pada task > attact Bookmark lalu pilih 
-- untuk pergi ke bookmark dari task klik kanan go bookmark
-- remove insert file pada input , seperti tidak berguna 
-- update SDK 2025.3.6.1
+- Fixed a bug in the context menu where sorting options could not be selected directly.
+- Minor UX improvements across tool window components.
+- Added native IntelliJ IDEA / Android Studio Bookmarks integration:
+  - Supports 1-to-1 task-to-bookmark mapping: right-click a task > Insert Bookmark > select a bookmark from the project.
+  - Quick navigation: right-click a task > Go to Bookmark to jump directly to the bookmarked file and line in the editor.
+  - Automatic line shift synchronization and live bookmark validity validation.
+  - Automatic cleanup of bookmark references when a bookmark is removed in the IDE editor.
+  - Added a visual indicator (left border accent highlight) for bookmarked tasks.
+- Removed unused "insert file" action from the input panel.
+- Updated IntelliJ Platform SDK dependency to 2025.3.6.1 using `com.intellij.ide.bookmark.BookmarksManager`.
+- 🤖 "developer so lazy type"
 
 ## [2.0.8] - 2026-09-23
 

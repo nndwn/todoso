@@ -141,3 +141,4 @@
 - [x] ⏫ #remove attact file lalu pindah count dari kanan ke kiri #development #v2.0.9 🛫 2026-09-30 06:24 ✅ 2026-09-30 07:03 ➕ 2026-09-30 05:07 🆔 pSxmm7 // jika count di ppindah dari kanan ke kiri kurang tepat seakan count menyatu dengan task
 - [x] ⏫ #issue #input_task saat edit mode, add note, canceled , focus input masih ada di input pada saat menekan enter #v2.0.9 #production 🛫 2026-09-30 05:49 ✅ 2026-09-30 06:00 ➕ 2026-09-30 05:49 🆔 KgGOjY
 - [x] ⏫ #issue #context_menu #sort pada kenapa tidak melakukan sorting ? #production #v2.0.9 🛫 2026-09-30 06:21 ✅ 2026-09-30 06:24 ➕ 2026-09-30 06:02 🆔 t7N8MM
+- [x] 🔼 #feature #development #v2.0.9 setelah di book #item_task perlu sebagai penanda visual jika telah di bookmark 🛫 2026-09-30 08:43 ✅ 2026-09-30 08:45 ➕ 2026-09-30 08:32 🆔 V4vAlD
