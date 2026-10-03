@@ -136,3 +136,4 @@
 - [x] ⏫ #issue #context_menu #sort pada kenapa tidak melakukan sorting ? #production #v2.0.9 🛫 2026-09-30 06:21 ✅ 2026-09-30 06:24 ➕ 2026-09-30 06:02 🆔 t7N8MM
 - [x] 🔼 #feature #development #v2.0.9 setelah di book #item_task perlu sebagai penanda visual jika telah di bookmark 🛫 2026-09-30 08:43 ✅ 2026-09-30 08:45 ➕ 2026-09-30 08:32 🆔 V4vAlD
 - [ ] ⏫ #issue ketika di new task tidak kosong lalu user menekan klik kanan -> change status -> canceled lalu tercancel, harus nya ketika canceled , simpan untuk sementara nilai yang ada di new task untuk sementara lalu kosongkan ubah input untuk note #production #v2.1.0 #input_task #ux ➕ 2026-10-03 07:23 🆔 AHCIb4
+- [ ] ⏫ issue pada saat edit task baru selection masih list daftar masih terpilih sehingga user dapat menekan delete atau backspace sehingga user dapat mendelete task yang terpilih tersebut #production #issue #v2.1.0 #ux report from @mouserd ➕ 2026-10-03 18:52 📝 2026-10-03 18:57 🆔 kIhFxa
