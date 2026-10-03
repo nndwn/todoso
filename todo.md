@@ -1,13 +1,6 @@
 <!-- For instructions, read more here: https://github.com/nndwn/todoso -->
 <!-- Plugin Version: 2.0.0 | Last Updated: 2026-09-14 15:58:32 -->
 
-> [!NOTE]
-> **AI Agent Protocol**:
-> 1. DO NOT update task statuses (e.g., changing `[ ]` to `[x]`) unless explicitly requested.
-> 2. Focus on tasks marked with `[/]` (Doing) for the current context.
-> 3. Only edit this file to add new tasks or update IDs/metadata as per technical requirements.
-
-
 <!-- For instructions, read more here: https://github.com/nndwn/todoso -->
 - [x] ⏫ pertama bagaimana menampilkan list ? pada panel plugin Intellij?  🆔 8XnWwK 🛫 2026-09-08 05:21 ✅ 2026-09-08 17:47
 - [x] ⏫ pertama siapkan data list todo.md #feature 🆔 oLYbLu 🛫 2026-09-08 05:21 ✅ 2026-09-08 05:21
@@ -116,7 +109,7 @@
 - [x] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 04:21 ➕ 2026-09-19 07:22 🆔 gfoJS4
 - [ ] #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys // [HH] h
 - [x] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ✅ 2026-09-20 01:35 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
-- [ ] 🔽 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ➕ 2026-09-19 08:02 🆔 5ewVz9
+- [ ] 🔼 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development #v2.1.0 ➕ 2026-09-19 08:02 🆔 5ewVz9
 - [x] 🔺 #issue ada masalah pada masalah di welcome text #v2.0.5 #production 🛫 2026-09-19 15:07 ✅ 2026-09-19 15:08 ➕ 2026-09-19 15:06 📝 2026-09-19 15:06 🆔 HOHXeq
 - [x] ⏫ #issue kenapa #toolbar pada search masih bisa di klik pada saat task kosong ? #production 🛫 2026-09-19 15:11 ✅ 2026-09-19 18:03 ➕ 2026-09-19 15:11 🆔 CflhNN
 <!-- - [ ] # ➕ 2026-09-19 15:35 🆔 7nZzDz -->
@@ -131,7 +124,7 @@
 - [x] ⏫ #issue untuk ux ketika khusus bagian newtask fokus ke input ketika enter tapi untuk yang tidak perlu #v2.0.7 #production #input_task 🛫 2026-09-23 21:44 ✅ 2026-09-23 22:23 ➕ 2026-09-22 21:32 🆔 3irZBL
 - [x] 🔺 terkadang input menghilang di awal tolong di periksa kenapa, pada dasarnya ini tetap harus tampil meskipun list task tidak ada #issue #production #input_task 🛫 2026-09-23 19:23 ✅ 2026-09-23 21:53 ➕ 2026-09-23 02:49 🆔 bUE18R
 - [x] 🔼 untuk feature sebelum nya di readme belum di tambahkan #issue #production #v2.0.7 🛫 2026-09-23 22:38 ✅ 2026-09-23 22:38 ➕ 2026-09-23 21:36 🆔 fCfBp7
-- [ ] test yestd s ➕ 2026-09-24 06:47 📝 2026-09-30 04:54 🆔 g3AztU
+<!-- - [ ] test yestd s ➕ 2026-09-24 06:47 📝 2026-09-30 04:54 🆔 g3AztU -->
 - [x] 🔼 penambahan #feature integrasikan ke bookmark bawaan intellig pada #context_menu todoso #v2.0.9 #development 🛫 2026-09-30 07:29 ✅ 2026-09-30 07:35 ➕ 2026-09-24 21:15 🆔 NVsy0j
 - [x] ⏫ #issue saat lakukan update atau edit sudah benar unfocus ke list namun untuk #suggestion masih tampil #v2.0.9 🛫 2026-09-30 04:22 ✅ 2026-09-30 05:25 ➕ 2026-09-26 07:34 🆔 tYkosS
 - [x] ⏫ #issue saat cancelled atau edit unfocus ke input masih berlaku #v2.0.9 #input_task 🛫 2026-09-30 04:23 ✅ 2026-09-30 05:31 ➕ 2026-09-26 07:35 📝 2026-09-26 07:37 🆔 RIWEn8
@@ -142,3 +135,4 @@
 - [x] ⏫ #issue #input_task saat edit mode, add note, canceled , focus input masih ada di input pada saat menekan enter #v2.0.9 #production 🛫 2026-09-30 05:49 ✅ 2026-09-30 06:00 ➕ 2026-09-30 05:49 🆔 KgGOjY
 - [x] ⏫ #issue #context_menu #sort pada kenapa tidak melakukan sorting ? #production #v2.0.9 🛫 2026-09-30 06:21 ✅ 2026-09-30 06:24 ➕ 2026-09-30 06:02 🆔 t7N8MM
 - [x] 🔼 #feature #development #v2.0.9 setelah di book #item_task perlu sebagai penanda visual jika telah di bookmark 🛫 2026-09-30 08:43 ✅ 2026-09-30 08:45 ➕ 2026-09-30 08:32 🆔 V4vAlD
+- [ ] ⏫ #issue ketika di new task tidak kosong lalu user menekan klik kanan -> change status -> canceled lalu tercancel, harus nya ketika canceled , simpan untuk sementara nilai yang ada di new task untuk sementara lalu kosongkan ubah input untuk note #production #v2.1.0 #input_task #ux ➕ 2026-10-03 07:23 🆔 AHCIb4
