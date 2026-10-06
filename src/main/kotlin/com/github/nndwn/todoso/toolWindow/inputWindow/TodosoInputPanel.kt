@@ -438,6 +438,16 @@ class TodosoInputPanel(
       }
   }
 
+  fun setInputText(text: String) {
+    try {
+      isProgrammaticChange = true
+      inputTextArea.text = text
+    } finally {
+      isProgrammaticChange = false
+    }
+    updateActionButtons()
+  }
+
   fun clearInputText() = setMode(InputMode.Normal)
 
   fun requestFocusToInput() {

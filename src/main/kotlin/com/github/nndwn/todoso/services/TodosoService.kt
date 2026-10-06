@@ -6,6 +6,7 @@ import com.github.nndwn.todoso.domain.model.Priority
 import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.domain.model.TodoTaskBuilder
+import com.github.nndwn.todoso.domain.parser.DateParser
 import com.github.nndwn.todoso.domain.parser.TaskIdParser
 import com.github.nndwn.todoso.domain.parser.TodoTaskParser
 import com.github.nndwn.todoso.domain.parser.TodoValidator
@@ -50,10 +51,8 @@ class TodosoService(val project: Project) {
       object : BulkFileListener {
         override fun after(events: List<VFileEvent>) {
           val todoFile = getTodoFile() ?: return
-          if (events.any { it.file == todoFile }) {
-            if (!isInternalWriting) {
-              markCacheDirty()
-            }
+          if (events.any { it.file == todoFile } && !isInternalWriting) {
+            markCacheDirty()
           }
         }
       },
@@ -300,9 +299,8 @@ class TodosoService(val project: Project) {
   }
 
   fun updateTaskStatus(task: TodoTask, newStatus: TaskStatus, note: String? = null) {
-    val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+    val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DateParser.DATE_PATTERN))
 
-    // Siapkan metadata dasar dengan penanganan transisi siklus hidup tanggal
     var baseMetadata = task.metadata
     if (!note.isNullOrBlank()) {
       baseMetadata = baseMetadata.copy(notes = note)
@@ -311,7 +309,6 @@ class TodosoService(val project: Project) {
     val updatedMeta =
       when (newStatus) {
         TaskStatus.TODO -> {
-          // Kembali ke TODO: Hapus semua tanggal riwayat pengerjaan (Start, End, Cancel)
           baseMetadata.copy(
             startDate = null,
             endDate = null,
@@ -319,7 +316,6 @@ class TodosoService(val project: Project) {
           )
         }
         TaskStatus.DOING -> {
-          // Transisi ke DOING: Catat tanggal mulai baru, hapus riwayat selesai/batal sebelumnya jika ada
           baseMetadata.copy(
             startDate = nowFormatted,
             endDate = null,
@@ -327,14 +323,12 @@ class TodosoService(val project: Project) {
           )
         }
         TaskStatus.DONE -> {
-          // Transisi ke DONE: Catat tanggal penyelesaian
           baseMetadata.copy(
             endDate = nowFormatted,
             cancelDate = null,
           )
         }
         TaskStatus.CANCELLED -> {
-          // Transisi ke CANCELLED: Catat tanggal pembatalan
           baseMetadata.copy(
             cancelDate = nowFormatted,
             endDate = null,
@@ -373,12 +367,10 @@ class TodosoService(val project: Project) {
         val unreleasedIndex = lines.indexOfFirst { it.trim().startsWith("## [Unreleased]") }
 
         if (unreleasedIndex != -1) {
-          // Insert after header
           lines.add(unreleasedIndex + 1, taskEntry)
         } else {
           val firstVersionIndex = lines.indexOfFirst { it.trim().startsWith("## [") }
           if (firstVersionIndex != -1) {
-            // Insert before first version
             lines.add(firstVersionIndex, "## [Unreleased]")
             lines.add(firstVersionIndex + 1, taskEntry)
             lines.add(firstVersionIndex + 2, "")
@@ -404,7 +396,7 @@ class TodosoService(val project: Project) {
         VfsUtil.markDirtyAndRefresh(false, true, true, changelogFile)
       })
       true
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       false
     }
   }
@@ -468,7 +460,7 @@ class TodosoService(val project: Project) {
 
     return if (TodoValidator.isContentValid(parsedTask.description)) {
       val generatedId = TaskIdParser.parseId(null).id
-      val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+      val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DateParser.DATE_PATTERN))
       val updatedMetadata = parsedTask.metadata.copy(createdDate = nowFormatted)
       val newTask =
         parsedTask.copy(
@@ -489,7 +481,7 @@ class TodosoService(val project: Project) {
     val dummyLine = "- [${task.status.code}] $cleanInput"
     val parsedTask = TodoTaskParser.parseLine(dummyLine, task.lineNumber)
 
-    val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+    val nowFormatted = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DateParser.DATE_PATTERN))
     val updatedTask =
       if (parsedTask != null) {
         task.copy(
@@ -572,7 +564,6 @@ class TodosoService(val project: Project) {
       VfsUtil.saveText(file, newContent)
       VfsUtil.markDirtyAndRefresh(false, true, true, file)
     } finally {
-      // Berikan sedikit jeda agar event VFS selesai diproses
       ApplicationManager.getApplication().executeOnPooledThread {
         Thread.sleep(500)
         isInternalWriting = false

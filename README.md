@@ -235,19 +235,10 @@ Todoso follows the Obsidian Tasks convention for unique task identification:
 #### IntelliJ Bookmark Integration Rules
 
 Todoso seamlessly integrates with IntelliJ IDEA's native Bookmarks System (`com.intellij.ide.bookmark.BookmarksManager`):
-
-1. **1 Task = 1 Bookmark Contract**:
-   * Each task supports a maximum of **one attached bookmark** stored in its note section (`// ... 🔖 relativePath:line`).
-   * Attaching a new bookmark to a task automatically replaces any previously attached bookmark token.
-
-2. **Live Validity Protection**:
+   * Each task supports can insert bookmark and stored in its note section (`// ... 🔖 relativePath:line`).
    * **Go to Bookmark** is enabled **only if** the attached bookmark is currently active and valid in IntelliJ's `BookmarksManager`.
    * If a bookmark is deleted in the IDE editor, "Go to Bookmark" is automatically disabled in the context menu to prevent navigation errors.
-
-3. **Line Shift & Auto-Sync**:
    * If code edits shift the line number of a bookmarked location in the IDE editor, Todoso dynamically resolves the updated line number from `BookmarksManager` upon navigation and automatically updates the `🔖 relativePath:line` token in `todo.md`.
-
-4. **Automatic Cleanup Listener**:
    * Todoso subscribes to `BookmarksListener.TOPIC`. When a bookmark is removed from the IDE editor (via gutter icon, shortcut, or Bookmarks tool window), Todoso automatically cleans up the `🔖 relativePath:line` token from the task note in `todo.md`.
 
 #### Date Metadata & Duration Tracking Rules

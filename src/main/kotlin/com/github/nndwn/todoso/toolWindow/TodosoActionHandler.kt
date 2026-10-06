@@ -54,6 +54,8 @@ class TodosoActionHandler(
 
     fun getInputText(): String
 
+    fun setInputText(text: String)
+
     fun clearInputText()
 
     fun requestFocusToInput()
@@ -64,12 +66,23 @@ class TodosoActionHandler(
   }
 
   private var pendingCancelTask: TodoTask? = null
+  private var savedDraftTask: String? = null
 
   fun getSelectedTask() = view.getSelectedTask()
 
-  fun setEditMode(enabled: Boolean, text: String = "") = view.setEditMode(enabled, text)
+  fun setEditMode(enabled: Boolean, text: String = "") {
+    if (enabled && getCurrentMode() is InputMode.Normal) {
+      savedDraftTask = view.getInputText()
+    }
+    view.setEditMode(enabled, text)
+  }
 
-  fun setNoteMode(enabled: Boolean, text: String = "") = view.setNoteMode(enabled, text)
+  fun setNoteMode(enabled: Boolean, text: String = "") {
+    if (enabled && getCurrentMode() is InputMode.Normal) {
+      savedDraftTask = view.getInputText()
+    }
+    view.setNoteMode(enabled, text)
+  }
 
   fun getCurrentMode() = view.getCurrentMode()
 
@@ -98,6 +111,7 @@ class TodosoActionHandler(
     val selected = view.getSelectedTask() ?: return
     service.editTask(selected, text.trim())
     view.setEditMode(false)
+    restoreSavedDraft()
     view.updateButtonStates()
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
@@ -106,6 +120,7 @@ class TodosoActionHandler(
     val selected = view.getSelectedTask() ?: return
     service.updateTaskNote(selected, note)
     view.setNoteMode(false)
+    restoreSavedDraft()
     view.updateButtonStates()
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
@@ -115,7 +130,18 @@ class TodosoActionHandler(
     view.setCancelMode(false)
     view.setNoteMode(false)
     pendingCancelTask = null
+    restoreSavedDraft()
     view.updateButtonStates()
+  }
+
+  private fun restoreSavedDraft() {
+    val draft = savedDraftTask
+    savedDraftTask = null
+    if (!draft.isNullOrEmpty()) {
+      view.setInputText(draft)
+    } else {
+      view.clearInputText()
+    }
   }
 
   fun handleDeleteAction() {
@@ -169,15 +195,12 @@ class TodosoActionHandler(
 
   fun updateTaskStatus(task: TodoTask, status: TaskStatus) {
     if (status == TaskStatus.CANCELLED) {
-      val noted = view.getInputText().trim()
-
-      if (noted.isEmpty()) {
-        pendingCancelTask = task
-        view.setCancelMode(true)
-        return
+      if (getCurrentMode() is InputMode.Normal) {
+        savedDraftTask = view.getInputText()
       }
-      service.updateTaskStatus(task, status, noted)
-      view.clearInputText()
+      pendingCancelTask = task
+      view.setCancelMode(true)
+      return
     } else {
       service.updateTaskStatus(task, status)
     }
@@ -189,7 +212,7 @@ class TodosoActionHandler(
     service.updateTaskStatus(task, TaskStatus.CANCELLED, note.trim())
     pendingCancelTask = null
     view.setCancelMode(false)
-    view.clearInputText()
+    restoreSavedDraft()
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 

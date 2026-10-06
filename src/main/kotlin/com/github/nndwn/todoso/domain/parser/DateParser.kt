@@ -15,7 +15,8 @@ object DateParser {
   private val CREATED_REGEX = Regex("""${Metadata.ICON_CREATED}\s*($DATE_TIME_PATTERN)""")
   private val EDITED_REGEX = Regex("""${Metadata.ICON_EDITED}\s*($DATE_TIME_PATTERN)""")
 
-  private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+  const val DATE_PATTERN = "yyyy-MM-dd HH:mm"
+  private val DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN)
 
   fun parseDates(input: String?, notes: String = ""): Metadata {
     if (input.isNullOrBlank()) return Metadata(notes = notes)

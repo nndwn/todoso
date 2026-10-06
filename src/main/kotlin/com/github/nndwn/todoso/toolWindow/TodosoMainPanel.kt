@@ -453,6 +453,8 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
 
   override fun getInputText(): String = inputPanel.inputTextArea.text
 
+  override fun setInputText(text: String) = inputPanel.setInputText(text)
+
   override fun clearInputText() = inputPanel.clearInputText()
 
   override fun requestFocusToInput() = inputPanel.requestFocusToInput()

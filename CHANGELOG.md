@@ -3,6 +3,7 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- Added task draft preservation feature: fixed an issue where typing a new task and switching actions (e.g., cancelling a task, editing a task, or adding a note) would cause the typed input to be lost or accidentally converted into a note.
 
 ## [2.0.9] - 2026-09-30
 
