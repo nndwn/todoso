@@ -28,7 +28,7 @@
 - [x] 🔼 di read me penjelasan mengenai combine sort masih belum jelas 🆔 eq5zdu 🛫 2026-09-09 18:20 ✅ 2026-09-09 22:24
 - [x] seperti nya perlu untuk dapat nyisip image dengan path relative aturannya sama tidak ada task kosong #feature 🛫 2026-09-09 21:00 🆔 cyWdbq ✅ 2026-09-10 11:45
 - [x] masih mengenai TodosoInput seperti nya perlu jarak antar space yang sedikit lebih sedikit lebih sempit untuk lebar input 🆔 D02PmB 🛫 2026-09-09 22:12 ✅ 2026-09-09 23:05
-- [ ] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti tes #development #feature 📝 2026-09-24 07:10 🆔 E4TFhe
+- [-] ⏬ penambahan fitur path pada input ketika user menekan / maka tampilin seluruh file project kecuali todo.md jika ada file .gitigonore peroleh informasi data yang tidak boleh di tampilin , jadi seperti nya todoso bukan hanya perlu membaca todo.md saja berarti tes #development #feature ❌ 2026-10-06 19:38 📝 2026-09-24 07:10 🆔 E4TFhe // seperti tidak perlu fitur bookmark sebenar nya sudah mencukupin untuk mendapatkan file dari luar
 - [x] ⏫ masalah tags yang tampil memang 10 poluler tags namun bagaimana jika user tag yang tidak populer 🆔 OWbWsI 🛫 2026-09-10 13:30 ✅ 2026-09-10 16:00
 - [x] 🔼 icon insert tidak sesuai dan ubah jaraknya 🆔 i6PW61 🛫 2026-09-10 13:30 ✅ 2026-09-10 14:34
 - [x] ⏫ di readme belum ada penjelasan mengenai penangalan edited #issue 🆔 YbaRd8 🛫 2026-09-10 13:38 ✅ 2026-09-10 14:35
@@ -51,7 +51,7 @@
 - [x] [H] harusnya todosoContextMenu tidak perlu tahu mengenai isi TodosoToolbar #issue 🆔 S5Cdbo 🛫 2026-09-13 14:20 ✅ 2026-09-13 15:07
 - [x] [H]rename edit dan tags menjadi edit task #issue 🆔 5dzxA2 🛫 2026-09-13 14:31 ✅ 2026-09-13 14:31
 - [x] [H] pada klik kanan perlu ada add tag berupa berupa tag populer dan tag eklusif lalu filter tag populer jika ada memiliki tag eklusif #feature 🆔 9TRrqs 🛫 2026-09-13 23:23 ✅ 2026-09-14 00:18
-- [ ] 🔽 untuk di klik kanan apa perlu ada filter ? #feature #development 🆔 LjXZqK
+- [-] 🔽 untuk di klik kanan apa perlu ada filter ? #feature #development ❌ 2026-10-06 19:39 🆔 LjXZqK // untuk context menu sendiri sebenar sudah cukup banyak malahan perlu ada pengurangan untuk menu klik kanan
 - [x] ⏫ issue untuk placeholder input jangan terhapus pada saat inputan kosong #issue 🆔 yeBXUB 🛫 2026-09-13 22:35 ✅ 2026-09-13 23:03
 - [x] [H] pada priority jika sudah diberikan priority jangan di berikan priority yang sama #issue 🆔 le419q 🛫 2026-09-13 14:51 ✅ 2026-09-13 15:06
 - [x] ⏫ #issue di auto scroll tidak efektif untuk sistem order list ini karena setiap perubahan perlu jeda sync 🆔 KjTPl7 🛫 2026-09-13 15:16 ✅ 2026-09-13 15:26
@@ -109,7 +109,7 @@
 - [x] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 04:21 ➕ 2026-09-19 07:22 🆔 gfoJS4
 - [ ] #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys // [HH] h
 - [x] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ✅ 2026-09-20 01:35 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
-- [ ] 🔼 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ➕ 2026-09-19 08:02 🆔 5ewVz9
+- [-] 🔼 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ❌ 2026-10-06 19:35 ➕ 2026-09-19 08:02 🆔 5ewVz9 // sepertinya kurang efektif lebih tag seperti apa adanya di input
 - [x] 🔺 #issue ada masalah pada masalah di welcome text #v2.0.5 #production 🛫 2026-09-19 15:07 ✅ 2026-09-19 15:08 ➕ 2026-09-19 15:06 📝 2026-09-19 15:06 🆔 HOHXeq
 - [x] ⏫ #issue kenapa #toolbar pada search masih bisa di klik pada saat task kosong ? #production 🛫 2026-09-19 15:11 ✅ 2026-09-19 18:03 ➕ 2026-09-19 15:11 🆔 CflhNN
 <!-- - [ ] # ➕ 2026-09-19 15:35 🆔 7nZzDz -->
@@ -139,3 +139,4 @@
 - [x] ⏫ issue pada saat edit task baru selection masih list daftar masih terpilih sehingga user dapat menekan delete atau backspace sehingga user dapat mendelete task yang terpilih tersebut #production #issue #v2.1.0 #ux report from @mouserd #item_task 🛫 2026-10-06 11:48 ✅ 2026-10-06 13:44 ➕ 2026-10-03 18:52 📝 2026-10-03 18:57 🆔 kIhFxa
 - [x] ⏫ #feature #context_menu penambahan klik kanan recent tag #v2.1.0 #development 🛫 2026-10-06 15:41 ✅ 2026-10-06 15:41 ➕ 2026-10-04 21:54 🆔 7FuCTE
 - [x] 🔼 #feature #development #v2.1.0 integrasikan dengan commit bawaan intellij nanti nya pada deskripsi akan mengisi nilai commit lalu di lakukan oleh plugin intellig idea #context_menu 🛫 2026-10-06 15:41 ✅ 2026-10-06 16:17 ➕ 2026-10-06 15:07 🆔 w4vbbg
+- [ ] 🔼 #issue #production terdapat depcraption pada #tooltip HelpTooltip.setDescription(String) (1)HelpTooltip.setTitle(Supplier) seperti nya itu bisa di buat alternatifnya #v2.1.1 ➕ 2026-10-06 19:41 📝 2026-10-06 19:41 🆔 eHS8t4
