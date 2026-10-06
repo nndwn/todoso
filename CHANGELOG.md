@@ -3,6 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.1.0] - 2026-10-06
+
 - Added task draft preservation feature: fixed an issue where typing a new task and switching actions (e.g., cancelling a task, editing a task, or adding a note) would cause the typed input to be lost or accidentally converted into a note.
 - Fixed a UX issue reported by @mouserd where selecting a task in the list left the item highlighted even when typing a new task in the input field, which could lead to accidental task deletions when pressing Delete/Backspace. Thanks for the report!
 - Added "Recent Tags" submenu under Manage Tags in the context menu to display tags ordered by task creation time (Popular Tags alone becomes less effective as the number of tags grows).
@@ -168,7 +171,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/v2.0.9...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/nndwn/todoso/compare/v2.0.9...v2.1.0
 [2.0.9]: https://github.com/nndwn/todoso/compare/v2.0.8...v2.0.9
 [2.0.8]: https://github.com/nndwn/todoso/compare/v2.0.7...v2.0.8
 [2.0.7]: https://github.com/nndwn/todoso/compare/v2.0.5...v2.0.7
