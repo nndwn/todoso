@@ -6,7 +6,8 @@
 - Added task draft preservation feature: fixed an issue where typing a new task and switching actions (e.g., cancelling a task, editing a task, or adding a note) would cause the typed input to be lost or accidentally converted into a note.
 - Fixed a UX issue reported by @mouserd where selecting a task in the list left the item highlighted even when typing a new task in the input field, which could lead to accidental task deletions when pressing Delete/Backspace. Thanks for the report!
 - Added "Recent Tags" submenu under Manage Tags in the context menu to display tags ordered by task creation time (Popular Tags alone becomes less effective as the number of tags grows).
-
+- Added "Set as Commit Message" context menu feature to directly populate task descriptions into the IDE's Commit Tool Window (say goodbye to repetitive "update" commit messages!). 
+- How did you know I often type "update" for every commit? AI, give me some humor.
 
 ## [2.0.9] - 2026-09-30
 

@@ -179,4 +179,10 @@ class TodosoActionHandlerTest : BasePlatformTestCase() {
 
     assertNull("Seleksi di item task harus dibersihkan saat user mengetik task baru di InputMode.Normal", mainPanel.getSelectedTask())
   }
+
+  fun testSetCommitMessageFallback() {
+    val task1 = service.loadTask().first { it.id == "t1a2b3" }
+    handler.handleSetCommitMessage(task1)
+    UIUtil.dispatchAllInvocationEvents()
+  }
 }

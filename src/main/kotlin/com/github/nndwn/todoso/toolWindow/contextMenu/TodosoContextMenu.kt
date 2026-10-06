@@ -245,6 +245,15 @@ class TodosoContextMenu(
     )
 
     item(
+      text = TodosoBundle.message("todo.menu.set_commit_message"),
+      icon = AllIcons.Actions.Commit,
+      isVisible = isNormalMode,
+      onAction = {
+        service.findTaskById(taskId)?.let { handler.handleSetCommitMessage(it) }
+      },
+    )
+
+    item(
       text = TodosoBundle.message("todo.menu.delete"),
       icon = AllIcons.Actions.GC,
       shortcut = CommonShortcuts.getDelete(),

@@ -113,9 +113,14 @@ A comprehensive right-click menu for lightning-fast task management:
 *   **Add Note**: Open the input panel in **Note Mode** to add or update metadata notes (after the `//` separator) specifically for the selected task.
 *   **Manage Tags (Intelligent Sub-Menu)**:
     *   **Exclusive Groups**: Automatically handles mutually exclusive tags (e.g., toggling `#feature` will remove `#issue`).
+    *   **Recent Tags**: Displays your 10 most recently added tags based on task creation order.
     *   **Popular Tags**: Suggests your 10 most used tags from the current file for quick access.
     *   **Version Tracking**: Dedicated sub-menu for version-related tags (`v*`).
     *   **Inline Integrity**: Adding tags via the menu preserves your existing "inline" tags within the description, appending new ones only if they don't already exist.
+*   **Set as Commit Message**:
+    *   **IntelliJ Commit Integration**: Right-click > **Set as Commit Message** to instantly populate the task description and unique ID (`- description 🆔 id`) into the IDE's built-in **Commit Tool Window**.
+    *   **Smart Appending**: If the commit message box already contains text, the new task is automatically appended on a new line, creating structured multi-item commit messages with ease.
+    *   **Auto-Activation**: Programmatically opens and focuses the Commit Tool Window regardless of your keymap settings.
 *   **Copy Context**: Copies the task description and its relevant metadata to the clipboard for sharing.
 *   **Delete Task**: Deleting a task does not immediately remove it from `todo.md`. Instead, it is commented out, requiring manual deletion if you wish to clear the line entirely.
 *   **Navigate to Source**: Instantly jumps to the exact line in your Markdown file.

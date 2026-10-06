@@ -7,6 +7,7 @@ import com.github.nndwn.todoso.domain.model.TaskStatus
 import com.github.nndwn.todoso.domain.model.TodoTask
 import com.github.nndwn.todoso.services.TodosoService
 import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoBookmarkHelper
+import com.github.nndwn.todoso.toolWindow.contextMenu.TodosoCommitHelper
 import com.github.nndwn.todoso.toolWindow.inputWindow.InputMode
 import com.intellij.ide.bookmark.Bookmark
 import com.intellij.notification.NotificationGroupManager
@@ -177,6 +178,10 @@ class TodosoActionHandler(
   fun handleCopyContext() {
     val selected = view.getSelectedTask() ?: return
     CopyPasteManager.getInstance().setContents(StringSelection(selected.rawText))
+  }
+
+  fun handleSetCommitMessage(task: TodoTask) {
+    TodosoCommitHelper.setCommitMessage(task, project, ::handleErrorNotification)
   }
 
   fun handleAddToChangelog() {
