@@ -112,6 +112,7 @@ class TodosoActionHandler(
     service.editTask(selected, text.trim())
     view.setEditMode(false)
     restoreSavedDraft()
+    view.setSelectedTask(null)
     view.updateButtonStates()
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
@@ -121,6 +122,7 @@ class TodosoActionHandler(
     service.updateTaskNote(selected, note)
     view.setNoteMode(false)
     restoreSavedDraft()
+    view.setSelectedTask(null)
     view.updateButtonStates()
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
@@ -131,6 +133,7 @@ class TodosoActionHandler(
     view.setNoteMode(false)
     pendingCancelTask = null
     restoreSavedDraft()
+    view.setSelectedTask(null)
     view.updateButtonStates()
   }
 
@@ -213,6 +216,7 @@ class TodosoActionHandler(
     pendingCancelTask = null
     view.setCancelMode(false)
     restoreSavedDraft()
+    view.setSelectedTask(null)
     ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
   }
 

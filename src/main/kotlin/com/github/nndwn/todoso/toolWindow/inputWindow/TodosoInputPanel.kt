@@ -41,7 +41,7 @@ import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
 import javax.swing.event.DocumentEvent
 
-class TodosoInputPanel(
+class TodosoInputPanel @JvmOverloads constructor(
   private val onNewTask: (String) -> Unit,
   private val onUpdateTask: (String) -> Unit,
   private val onConfirmCancel: (String) -> Unit,
@@ -54,6 +54,7 @@ class TodosoInputPanel(
   private val onTabPressed: () -> Unit,
   private val onAttachFileRequest: () -> Unit,
   private val onTextValidator: (String) -> Boolean,
+  private val onInputFocused: (() -> Unit)? = null,
 ) : JBPanel<TodosoInputPanel>(BorderLayout()) {
 
   companion object {
@@ -144,6 +145,9 @@ class TodosoInputPanel(
     inputTextArea.addMouseListener(
       object : MouseAdapter() {
         override fun mousePressed(e: MouseEvent) {
+          if (currentMode is InputMode.Normal) {
+            onInputFocused?.invoke()
+          }
           if (e.isPopupTrigger) showMenu(e)
         }
 
@@ -221,6 +225,9 @@ class TodosoInputPanel(
       object : FocusAdapter() {
         override fun focusGained(e: FocusEvent?) {
           this@TodosoInputPanel.repaint()
+          if (currentMode is InputMode.Normal) {
+            onInputFocused?.invoke()
+          }
           if (inputTextArea.text.trim().isEmpty() && currentMode is InputMode.Normal) {
             showSuggestionsPopup('!')
           }
@@ -241,6 +248,10 @@ class TodosoInputPanel(
           if (isProgrammaticChange) {
             hideOverlay()
             return
+          }
+
+          if (currentMode is InputMode.Normal) {
+            onInputFocused?.invoke()
           }
 
           SwingUtilities.invokeLater {

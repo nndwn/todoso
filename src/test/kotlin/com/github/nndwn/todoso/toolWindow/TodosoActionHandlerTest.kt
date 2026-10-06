@@ -109,10 +109,10 @@ class TodosoActionHandlerTest : BasePlatformTestCase() {
 
   fun testEditTaskPreservesDraftAndRestoresOnUpdate() {
     val task1 = service.loadTask().first { it.id == "t1a2b3" }
-    mainPanel.setSelectedTask(task1)
     val draftText = "Draft task yang sedang ditulis #dev"
     mainPanel.inputPanel.inputTextArea.text = draftText
 
+    mainPanel.setSelectedTask(task1)
     handler.setEditMode(true, task1.description)
     UIUtil.dispatchAllInvocationEvents()
 
@@ -130,10 +130,10 @@ class TodosoActionHandlerTest : BasePlatformTestCase() {
 
   fun testEditTaskPreservesDraftAndRestoresOnCancel() {
     val task1 = service.loadTask().first { it.id == "t1a2b3" }
-    mainPanel.setSelectedTask(task1)
     val draftText = "Draft task yang sedang ditulis #dev"
     mainPanel.inputPanel.inputTextArea.text = draftText
 
+    mainPanel.setSelectedTask(task1)
     handler.setEditMode(true, task1.description)
     UIUtil.dispatchAllInvocationEvents()
 
@@ -148,10 +148,10 @@ class TodosoActionHandlerTest : BasePlatformTestCase() {
 
   fun testAddNotePreservesDraftAndRestoresOnUpdate() {
     val task1 = service.loadTask().first { it.id == "t1a2b3" }
-    mainPanel.setSelectedTask(task1)
     val draftText = "Draft task yang sedang ditulis #dev"
     mainPanel.inputPanel.inputTextArea.text = draftText
 
+    mainPanel.setSelectedTask(task1)
     handler.setNoteMode(true, "")
     UIUtil.dispatchAllInvocationEvents()
 
@@ -164,5 +164,19 @@ class TodosoActionHandlerTest : BasePlatformTestCase() {
     assertTrue("Note task1 harus ter-update", updatedTask1.metadata.notes.contains("Catatan baru untuk task1"))
     assertTrue("Mode harus kembali ke Normal", handler.getCurrentMode() is InputMode.Normal)
     assertEquals("Draft task harus dikembalikan setelah note ditambahkan", draftText, mainPanel.inputPanel.inputTextArea.text)
+  }
+
+  fun testInputFocusInNormalModeClearsListSelection() {
+    val task1 = service.loadTask().first { it.id == "t1a2b3" }
+    mainPanel.setSelectedTask(task1)
+    assertEquals("Task 1 harus terpilih saat dilih", task1.id, mainPanel.getSelectedTask()?.id)
+
+    mainPanel.inputPanel.inputTextArea.requestFocusInWindow()
+    UIUtil.dispatchAllInvocationEvents()
+
+    mainPanel.inputPanel.inputTextArea.text = "Mulai mengetik task baru..."
+    UIUtil.dispatchAllInvocationEvents()
+
+    assertNull("Seleksi di item task harus dibersihkan saat user mengetik task baru di InputMode.Normal", mainPanel.getSelectedTask())
   }
 }

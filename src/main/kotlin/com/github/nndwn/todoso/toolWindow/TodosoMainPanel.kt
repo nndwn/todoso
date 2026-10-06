@@ -167,6 +167,7 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       },
       onAttachFileRequest = { handleAttachFile() },
       onTextValidator = { text -> TodoValidator.isContentValid(text) },
+      onInputFocused = { taskListView.setSelectedTask(null) },
     )
 
   private fun handleAttachFile() {
