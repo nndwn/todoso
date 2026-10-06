@@ -193,4 +193,19 @@ class TodoFileParserTest : BasePlatformTestCase() {
     val taskDifferent = TodoTaskParser.parseLine(rawDifferentOrder, 1, mutableSetOf())
     assertEquals("Clean Me", taskDifferent?.description)
   }
+
+  fun testGetRecentTags() {
+    val line1 = "- [ ] Task 1 #old_tag ➕ 2026-01-01 🆔 t1"
+    val line2 = "- [ ] Task 2 #recent_tag ➕ 2026-10-06 🆔 t2"
+    val line3 = "- [ ] Task 3 #middle_tag ➕ 2026-05-05 🆔 t3"
+
+    val tasks = listOfNotNull(
+      TodoTaskParser.parseLine(line1, 1, mutableSetOf()),
+      TodoTaskParser.parseLine(line2, 2, mutableSetOf()),
+      TodoTaskParser.parseLine(line3, 3, mutableSetOf())
+    )
+
+    val recentTags = TagParser.getRecentTags(tasks, limit = 10)
+    assertEquals(listOf("recent_tag", "middle_tag", "old_tag"), recentTags)
+  }
 }

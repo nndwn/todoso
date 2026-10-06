@@ -155,7 +155,28 @@ class TodosoContextMenu(
       // 3. Recent Versions
       val recentVersions = TagParser.getRecentVersions(tasks = taskData)
 
-      // 2. Popular Tags (Excluding Exclusives and Recent Versions)
+      // 2. Recent Tags (Excluding Exclusives and Recent Versions)
+      val recentTags = TagParser.getRecentTags(taskData, limit = 50)
+        .filter { it !in exclusiveTags && it !in recentVersions }
+        .take(10)
+
+      if (recentTags.isNotEmpty()) {
+        subMenu(TodosoBundle.message("todo.suggestion.recent.tags")) {
+          recentTags.forEach { tag ->
+            toggle(
+              text = TagParser.formatTagWithCount(tag, taskData, isTruncated = true),
+              isSelected = {
+                service.findTaskById(taskId)?.tags?.contains(tag) ?: false
+              },
+              onToggle = {
+                service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+              },
+            )
+          }
+        }
+      }
+
+      // 4. Popular Tags (Excluding Exclusives and Recent Versions)
       val popularTags = TagParser.getPopularTags(taskData, limit = 50)
         .filter { it !in exclusiveTags && it !in recentVersions }
         .take(10)

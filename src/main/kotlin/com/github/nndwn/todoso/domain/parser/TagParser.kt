@@ -20,6 +20,18 @@ object TagParser {
 
   fun truncateTag(tag: String): String = if (tag.length > 20) tag.take(17) + "..." else tag
 
+  fun getRecentTags(tasks: List<TodoTask>, limit: Int = 10): List<String> {
+    return tasks
+      .asSequence()
+      .sortedWith(
+        compareByDescending<TodoTask> { it.metadata.createdDate ?: it.metadata.startDate ?: "" }
+          .thenByDescending { it.lineNumber }
+      )
+      .flatMap { task -> task.tags.map { it.removePrefix("#") } }
+      .distinct()
+      .take(limit)
+      .toList()
+  }
   fun getPopularTags(tasks: List<TodoTask>, limit: Int = 10): List<String> {
     return tasks
       .asSequence()
