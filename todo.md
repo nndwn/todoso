@@ -139,8 +139,9 @@
 - [x] ⏫ issue pada saat edit task baru selection masih list daftar masih terpilih sehingga user dapat menekan delete atau backspace sehingga user dapat mendelete task yang terpilih tersebut #production #issue #v2.1.0 #ux report from @mouserd #item_task 🛫 2026-10-06 11:48 ✅ 2026-10-06 13:44 ➕ 2026-10-03 18:52 📝 2026-10-03 18:57 🆔 kIhFxa
 - [x] ⏫ #feature #context_menu penambahan klik kanan recent tag #v2.1.0 #development 🛫 2026-10-06 15:41 ✅ 2026-10-06 15:41 ➕ 2026-10-04 21:54 🆔 7FuCTE
 - [x] 🔼 #feature #development #v2.1.0 integrasikan dengan commit bawaan intellij nanti nya pada deskripsi akan mengisi nilai commit lalu di lakukan oleh plugin intellig idea #context_menu 🛫 2026-10-06 15:41 ✅ 2026-10-06 16:17 ➕ 2026-10-06 15:07 🆔 w4vbbg
-- [ ] 🔼 #issue #production terdapat depcraption pada #tooltip HelpTooltip.setDescription(String) (1)HelpTooltip.setTitle(Supplier) seperti nya itu bisa di buat alternatifnya #v2.1.1 ➕ 2026-10-06 19:41 📝 2026-10-06 19:41 🆔 eHS8t4
+- [ ] 🔼 #issue #production terdapat depcraption pada #tooltip HelpTooltip.setDescription(String) (1)HelpTooltip.setTitle(Supplier) seperti nya itu bisa di buat alternatifnya #v2.1.1 #depcrapted #refactoring ➕ 2026-10-06 19:41 📝 2026-10-12 06:30 🆔 eHS8t4
 - [ ] 🔼 #feature #development #command untuk diawal perlu ada feature untuk manage tags di dalam command seperti rename_tag dan delete_tag ➕ 2026-10-11 19:39 🆔 QvMOg7
-- [ ] ⏫ #issue #production #context_menu pada add as commit dapat menambahkan yang sama, karena mengunakan id di akhir nya seharusnya ini dapat di atasin #v2.1.1 ➕ 2026-10-12 02:01 🆔 cL7T8z
-- [ ] ⏫ #issue #production add as commit task seharusnya bagaimana menghapus task yang sudah di tambahkan lalu berhasil di commit di clear #v2.1.1 ➕ 2026-10-12 02:06 🆔 LcHhoJ
-- [ ] ⏫ #issue #production seharusnya #tooltip jika mouse masuk ke dalam nya tetap muncul bukan menghilang #v2.1.1 ➕ 2026-10-12 02:12 🆔 csjlRZ
+- [ ] ⏫ #issue #production #context_menu pada add as commit dapat menambahkan yang sama, karena mengunakan id di akhir nya seharusnya ini dapat di atasin #v2.1.1 #ux ➕ 2026-10-12 02:01 🆔 cL7T8z
+- [ ] ⏫ #issue #production add as commit task seharusnya bagaimana menghapus task yang sudah di tambahkan lalu berhasil di commit di clear #v2.1.1 #ux ➕ 2026-10-12 02:06 🆔 LcHhoJ
+- [ ] ⏫ #issue #production seharusnya #tooltip jika mouse masuk ke dalam nya tetap muncul bukan menghilang #v2.1.1 #ux ➕ 2026-10-12 02:12 🆔 csjlRZ
+- [ ] ⏫ #context_menu ketika sudah ada note jangan tulisan nya masih add note tapi ubah menjadi edit note #issue #production #v2.1.1 #ux ➕ 2026-10-12 06:26 🆔 kG4GnU
