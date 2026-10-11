@@ -83,7 +83,7 @@
 - [x] 🔼 Di input tidak bisa typing ke atas dengan mengunakan keyboard #issue #production #v2.0.2 🛫 2026-09-15 06:42 ✅ 2026-09-15 09:58 ➕ 2026-09-15 03:20 🆔 KXZ7AL
 - [x] 🔼 #issue bagaimana jika di deskripsi memiliki tag yang sama ? seharus dianggap satu 1 nantinya ini akan bermasalah di count , jadi mungkin di count menghitung berdasarkan id task #production #v2.0.2 🛫 2026-09-15 03:39 ✅ 2026-09-15 06:15 ➕ 2026-09-15 03:23 🆔 3HGkAU
 - [x] 🔺 #issue nilai count hanya bernilai satu akibat list string berdasar tag tidak berdasarkan task #production #v2.0.2 🛫 2026-09-15 03:39 ✅ 2026-09-15 06:11 ➕ 2026-09-15 03:25 🆔 6SfUFD
-- [ ] ⏬ mungkin ke depannya di inpunt ada perintah command #feature #development ➕ 2026-09-15 03:42 🆔 iszkMc
+- [ ] 🔼 mungkin ke depannya di inpunt ada perintah command , command sendiri memiliki tanda baca @ suggestion akan muncul ketika user sudah memiliki daftar task #feature #development #input_task #suggestion #command #v2.1.1 ➕ 2026-09-15 03:42 📝 2026-10-11 19:40 🆔 iszkMc
 - [-] 🔼 di descripsi task seperti nya perlu huruf awalan yang besar biar tampak rapi #feature #development #v2.0.2 ❌ 2026-09-15 06:54 ➕ 2026-09-15 03:46 🆔 MrooV4 // sepertnya tidak perlu hanya menambahk koplesitas , biarkan user berkreasi
 - [x] ⏫ #issue matikan scroll list task pada keyboard jika user menekan atas , tapi aktifikan select mengunakan scroll #production #v2.0.2 🛫 2026-09-15 11:34 ✅ 2026-09-15 11:46 ➕ 2026-09-15 03:47 🆔 FjNe3s // penambahan tab untuk navigasi antara input dan list
 - [x] ⏫ refactoring TodosoInputPanel sudah terlalu panjang #issue #development #v2.0.5 #refactoring 🛫 2026-09-19 20:16 ✅ 2026-09-19 20:31 ➕ 2026-09-15 06:14 📝 2026-09-19 20:16 🆔 BSRA1a
@@ -107,7 +107,7 @@
 - [x] 🔺 #Issue ketika suggestion muncul user menekan # muncul user ternyata perlu edit text seharus nya suggestion tombol esc di gunakan untuk close sementara suggestion #v2.0.5 #production #suggestion 🛫 2026-09-19 08:23 ✅ 2026-09-19 19:52 ➕ 2026-09-19 06:58 📝 2026-09-19 07:10 🆔 pXpZci
 <!-- - [ ] <b>test</b> ➕ 2026-09-19 07:04 🆔 wIFxDL -->
 - [x] 🔼 #feature sepertinya perlu count task menjumlah task yang task yang tertampil di list , letakin di atas input karena ada space disana #development #v2.0.5 🛫 2026-09-20 01:35 ✅ 2026-09-20 04:21 ➕ 2026-09-19 07:22 🆔 gfoJS4
-- [ ] #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys // [HH] h
+- [ ] ⏬ #feature #item_task #input_task di input ketika user menulis bentuk huruf seperti bold, italic, strike line, <mark> ke dalam bentuk markdown atau html di terima lalu di terjemahkan oleh todosoItem #development #tooltip ➕ 2026-09-19 07:29 📝 2026-09-19 08:09 🆔 Tvjlys // [HH] h
 - [x] ⏫ #Issue #context_menu berapa jumlah manage tags > popular tags di tampilkan disana ? kenapa ada tags yang beru di tambahkan tidak tampil disana ? #v2.0.5 #production 🛫 2026-09-19 20:17 ✅ 2026-09-20 01:35 ➕ 2026-09-19 07:31 📝 2026-09-19 07:32 🆔 Kuouux
 - [-] 🔼 #feature #suggestion #input_task ketika user memilih suggestion contoh seperti tag apakah bisa jadikan semacam kotak blok ada tombol clear sehingga user tidak perlu menghapus panjang #development ❌ 2026-10-06 19:35 ➕ 2026-09-19 08:02 🆔 5ewVz9 // sepertinya kurang efektif lebih tag seperti apa adanya di input
 - [x] 🔺 #issue ada masalah pada masalah di welcome text #v2.0.5 #production 🛫 2026-09-19 15:07 ✅ 2026-09-19 15:08 ➕ 2026-09-19 15:06 📝 2026-09-19 15:06 🆔 HOHXeq
@@ -140,3 +140,4 @@
 - [x] ⏫ #feature #context_menu penambahan klik kanan recent tag #v2.1.0 #development 🛫 2026-10-06 15:41 ✅ 2026-10-06 15:41 ➕ 2026-10-04 21:54 🆔 7FuCTE
 - [x] 🔼 #feature #development #v2.1.0 integrasikan dengan commit bawaan intellij nanti nya pada deskripsi akan mengisi nilai commit lalu di lakukan oleh plugin intellig idea #context_menu 🛫 2026-10-06 15:41 ✅ 2026-10-06 16:17 ➕ 2026-10-06 15:07 🆔 w4vbbg
 - [ ] 🔼 #issue #production terdapat depcraption pada #tooltip HelpTooltip.setDescription(String) (1)HelpTooltip.setTitle(Supplier) seperti nya itu bisa di buat alternatifnya #v2.1.1 ➕ 2026-10-06 19:41 📝 2026-10-06 19:41 🆔 eHS8t4
+- [ ] 🔼 #feature #development #command untuk diawal perlu ada feature untuk manage tags di dalam command seperti rename_tag dan delete_tag #v2.1.1 ➕ 2026-10-11 19:39 🆔 QvMOg7
