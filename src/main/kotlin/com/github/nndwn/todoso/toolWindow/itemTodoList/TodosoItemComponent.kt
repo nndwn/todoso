@@ -279,7 +279,6 @@ class TodosoItemComponent(
 
   private fun tooltip() {
     HelpTooltip.dispose(this)
-    val ht = HelpTooltip()
 
     val title =
       if (task.isPersistentId) {
@@ -287,7 +286,6 @@ class TodosoItemComponent(
       } else {
         TodosoBundle.message("todo.tooltip.task.details")
       }
-    ht.setTitle { title }
 
     val chunks = mutableListOf<HtmlChunk>()
 
@@ -300,7 +298,7 @@ class TodosoItemComponent(
     // 2. Detail Tugas Utama
     appendTaskMetadata(chunks, task)
 
-    // 2. Rujukan
+    // 3. Rujukan
     val referencedIds =
       TaskIdParser.TASK_ID_REGEX.findAll(task.description).map { it.groupValues[1] }.distinct().filter { it != task.id }
 
@@ -314,10 +312,10 @@ class TodosoItemComponent(
       }
     }
 
+    val ht = HelpTooltip().setTitle(title)
     if (chunks.isNotEmpty()) {
-      ht.description = HtmlChunk.div().children(*chunks.toTypedArray()).toString()
+      ht.setDescription(HtmlChunk.div().children(*chunks.toTypedArray()).toString())
     }
-
     ht.installOn(this)
   }
 
