@@ -314,50 +314,50 @@ class TodosoItemComponent(
 
     val ht = object : HelpTooltip() {
       override fun shouldForceHiding(): Boolean = false
-    }.setCompatibleTitle(title).setNeverHideOnTimeout(true)
+    }
+    HelpTooltipCompat.setTitle(ht, title).setNeverHideOnTimeout(true)
 
     if (chunks.isNotEmpty()) {
       val desc = HtmlChunk.div().children(*chunks.toTypedArray())
-      ht.setCompatibleDescription(desc)
+      HelpTooltipCompat.setDescription(ht, desc)
     }
     ht.installOn(this)
   }
 
   private object HelpTooltipCompat {
-    val setPlainTextTitleMethod: java.lang.reflect.Method? by lazy {
-      try {
-        HelpTooltip::class.java.getMethod("setPlainTextTitle", String::class.java)
-      } catch (_: Throwable) {
-        null
+    private val setPlainTextTitleMethod by lazy {
+      runCatching { HelpTooltip::class.java.getMethod("setPlainTextTitle", String::class.java) }.getOrNull()
+    }
+
+    private val setTitleMethod by lazy {
+      runCatching { HelpTooltip::class.java.getMethod("setTitle", String::class.java) }.getOrNull()
+    }
+
+    private val setDescriptionHtmlChunkMethod by lazy {
+      runCatching { HelpTooltip::class.java.getMethod("setDescription", HtmlChunk::class.java) }.getOrNull()
+    }
+
+    private val setDescriptionStringMethod by lazy {
+      runCatching { HelpTooltip::class.java.getMethod("setDescription", String::class.java) }.getOrNull()
+    }
+
+    fun setTitle(ht: HelpTooltip, title: String): HelpTooltip {
+      val m = setPlainTextTitleMethod ?: setTitleMethod
+      return if (m != null) {
+        (m.invoke(ht, title) as? HelpTooltip) ?: ht
+      } else {
+        ht
       }
     }
 
-    val setDescriptionHtmlChunkMethod: java.lang.reflect.Method? by lazy {
-      try {
-        HelpTooltip::class.java.getMethod("setDescription", HtmlChunk::class.java)
-      } catch (_: Throwable) {
-        null
+    fun setDescription(ht: HelpTooltip, chunk: HtmlChunk): HelpTooltip {
+      return if (setDescriptionHtmlChunkMethod != null) {
+        (setDescriptionHtmlChunkMethod!!.invoke(ht, chunk) as? HelpTooltip) ?: ht
+      } else if (setDescriptionStringMethod != null) {
+        (setDescriptionStringMethod!!.invoke(ht, chunk.toString()) as? HelpTooltip) ?: ht
+      } else {
+        ht
       }
-    }
-  }
-
-  private fun HelpTooltip.setCompatibleTitle(title: String): HelpTooltip {
-    val method = HelpTooltipCompat.setPlainTextTitleMethod
-    return if (method != null) {
-      method.invoke(this, title) as HelpTooltip
-    } else {
-      @Suppress("DEPRECATION")
-      this.setTitle(title)
-    }
-  }
-
-  private fun HelpTooltip.setCompatibleDescription(chunk: HtmlChunk): HelpTooltip {
-    val method = HelpTooltipCompat.setDescriptionHtmlChunkMethod
-    return if (method != null) {
-      method.invoke(this, chunk) as HelpTooltip
-    } else {
-      @Suppress("DEPRECATION")
-      this.apply { description = chunk.toString() }
     }
   }
 

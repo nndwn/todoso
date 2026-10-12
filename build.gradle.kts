@@ -30,12 +30,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     intellijPlatform {
-        if (!localIdePath.isNullOrBlank()) {
-            local(localIdePath)
-        } else {
-            intellijIdea("2025.3.6.1")
-        }
-
+//        if (!localIdePath.isNullOrBlank()) { local(localIdePath) } else {
+//            intellijIdea("2025.3.6.1")
+//        }
+       intellijIdea("2025.3.6.1")
         testFramework(TestFrameworkType.Platform)
     }
 }

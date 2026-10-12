@@ -3,9 +3,14 @@
 # Todoso Changelog
 
 ## [Unreleased]
-- entah kenapa terasa begitu malas update tiap minggu ini plugin tapi ku merasa bertanggung jawab apa yang telah ku buat, lagipun ku juga gunain ini plugin setiap project 👀
+
 - memperbaikin deprapted pada tooltip pada Android Studio/Intellij Idea versi 2026
-- 
+- memperbaikin issue tooltip ketika muncul selalu menghilang ketika mouse menghampirinnya
+- memperbaikin issue fitur sebelumnya set as commit message dapat melakukan double messagge dengan task yang sama
+- ku gk tahu kenapa commit message ketika berhasil di commit tidak mau automatis terhapus ini sebenar issue ux Intellij IDEA, tapi todoso dapat trigger menghapus commit message ketika berhasil di commit
+- perbaikin issue pada menu add note harusnya ketika sudah ada note maka bertuliskan edit note
+- penambahan fitur sekarang task dapat melakukan multi seleksi jika menekan shift
+- Another day, another migraine
 ## [2.1.0] - 2026-10-06
 
 - Added task draft preservation feature: fixed an issue where typing a new task and switching actions (e.g., cancelling a task, editing a task, or adding a note) would cause the typed input to be lost or accidentally converted into a note.

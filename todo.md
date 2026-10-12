@@ -145,4 +145,5 @@
 - [ ] ⏫ #issue #production add as commit task seharusnya bagaimana menghapus task yang sudah di tambahkan lalu berhasil di commit di clear #v2.1.1 #ux ➕ 2026-10-12 02:06 🆔 LcHhoJ
 - [x] ⏫ #issue #production seharusnya #tooltip jika mouse masuk ke dalam nya tetap muncul bukan menghilang #v2.1.1 #ux 🛫 2026-10-13 01:29 ✅ 2026-10-13 03:01 ➕ 2026-10-12 02:12 🆔 csjlRZ
 - [ ] ⏫ #context_menu ketika sudah ada note jangan tulisan nya masih add note tapi ubah menjadi edit note #issue #production #v2.1.1 #ux ➕ 2026-10-12 06:26 🆔 kG4GnU
-- [ ] ⏫ #feature #development #item_task #v2.1.1 jika user menekan shift user dapat seleksi multiple task ➕ 2026-10-13 00:47 🆔 3c2fQp
+- [/] ⏫ #feature #development #item_task #v2.1.1 jika user menekan shift user dapat seleksi multiple task 🛫 2026-10-13 03:05 ➕ 2026-10-13 00:47 🆔 3c2fQp
+- [ ] ⏫ #issue ketika di #item_task pada saat turunin ke bawah hanya berhenti di bawah di bagian scroll namun scroll tidak ukut turun untuk kebawah #production #v2.1.1 ➕ 2026-10-13 04:03 🆔 VhPBNX
