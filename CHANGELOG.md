@@ -3,7 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
-
+- entah kenapa terasa begitu malas update tiap minggu ini plugin tapi ku merasa bertanggung jawab apa yang telah ku buat, lagipun ku juga gunain ini plugin setiap project 👀
+- memperbaikin deprapted pada tooltip pada Android Studio/Intellij Idea versi 2026
+- 
 ## [2.1.0] - 2026-10-06
 
 - Added task draft preservation feature: fixed an issue where typing a new task and switching actions (e.g., cancelling a task, editing a task, or adding a note) would cause the typed input to be lost or accidentally converted into a note.

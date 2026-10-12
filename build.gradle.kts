@@ -1,5 +1,6 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
+import java.util.Properties
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -7,11 +8,34 @@ plugins {
     id("org.jetbrains.changelog")
 }
 
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.add("-Xskip-metadata-version-check")
+    }
+}
+
+
+
+val localPropsFile = rootProject.file("local.properties")
+val localProps = Properties().apply {
+    if (localPropsFile.exists()) {
+        localPropsFile.inputStream().use { load(it) }
+    }
+}
+
+val localIdePath: String? = localProps.getProperty("local.ide.path")
+
 dependencies {
     testImplementation("junit:junit:4.13.2")
 
     intellijPlatform {
-        intellijIdea("2025.3.6.1")
+        if (!localIdePath.isNullOrBlank()) {
+            local(localIdePath)
+        } else {
+            intellijIdea("2025.3.6.1")
+        }
+
         testFramework(TestFrameworkType.Platform)
     }
 }

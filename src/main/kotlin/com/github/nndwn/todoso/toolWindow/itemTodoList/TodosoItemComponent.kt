@@ -312,11 +312,53 @@ class TodosoItemComponent(
       }
     }
 
-    val ht = HelpTooltip().setTitle(title)
+    val ht = object : HelpTooltip() {
+      override fun shouldForceHiding(): Boolean = false
+    }.setCompatibleTitle(title).setNeverHideOnTimeout(true)
+
     if (chunks.isNotEmpty()) {
-      ht.setDescription(HtmlChunk.div().children(*chunks.toTypedArray()).toString())
+      val desc = HtmlChunk.div().children(*chunks.toTypedArray())
+      ht.setCompatibleDescription(desc)
     }
     ht.installOn(this)
+  }
+
+  private object HelpTooltipCompat {
+    val setPlainTextTitleMethod: java.lang.reflect.Method? by lazy {
+      try {
+        HelpTooltip::class.java.getMethod("setPlainTextTitle", String::class.java)
+      } catch (_: Throwable) {
+        null
+      }
+    }
+
+    val setDescriptionHtmlChunkMethod: java.lang.reflect.Method? by lazy {
+      try {
+        HelpTooltip::class.java.getMethod("setDescription", HtmlChunk::class.java)
+      } catch (_: Throwable) {
+        null
+      }
+    }
+  }
+
+  private fun HelpTooltip.setCompatibleTitle(title: String): HelpTooltip {
+    val method = HelpTooltipCompat.setPlainTextTitleMethod
+    return if (method != null) {
+      method.invoke(this, title) as HelpTooltip
+    } else {
+      @Suppress("DEPRECATION")
+      this.setTitle(title)
+    }
+  }
+
+  private fun HelpTooltip.setCompatibleDescription(chunk: HtmlChunk): HelpTooltip {
+    val method = HelpTooltipCompat.setDescriptionHtmlChunkMethod
+    return if (method != null) {
+      method.invoke(this, chunk) as HelpTooltip
+    } else {
+      @Suppress("DEPRECATION")
+      this.apply { description = chunk.toString() }
+    }
   }
 
   private fun appendTaskMetadata(chunks: MutableList<HtmlChunk>, task: TodoTask) {
