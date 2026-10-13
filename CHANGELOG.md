@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-13
+
 - Fixed deprecated tooltip API warnings in IntelliJ Platform / Android Studio (2025.3+).
 - Fixed a tooltip UX issue where tooltips prematurely disappeared when hovering over them.
 - Fixed context menu label to display "Edit Note" instead of "Add Note" when a task already has notes.
@@ -12,6 +14,7 @@
 - Added multi-task selection support using Shift + Click, Ctrl/Cmd + Click, and Shift + Up/Down, enabling batch context menu actions (Change Status, Change Priority, Add to Changelog, Copy Context, Set Commit Message, Delete).
 - Fixed a UX issue where task list selection, shortcuts, and context menu remained active during task/note editing, by locking the task list and highlighting the active editing task.
 - Another day, another migraine
+
 ## [2.1.0] - 2026-10-06
 
 - Added task draft preservation feature: fixed an issue where typing a new task and switching actions (e.g., cancelling a task, editing a task, or adding a note) would cause the typed input to be lost or accidentally converted into a note.
@@ -179,7 +182,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/nndwn/todoso/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nndwn/todoso/compare/v2.0.9...v2.1.0
 [2.0.9]: https://github.com/nndwn/todoso/compare/v2.0.8...v2.0.9
 [2.0.8]: https://github.com/nndwn/todoso/compare/v2.0.7...v2.0.8
