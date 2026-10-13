@@ -64,6 +64,7 @@ A smart single-input field that intelligently processes plain text, Markdown syn
         *   **Edit**: Triggered when modifying existing tasks (Blue background).
         *   **Cancel**: Triggered when marking a task as `CANCELLED` without a note. It features a **Pink/Red background** and requires a mandatory justification note before the status is updated.
         *   **Note**: Specifically for adding or appending metadata notes (`//`). It features a **Blue background** and an **Update** button. The `//` prefix is managed automatically.
+        *   **Task List Selection Lock**: While in **Edit** or **Note** mode, the task list selection and shortcuts are locked to prevent accidental cross-task edits or deletions. The task currently being edited displays an active visual focus border.
 *    **Input Styles**:
         * **Plain Text**: Type a description like `Update layout navbar`.
         * **Quick Syntax**: Use shortcodes like `[H] Fix bug #ui` to assign priority and tags instantly.
@@ -106,11 +107,19 @@ Todoso provides an interactive toolbar with dynamic view options and multi-crite
 
 
 
-#### Enhanced Context Menu
-A comprehensive right-click menu for lightning-fast task management:
+#### Enhanced Context Menu & Batch Actions
+A comprehensive right-click menu for lightning-fast task management with full batch processing support:
+*   **Batch Actions Support**: When multiple tasks are selected, actions apply across all selected tasks simultaneously:
+    *   **Batch Status & Priority**: Change status or priority for all selected tasks in a single click.
+    *   **Batch Bookmark & Changelog**: Attach bookmarks or publish to `CHANGELOG.md` for all selected tasks at once.
+    *   **Batch Copy Context**: Copies descriptions and metadata (`rawText`) of all selected tasks (separated by newlines) to the clipboard.
+    *   **Batch Set as Commit Message**: Formats all selected task descriptions (`- description 🆔 id`) and populates them into the IDE's Commit Tool Window, overwriting previous text.
+    *   **Batch Delete**: Prompts a batch confirmation dialog displaying the total task count before deleting.
+*   **Single-Task Action Safety**: Features like *Edit Task*, *Add/Edit Note*, *Manage Tags*, *Go to Bookmark*, and *Navigate to Source* are automatically disabled when multiple tasks are selected (`selectedTasks.size > 1`) to prevent data inconsistency.
+*   **Smart Note Labeling**: Context menu dynamically displays **Edit Note** if notes already exist on the task, or **Add Note** if empty.
 *   **Smart Status & Priority**: Only valid transitions are enabled, with icons matching the UI.
 *   **Edit Task**: Instantly load the task description into the input panel for modification.
-*   **Add Note**: Open the input panel in **Note Mode** to add or update metadata notes (after the `//` separator) specifically for the selected task.
+*   **Add Note / Edit Note**: Open the input panel in **Note Mode** to add or update metadata notes (after the `//` separator) specifically for the selected task.
 *   **Manage Tags (Intelligent Sub-Menu)**:
     *   **Exclusive Groups**: Automatically handles mutually exclusive tags (e.g., toggling `#feature` will remove `#issue`).
     *   **Recent Tags**: Displays your 10 most recently added tags based on task creation order.
@@ -119,10 +128,10 @@ A comprehensive right-click menu for lightning-fast task management:
     *   **Inline Integrity**: Adding tags via the menu preserves your existing "inline" tags within the description, appending new ones only if they don't already exist.
 *   **Set as Commit Message**:
     *   **IntelliJ Commit Integration**: Right-click > **Set as Commit Message** to instantly populate the task description and unique ID (`- description 🆔 id`) into the IDE's built-in **Commit Tool Window**.
-    *   **Smart Appending**: If the commit message box already contains text, the new task is automatically appended on a new line, creating structured multi-item commit messages with ease.
+    *   **Automatic Overwrite**: Overwrites existing text in the commit message field, creating clean, structured single or multi-item commit messages.
     *   **Auto-Activation**: Programmatically opens and focuses the Commit Tool Window regardless of your keymap settings.
-*   **Copy Context**: Copies the task description and its relevant metadata to the clipboard for sharing.
-*   **Delete Task**: Deleting a task does not immediately remove it from `todo.md`. Instead, it is commented out, requiring manual deletion if you wish to clear the line entirely.
+*   **Copy Context**: Copies task descriptions and relevant metadata to the clipboard for sharing.
+*   **Delete Task**: Deleting a task comments out the line in `todo.md` to prevent accidental loss.
 *   **Navigate to Source**: Instantly jumps to the exact line in your Markdown file.
 *   **Bookmark Integration**:
     *   **Insert Bookmark**: Right-click > **Insert Bookmark** to select any active IntelliJ IDE bookmark in the project and attach it to the task.
@@ -157,7 +166,11 @@ Task items in the list feature rich interactive elements (Tags, Task IDs, and We
     * **2x Click on `🆔 ID` / `id:xxx`**: Triggers a search for the referenced Task ID to explore cross-referenced tasks.
     * **2x Click on Web URL**: Opens the web link directly in your default browser (`https://...`).
 * **Single-Click (1x Click) Safety**: Single-clicking anywhere on a task item—including directly over a tag, ID, or link—safely selects the task without activating the link or interrupting your workspace.
-* **Keyboard Navigation**: Use **Up / Down** arrow keys to navigate between tasks, **Enter** to select, **Delete** to delete, and **Tab** to switch focus back to the input panel.
+* **Multi-Task Selection**: Select multiple tasks effortlessly using mouse and keyboard shortcuts:
+    * **Shift + Click**: Selects a continuous range of tasks from the anchor task to the clicked task.
+    * **Ctrl / Cmd + Click**: Toggles selection on individual tasks for custom non-adjacent selections.
+    * **Shift + Up / Down Arrow Keys**: Expands or shrinks selection ranges dynamically using keyboard navigation.
+* **Keyboard Navigation & Auto-Scroll**: Use **Up / Down** arrow keys to navigate between tasks, **Enter** to select, **Delete** to delete, and **Tab** to switch focus back to the input panel. The task viewport automatically scrolls to track the active selection.
      
 #### Strict Line Parsing Rules
 

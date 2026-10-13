@@ -21,16 +21,17 @@ class TodosoContextMenu(
   private val handler: TodosoActionHandler,
 ) {
   fun build(): List<TodosoMenuElement> {
-    val selected = handler.getSelectedTask()
+    val rawSelectedTasks = handler.getSelectedTasks()
+    val selectedTasks = rawSelectedTasks.map { service.findTaskById(it.id) ?: it }
 
     return buildTodosoMenu {
-      if (selected != null) {
-        editorTask(selected)
+      if (selectedTasks.isNotEmpty()) {
+        editorTask(selectedTasks)
         separator()
       }
-      bookmarks()
+      bookmarks(selectedTasks)
       separator()
-      toolTask()
+      toolTask(selectedTasks)
       separator()
       visualTask()
       separator()
@@ -38,17 +39,18 @@ class TodosoContextMenu(
     }
   }
 
-  private fun TodoMenuBuilder.bookmarks() {
-    val selected = handler.getSelectedTask()
+  private fun TodoMenuBuilder.bookmarks(selectedTasks: List<TodoTask>) {
+    val isSingleTask = selectedTasks.size == 1
+    val primaryTask = selectedTasks.firstOrNull()?.let { service.findTaskById(it.id) ?: it }
     val isNormalMode = { handler.getCurrentMode() is InputMode.Normal }
     val projectBookmarks = TodosoBookmarkHelper.getProjectBookmarks(service.project)
     val hasBookmarks = projectBookmarks.isNotEmpty()
-    val isBookmarkValid = TodosoBookmarkHelper.isAttachedBookmarkValid(selected, service.project)
+    val isBookmarkValid = isSingleTask && primaryTask != null && TodosoBookmarkHelper.isAttachedBookmarkValid(primaryTask, service.project)
 
     subMenu(
       text = TodosoBundle.message("todo.menu.bookmark.Insert"),
       icon = AllIcons.Nodes.BookmarkGroup,
-      isEnabled = { selected != null && hasBookmarks },
+      isEnabled = { selectedTasks.isNotEmpty() && hasBookmarks },
       isVisible = isNormalMode,
     ) {
       projectBookmarks.forEach { bookmark ->
@@ -61,9 +63,10 @@ class TodosoContextMenu(
           text = label,
           icon = AllIcons.Nodes.BookmarkGroup,
           onAction = {
-            val currentTask = handler.getSelectedTask() ?: selected
-            if (currentTask != null) {
-              handler.handleAttachBookmark(currentTask, bookmark)
+            val raw = handler.getSelectedTasks().ifEmpty { selectedTasks }
+            val tasksToAttach = raw.map { service.findTaskById(it.id) ?: it }
+            tasksToAttach.forEach { task ->
+              handler.handleAttachBookmark(task, bookmark)
             }
           },
         )
@@ -73,22 +76,21 @@ class TodosoContextMenu(
     item(
       text = TodosoBundle.message("todo.menu.bookmark.go"),
       icon = AllIcons.Actions.TraceInto,
-      isEnabled = { selected != null && isBookmarkValid },
+      isEnabled = { isSingleTask && isBookmarkValid },
       isVisible = isNormalMode,
       onAction = {
-        val currentTask = handler.getSelectedTask() ?: selected
-        if (currentTask != null) {
-          handler.handleGoToBookmark(currentTask)
+        val task = handler.getSelectedTask()?.let { service.findTaskById(it.id) ?: it } ?: primaryTask
+        if (task != null) {
+          handler.handleGoToBookmark(task)
         }
       },
     )
   }
 
-  private fun TodoMenuBuilder.editorTask(initialTask: TodoTask) {
-    val taskId = initialTask.id
+  private fun TodoMenuBuilder.editorTask(selectedTasks: List<TodoTask>) {
+    val isSingleTask = selectedTasks.size == 1
+    val primaryTask = selectedTasks.first().let { service.findTaskById(it.id) ?: it }
     val isNormalMode = { handler.getCurrentMode() is InputMode.Normal }
-
-
 
     subMenu(
       text = TodosoBundle.message("todo.menu.change.status"),
@@ -100,10 +102,14 @@ class TodosoContextMenu(
           text = status.displayName,
           icon = status.icon,
           isEnabled = {
-            service.findTaskById(taskId)?.let { handler.canTransitionTo(it, status) } ?: false
+            val raw = handler.getSelectedTasks().ifEmpty { selectedTasks }
+            val tasks = raw.map { service.findTaskById(it.id) ?: it }
+            tasks.any { handler.canTransitionTo(it, status) }
           },
         ) {
-          service.findTaskById(taskId)?.let { handler.updateTaskStatus(it, status) }
+          val raw = handler.getSelectedTasks().ifEmpty { selectedTasks }
+          val tasks = raw.map { service.findTaskById(it.id) ?: it }
+          tasks.forEach { handler.updateTaskStatus(it, status) }
         }
       }
     }
@@ -118,10 +124,14 @@ class TodosoContextMenu(
           text = priority.displayName,
           icon = priority.icon,
           isEnabled = {
-            service.findTaskById(taskId)?.priority != priority
+            val raw = handler.getSelectedTasks().ifEmpty { selectedTasks }
+            val tasks = raw.map { service.findTaskById(it.id) ?: it }
+            tasks.any { it.priority != priority }
           },
           onAction = {
-            service.findTaskById(taskId)?.let { handler.handleUpdatePriority(it, priority) }
+            val raw = handler.getSelectedTasks().ifEmpty { selectedTasks }
+            val tasks = raw.map { service.findTaskById(it.id) ?: it }
+            tasks.forEach { handler.handleUpdatePriority(it, priority) }
           },
         )
       }
@@ -130,6 +140,7 @@ class TodosoContextMenu(
     subMenu(
       text = TodosoBundle.message("todo.menu.manage.tags"),
       icon = AllIcons.Nodes.Tag,
+      isEnabled = { isSingleTask },
       isVisible = isNormalMode,
     ) {
       val taskData = service.loadTask()
@@ -142,10 +153,12 @@ class TodosoContextMenu(
           toggle(
             text = TagParser.formatTagWithCount(tag, taskData),
             isSelected = {
-              service.findTaskById(taskId)?.tags?.contains(tag) ?: false
+              val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+              currentTask.tags.contains(tag)
             },
             onToggle = {
-              service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+              val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+              handler.handleToggleTag(currentTask, tag)
             },
           )
         }
@@ -166,10 +179,12 @@ class TodosoContextMenu(
             toggle(
               text = TagParser.formatTagWithCount(tag, taskData, isTruncated = true),
               isSelected = {
-                service.findTaskById(taskId)?.tags?.contains(tag) ?: false
+                val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+                currentTask.tags.contains(tag)
               },
               onToggle = {
-                service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+                val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+                handler.handleToggleTag(currentTask, tag)
               },
             )
           }
@@ -187,10 +202,12 @@ class TodosoContextMenu(
             toggle(
               text = TagParser.formatTagWithCount(tag, taskData, isTruncated = true),
               isSelected = {
-                service.findTaskById(taskId)?.tags?.contains(tag) ?: false
+                val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+                currentTask.tags.contains(tag)
               },
               onToggle = {
-                service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+                val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+                handler.handleToggleTag(currentTask, tag)
               },
             )
           }
@@ -203,10 +220,12 @@ class TodosoContextMenu(
             toggle(
               text = TagParser.formatTagWithCount(tag, taskData),
               isSelected = {
-                service.findTaskById(taskId)?.tags?.contains(tag) ?: false
+                val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+                currentTask.tags.contains(tag)
               },
               onToggle = {
-                service.findTaskById(taskId)?.let { handler.handleToggleTag(it, tag) }
+                val currentTask = service.findTaskById(primaryTask.id) ?: primaryTask
+                handler.handleToggleTag(currentTask, tag)
               },
             )
           }
@@ -217,18 +236,33 @@ class TodosoContextMenu(
     item(
       text = TodosoBundle.message("todo.menu.edit.task"),
       icon = AllIcons.Actions.Edit,
+      isEnabled = { isSingleTask },
       isVisible = isNormalMode,
       onAction = {
-        service.findTaskById(taskId)?.let { handler.setEditMode(true, it.description) }
+        if (isSingleTask) {
+          val latest = service.findTaskById(primaryTask.id) ?: primaryTask
+          handler.setEditMode(true, latest.description)
+        }
       },
     )
 
+    val currentPrimary = service.findTaskById(primaryTask.id) ?: primaryTask
+    val noteLabel = if (isSingleTask && currentPrimary.metadata.notes.isNotBlank()) {
+      TodosoBundle.message("todo.menu.edit.note")
+    } else {
+      TodosoBundle.message("todo.menu.add.note")
+    }
+
     item(
-      text = TodosoBundle.message("todo.menu.add.note"),
+      text = noteLabel,
       icon = AllIcons.Actions.EditSource,
+      isEnabled = { isSingleTask },
       isVisible = isNormalMode,
       onAction = {
-        service.findTaskById(taskId)?.let { handler.setNoteMode(true, it.metadata.notes) }
+        if (isSingleTask) {
+          val latest = service.findTaskById(primaryTask.id) ?: primaryTask
+          handler.setNoteMode(true, latest.metadata.notes)
+        }
       },
     )
 
@@ -240,7 +274,7 @@ class TodosoContextMenu(
       shortcut = CommonShortcuts.getCopy(),
       isVisible = isNormalMode,
       onAction = {
-        service.findTaskById(taskId)?.let { handler.handleCopyContext() }
+        handler.handleCopyContext()
       },
     )
 
@@ -249,7 +283,7 @@ class TodosoContextMenu(
       icon = AllIcons.Actions.Commit,
       isVisible = isNormalMode,
       onAction = {
-        service.findTaskById(taskId)?.let { handler.handleSetCommitMessage(it) }
+        handler.handleSetCommitMessage()
       },
     )
 
@@ -259,12 +293,14 @@ class TodosoContextMenu(
       shortcut = CommonShortcuts.getDelete(),
       isVisible = isNormalMode,
       onAction = {
-        service.findTaskById(taskId)?.let { handler.handleDeleteAction() }
+        handler.handleDeleteAction()
       },
     )
   }
 
-  private fun TodoMenuBuilder.toolTask() {
+  private fun TodoMenuBuilder.toolTask(selectedTasks: List<TodoTask>) {
+    val isSingleTask = selectedTasks.size == 1
+
     item(
       text = TodosoBundle.message("todo.menu.random"),
       icon = AllIcons.Actions.Lightning,
@@ -273,13 +309,19 @@ class TodosoContextMenu(
     item(
       text = TodosoBundle.message("todo.menu.add_to_changelog"),
       icon = AllIcons.Actions.Checked,
-      isEnabled = { handler.getSelectedTask() != null },
+      isEnabled = { selectedTasks.isNotEmpty() },
       onAction = { handler.handleAddToChangelog() },
     )
     item(
       text = TodosoBundle.message("todo.menu.navigate.lane"),
       icon = AllIcons.Actions.ShowCode,
-      onAction = { handler.getSelectedTask()?.let { handler.handleNavigateToTask(it) } },
+      isEnabled = { isSingleTask },
+      onAction = {
+        if (isSingleTask) {
+          val latest = service.findTaskById(selectedTasks.first().id) ?: selectedTasks.first()
+          handler.handleNavigateToTask(latest)
+        }
+      },
     )
     item(
       text = TodosoBundle.message("todo.filter.search"),

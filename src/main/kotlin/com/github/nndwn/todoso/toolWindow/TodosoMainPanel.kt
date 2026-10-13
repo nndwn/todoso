@@ -442,15 +442,29 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
     refreshUiState()
   }
 
-  override fun setEditMode(enabled: Boolean, text: String) = inputPanel.setEditMode(enabled, text)
+  override fun setEditMode(enabled: Boolean, text: String) {
+    inputPanel.setEditMode(enabled, text)
+    taskListView.isLocked = enabled
+    taskListView.setEditingTaskId(if (enabled) taskListView.getSelectedTask()?.id else null)
+  }
 
-  override fun setNoteMode(enabled: Boolean, text: String) = inputPanel.setNoteMode(enabled, text)
+  override fun setNoteMode(enabled: Boolean, text: String) {
+    inputPanel.setNoteMode(enabled, text)
+    taskListView.isLocked = enabled
+    taskListView.setEditingTaskId(if (enabled) taskListView.getSelectedTask()?.id else null)
+  }
 
-  override fun setCancelMode(enabled: Boolean) = inputPanel.setCancelMode(enabled)
+  override fun setCancelMode(enabled: Boolean) {
+    inputPanel.setCancelMode(enabled)
+    taskListView.isLocked = enabled
+    taskListView.setEditingTaskId(if (enabled) taskListView.getSelectedTask()?.id else null)
+  }
 
   override fun getCurrentMode() = inputPanel.currentMode
 
   override fun getSelectedTask(): TodoTask? = taskListView.getSelectedTask()
+
+  override fun getSelectedTasks(): List<TodoTask> = taskListView.getSelectedTasks()
 
   override fun getInputText(): String = inputPanel.inputTextArea.text
 
@@ -492,16 +506,19 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
   }
 
   fun handleTaskSelection(task: TodoTask, forceSelect: Boolean = false) {
-    if (!forceSelect && taskListView.getSelectedTask()?.id == task.id) {
-      taskListView.setSelectedTask(null)
-    } else {
+    if (!taskListView.getSelectedTasks().contains(task)) {
       taskListView.setSelectedTask(task, requestFocus = true)
+    } else if (!forceSelect && taskListView.getSelectedTasks().size == 1) {
+      taskListView.setSelectedTask(null)
     }
     updateButtonStates()
   }
 
   fun showContextMenu(task: TodoTask, e: MouseEvent) {
-    handleTaskSelection(task, forceSelect = true)
+    if (taskListView.isLocked || getCurrentMode() !is InputMode.Normal) return
+    if (!taskListView.getSelectedTasks().any { it.id == task.id }) {
+      handleTaskSelection(task, forceSelect = true)
+    }
     val menuElements = TodosoContextMenu(service, settings, handler).build()
     val actionGroup = menuElements.toActionGroup(this)
     ActionManager.getInstance()

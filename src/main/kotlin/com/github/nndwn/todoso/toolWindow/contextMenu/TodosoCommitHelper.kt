@@ -23,7 +23,12 @@ import javax.swing.text.JTextComponent
 object TodosoCommitHelper {
 
   fun setCommitMessage(task: TodoTask, project: Project, onError: (String) -> Unit) {
-    val formattedMessage = formatTaskCommitMessage(task)
+    setCommitMessages(listOf(task), project, onError)
+  }
+
+  fun setCommitMessages(tasks: List<TodoTask>, project: Project, onError: (String) -> Unit) {
+    if (tasks.isEmpty()) return
+    val formattedMessage = formatTasksCommitMessage(tasks)
 
     val commitToolWindow = ToolWindowManager.getInstance(project).getToolWindow(ToolWindowId.COMMIT)
       ?: ToolWindowManager.getInstance(project).getToolWindow("Commit")
@@ -43,9 +48,7 @@ object TodosoCommitHelper {
         val workflowUi = VcsDataKeys.COMMIT_WORKFLOW_UI.getData(dataContext)
         if (workflowUi != null) {
           val commitMessageUi = workflowUi.commitMessageUi
-          val currentText = commitMessageUi.getText()
-          val newText = if (currentText.isBlank()) formattedMessage else "$currentText\n$formattedMessage"
-          commitMessageUi.setText(newText)
+          commitMessageUi.setText(formattedMessage)
           commitMessageUi.focus()
           inserted = true
         }
@@ -54,10 +57,8 @@ object TodosoCommitHelper {
         if (!inserted) {
           val document = VcsDataKeys.COMMIT_MESSAGE_DOCUMENT.getData(dataContext)
           if (document != null) {
-            val currentText = document.text
-            val newText = if (currentText.isBlank()) formattedMessage else "$currentText\n$formattedMessage"
             WriteCommandAction.runWriteCommandAction(project) {
-              document.setText(newText)
+              document.setText(formattedMessage)
             }
             inserted = true
           }
@@ -74,7 +75,7 @@ object TodosoCommitHelper {
 
         // 4. Try Swing Component hierarchy search
         if (!inserted) {
-          inserted = appendToCommitComponent(commitToolWindow.component, formattedMessage)
+          inserted = setCommitComponent(commitToolWindow.component, formattedMessage)
         }
 
         // 5. Fallback: Copy to clipboard & notify
@@ -93,6 +94,10 @@ object TodosoCommitHelper {
     }
   }
 
+  fun formatTasksCommitMessage(tasks: List<TodoTask>): String {
+    return tasks.joinToString("\n") { formatTaskCommitMessage(it) }
+  }
+
   fun formatTaskCommitMessage(task: TodoTask): String {
     return if (task.id.isNotBlank() && !task.description.contains("🆔 ${task.id}")) {
       "- ${task.description} 🆔 ${task.id}"
@@ -101,11 +106,9 @@ object TodosoCommitHelper {
     }
   }
 
-  private fun appendToCommitComponent(component: Component, textToInsert: String): Boolean {
+  private fun setCommitComponent(component: Component, textToInsert: String): Boolean {
     if (component is TextAccessor) {
-      val currentText = component.text
-      val newText = if (currentText.isBlank()) textToInsert else "$currentText\n$textToInsert"
-      component.text = newText
+      component.text = textToInsert
       return true
     }
 
@@ -115,15 +118,13 @@ object TodosoCommitHelper {
     }
 
     if (component is JTextComponent) {
-      val currentText = component.text
-      val newText = if (currentText.isBlank()) textToInsert else "$currentText\n$textToInsert"
-      component.text = newText
+      component.text = textToInsert
       return true
     }
 
     if (component is Container) {
       for (child in component.components) {
-        if (appendToCommitComponent(child, textToInsert)) {
+        if (setCommitComponent(child, textToInsert)) {
           return true
         }
       }

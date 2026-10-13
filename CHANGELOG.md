@@ -4,12 +4,13 @@
 
 ## [Unreleased]
 
-- memperbaikin deprapted pada tooltip pada Android Studio/Intellij Idea versi 2026
-- memperbaikin issue tooltip ketika muncul selalu menghilang ketika mouse menghampirinnya
-- memperbaikin issue fitur sebelumnya set as commit message dapat melakukan double messagge dengan task yang sama
-- ku gk tahu kenapa commit message ketika berhasil di commit tidak mau automatis terhapus ini sebenar issue ux Intellij IDEA, tapi todoso dapat trigger menghapus commit message ketika berhasil di commit
-- perbaikin issue pada menu add note harusnya ketika sudah ada note maka bertuliskan edit note
-- penambahan fitur sekarang task dapat melakukan multi seleksi jika menekan shift
+- Fixed deprecated tooltip API warnings in IntelliJ Platform / Android Studio (2025.3+).
+- Fixed a tooltip UX issue where tooltips prematurely disappeared when hovering over them.
+- Fixed context menu label to display "Edit Note" instead of "Add Note" when a task already has notes.
+- Fixed auto-scrolling in the task list view so the viewport automatically follows keyboard navigation (Up/Down) beyond the visible area.
+- Enhanced "Set as Commit Message" to support batch selection and automatically overwrite existing commit messages in the Commit Tool Window.
+- Added multi-task selection support using Shift + Click, Ctrl/Cmd + Click, and Shift + Up/Down, enabling batch context menu actions (Change Status, Change Priority, Add to Changelog, Copy Context, Set Commit Message, Delete).
+- Fixed a UX issue where task list selection, shortcuts, and context menu remained active during task/note editing, by locking the task list and highlighting the active editing task.
 - Another day, another migraine
 ## [2.1.0] - 2026-10-06
 

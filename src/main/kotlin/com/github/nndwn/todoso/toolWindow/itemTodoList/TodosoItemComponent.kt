@@ -40,16 +40,17 @@ class TodosoItemComponent(
   private val service: TodosoService,
   var task: TodoTask,
   private var isVisualEnabled: Boolean,
-  private val onSelect: (TodoTask) -> Unit,
+  private val onSelect: (TodoTask, MouseEvent?) -> Unit,
   private val onDoubleClick: (TodoTask) -> Unit,
   private val onContextMenu: (TodoTask, MouseEvent) -> Unit,
   private val onDelete: (TodoTask) -> Unit,
-  private val onNavigate: (Int) -> Unit,
+  private val onNavigate: (Int, Boolean) -> Unit,
   private val onTabPressed: () -> Unit,
   private val onSearch: (String) -> Unit,
 ) : JPanel(BorderLayout()), Scrollable {
 
   private var isSelected = false
+  private var isEditing = false
   private var lastHtml: String? = null
 
   private val iconLabel =
@@ -174,7 +175,7 @@ class TodosoItemComponent(
             if (e.clickCount == 2) {
               onDoubleClick(task)
             } else {
-              onSelect(task)
+              onSelect(task, e)
             }
           }
         }
@@ -195,11 +196,11 @@ class TodosoItemComponent(
           when (e.keyCode) {
             KeyEvent.VK_DELETE -> onDelete(task)
             KeyEvent.VK_UP -> {
-              onNavigate(KeyEvent.VK_UP)
+              onNavigate(KeyEvent.VK_UP, e.isShiftDown)
               e.consume()
             }
             KeyEvent.VK_DOWN -> {
-              onNavigate(KeyEvent.VK_DOWN)
+              onNavigate(KeyEvent.VK_DOWN, e.isShiftDown)
               e.consume()
             }
             KeyEvent.VK_TAB -> {
@@ -207,7 +208,7 @@ class TodosoItemComponent(
               e.consume()
             }
             KeyEvent.VK_ENTER -> {
-              onSelect(task)
+              onSelect(task, null)
               e.consume()
             }
           }
@@ -220,6 +221,12 @@ class TodosoItemComponent(
     this.isSelected = selected
     background = if (selected) UIUtil.getListSelectionBackground(true) else UIUtil.getListBackground()
     updateContent()
+  }
+
+  fun setEditing(editing: Boolean) {
+    this.isEditing = editing
+    updateBorder()
+    repaint()
   }
 
   fun updateData(newTask: TodoTask, newVisualEnabled: Boolean) {
@@ -251,14 +258,19 @@ class TodosoItemComponent(
   }
 
   private fun updateBorder() {
-    val hasBookmark = TodosoBookmarkHelper.getAttachedBookmarkString(task) != null
-    border =
-      if (hasBookmark) {
-        val bookmarkColor = JBColor.namedColor("Bookmark.iconBackground", JBColor(0xF59E0B, 0xE2A43B))
-        JBUI.Borders.customLine(bookmarkColor, 0, 3, 0, 0)
-      } else {
-        JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 0, 0, 0, 0)
-      }
+    if (isEditing) {
+      val focusColor = JBColor.namedColor("Component.focusColor", JBColor(0x389FD6, 0x3574F0))
+      border = JBUI.Borders.customLine(focusColor, 1, 3, 1, 1)
+    } else {
+      val hasBookmark = TodosoBookmarkHelper.getAttachedBookmarkString(task) != null
+      border =
+        if (hasBookmark) {
+          val bookmarkColor = JBColor.namedColor("Bookmark.iconBackground", JBColor(0xF59E0B, 0xE2A43B))
+          JBUI.Borders.customLine(bookmarkColor, 0, 3, 0, 0)
+        } else {
+          JBUI.Borders.customLine(JBUI.CurrentTheme.ToolWindow.borderColor(), 0, 0, 0, 0)
+        }
+    }
   }
 
   private fun updateContent() {

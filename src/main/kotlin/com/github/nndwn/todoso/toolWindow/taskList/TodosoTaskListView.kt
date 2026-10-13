@@ -55,7 +55,17 @@ class TodosoTaskListView(
       }
 
   internal val taskComponents = mutableListOf<TodosoItemComponent>()
-  private var selectedTask: TodoTask? = null
+  private val selectedTasks = LinkedHashSet<TodoTask>()
+  private var anchorTask: TodoTask? = null
+  var isLocked: Boolean = false
+  private var editingTaskId: String? = null
+
+  fun setEditingTaskId(taskId: String?) {
+    this.editingTaskId = taskId
+    taskComponents.forEach { comp ->
+      comp.setEditing(taskId != null && comp.task.id == taskId)
+    }
+  }
 
   init {
     isOpaque = false
@@ -83,11 +93,11 @@ class TodosoTaskListView(
             service,
             task,
             currentVisualEnabled,
-            onSelect = { t -> onTaskSelected(t, true) },
+            onSelect = { t, e -> handleTaskClick(t, e) },
             onDoubleClick = {},
             onDelete = { t -> onDelete(t) },
             onContextMenu = { t, e -> onContextMenu(t, e) },
-            onNavigate = { keyCode -> handleNavigation(keyCode) },
+            onNavigate = { keyCode, isShiftDown -> handleNavigation(keyCode, isShiftDown) },
             onTabPressed = { onTabPressed() },
             onSearch = { query -> onSearch(query) },
           )
@@ -117,62 +127,172 @@ class TodosoTaskListView(
     taskComponents.clear()
     taskComponents.addAll(newComponents)
 
+    // Remove deleted tasks from selection
+    val validIds = sortedTasks.map { it.id }.toSet()
+    selectedTasks.removeIf { it.id !in validIds }
+    if (anchorTask != null && anchorTask!!.id !in validIds) {
+      anchorTask = selectedTasks.lastOrNull()
+    }
+
+    updateComponentsSelection()
+    setEditingTaskId(editingTaskId)
+
     tasksContainer.revalidate()
     tasksContainer.repaint()
 
     SwingUtilities.invokeLater { scrollToSelected() }
   }
 
-  private fun handleNavigation(keyCode: Int) {
-    val current = selectedTask ?: return
+  fun handleTaskClick(task: TodoTask, e: MouseEvent? = null) {
+    if (isLocked) return
+
+    if (e != null && e.isShiftDown && anchorTask != null) {
+      val anchorIndex = taskComponents.indexOfFirst { it.task.id == anchorTask?.id }
+      val targetIndex = taskComponents.indexOfFirst { it.task.id == task.id }
+      if (anchorIndex != -1 && targetIndex != -1) {
+        val start = minOf(anchorIndex, targetIndex)
+        val end = maxOf(anchorIndex, targetIndex)
+        selectedTasks.clear()
+        for (i in start..end) {
+          selectedTasks.add(taskComponents[i].task)
+        }
+      } else {
+        selectedTasks.clear()
+        selectedTasks.add(task)
+        anchorTask = task
+      }
+    } else if (e != null && (e.isControlDown || e.isMetaDown)) {
+      if (selectedTasks.contains(task)) {
+        selectedTasks.remove(task)
+      } else {
+        selectedTasks.add(task)
+        anchorTask = task
+      }
+    } else {
+      selectedTasks.clear()
+      selectedTasks.add(task)
+      anchorTask = task
+    }
+
+    updateComponentsSelection()
+    scrollToTask(task)
+
+    val activeComp = taskComponents.find { it.task.id == task.id }
+    if (activeComp != null) {
+      SwingUtilities.invokeLater {
+        activeComp.requestFocusInWindow()
+      }
+    }
+
+    onTaskSelected(task, true)
+  }
+
+  private fun handleNavigation(keyCode: Int, isShiftDown: Boolean = false) {
+    if (isLocked) return
+
+    val current = selectedTasks.lastOrNull() ?: anchorTask ?: return
     val index = taskComponents.indexOfFirst { it.task.id == current.id }
     if (index == -1) return
 
-    when (keyCode) {
-      KeyEvent.VK_UP -> {
-        if (index > 0) {
-          onTaskSelected(taskComponents[index - 1].task, true)
+    val nextIndex = when (keyCode) {
+      KeyEvent.VK_UP -> if (index > 0) index - 1 else null
+      KeyEvent.VK_DOWN -> if (index < taskComponents.size - 1) index + 1 else null
+      else -> null
+    } ?: return
+
+    val nextTask = taskComponents[nextIndex].task
+
+    if (isShiftDown && anchorTask != null) {
+      val anchorIndex = taskComponents.indexOfFirst { it.task.id == anchorTask?.id }
+      if (anchorIndex != -1) {
+        val start = minOf(anchorIndex, nextIndex)
+        val end = maxOf(anchorIndex, nextIndex)
+        selectedTasks.clear()
+        for (i in start..end) {
+          selectedTasks.add(taskComponents[i].task)
         }
+      } else {
+        selectedTasks.clear()
+        selectedTasks.add(nextTask)
+        anchorTask = nextTask
       }
-      KeyEvent.VK_DOWN -> {
-        if (index < taskComponents.size - 1) {
-          onTaskSelected(taskComponents[index + 1].task, true)
-        }
-      }
+    } else {
+      selectedTasks.clear()
+      selectedTasks.add(nextTask)
+      anchorTask = nextTask
     }
+
+    updateComponentsSelection()
+    scrollToTask(nextTask)
+
+    val nextComp = taskComponents[nextIndex]
+    SwingUtilities.invokeLater {
+      nextComp.requestFocusInWindow()
+    }
+
+    onTaskSelected(nextTask, true)
+  }
+
+  private fun scrollToTask(task: TodoTask?) {
+    val target = task ?: selectedTasks.lastOrNull() ?: anchorTask ?: return
+    val component = taskComponents.find { it.task.id == target.id } ?: return
+    component.scrollRectToVisible(Rectangle(0, 0, component.width, component.height))
   }
 
   private fun scrollToSelected() {
-    val target = selectedTask ?: return
-    val component = taskComponents.find { it.task.id == target.id } ?: return
-    tasksContainer.scrollRectToVisible(component.bounds)
+    scrollToTask(selectedTasks.lastOrNull() ?: anchorTask)
   }
 
   private fun isTaskSelected(task: TodoTask): Boolean {
-    return task.id.isNotBlank() && task.id == selectedTask?.id
+    return task.id.isNotBlank() && selectedTasks.any { it.id == task.id }
+  }
+
+  private fun updateComponentsSelection() {
+    taskComponents.forEach { comp ->
+      comp.setSelected(isTaskSelected(comp.task))
+    }
   }
 
   fun setSelectedTask(task: TodoTask?, requestFocus: Boolean = false) {
-    this.selectedTask = task
-    taskComponents.forEach {
-      val isTarget = it.task.id == task?.id
-      it.setSelected(isTarget)
-      if (isTarget && requestFocus) {
-        SwingUtilities.invokeLater {
-          it.requestFocusInWindow()
+    selectedTasks.clear()
+    if (task != null) {
+      selectedTasks.add(task)
+      anchorTask = task
+    } else {
+      anchorTask = null
+    }
+
+    updateComponentsSelection()
+
+    if (task != null) {
+      scrollToTask(task)
+      if (requestFocus) {
+        val comp = taskComponents.find { it.task.id == task.id }
+        if (comp != null) {
+          SwingUtilities.invokeLater {
+            comp.requestFocusInWindow()
+          }
         }
       }
     }
-    if (task != null) {
-      SwingUtilities.invokeLater { scrollToSelected() }
-    }
   }
 
-  fun getSelectedTask(): TodoTask? = selectedTask
+  fun setSelectedTasks(tasks: Collection<TodoTask>) {
+    selectedTasks.clear()
+    selectedTasks.addAll(tasks)
+    anchorTask = tasks.lastOrNull()
+    updateComponentsSelection()
+  }
+
+  fun getSelectedTask(): TodoTask? = selectedTasks.firstOrNull()
+
+  fun getSelectedTasks(): List<TodoTask> = selectedTasks.toList()
 
   fun clear() {
     tasksContainer.removeAll()
     taskComponents.clear()
+    selectedTasks.clear()
+    anchorTask = null
     tasksContainer.revalidate()
     tasksContainer.repaint()
   }

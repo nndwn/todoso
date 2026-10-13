@@ -37,6 +37,8 @@ class TodosoActionHandler(
 
     fun getSelectedTask(): TodoTask?
 
+    fun getSelectedTasks(): List<TodoTask>
+
     fun updateButtonStates()
 
     fun setPriorityFilter(priority: Priority?)
@@ -70,6 +72,8 @@ class TodosoActionHandler(
   private var savedDraftTask: String? = null
 
   fun getSelectedTask() = view.getSelectedTask()
+
+  fun getSelectedTasks() = view.getSelectedTasks()
 
   fun setEditMode(enabled: Boolean, text: String = "") {
     if (enabled && getCurrentMode() is InputMode.Normal) {
@@ -109,7 +113,7 @@ class TodosoActionHandler(
   }
 
   fun handleUpdateTask(text: String) {
-    val selected = view.getSelectedTask() ?: return
+    val selected = getSelectedTask()?.let { service.findTaskById(it.id) ?: it } ?: return
     service.editTask(selected, text.trim())
     view.setEditMode(false)
     restoreSavedDraft()
@@ -119,7 +123,7 @@ class TodosoActionHandler(
   }
 
   fun handleUpdateNote(note: String) {
-    val selected = view.getSelectedTask() ?: return
+    val selected = getSelectedTask()?.let { service.findTaskById(it.id) ?: it } ?: return
     service.updateTaskNote(selected, note)
     view.setNoteMode(false)
     restoreSavedDraft()
@@ -149,18 +153,36 @@ class TodosoActionHandler(
   }
 
   fun handleDeleteAction() {
-    val selected = view.getSelectedTask() ?: return
-    val desc = selected.id
-    val result =
-      Messages.showYesNoDialog(
-        project,
-        TodosoBundle.message("todo.action.delete.confirm.message", desc),
-        TodosoBundle.message("todo.action.delete.confirm.title"),
-        Messages.getQuestionIcon(),
-      )
-    if (result == Messages.YES) {
-      service.deleteTask(selected)
-      ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+    if (getCurrentMode() !is InputMode.Normal) return
+    val selectedTasks = view.getSelectedTasks().map { service.findTaskById(it.id) ?: it }
+    if (selectedTasks.isEmpty()) return
+
+    if (selectedTasks.size == 1) {
+      val selected = selectedTasks.first()
+      val desc = selected.id
+      val result =
+        Messages.showYesNoDialog(
+          project,
+          TodosoBundle.message("todo.action.delete.confirm.message", desc),
+          TodosoBundle.message("todo.action.delete.confirm.title"),
+          Messages.getQuestionIcon(),
+        )
+      if (result == Messages.YES) {
+        service.deleteTask(selected)
+        ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+      }
+    } else {
+      val result =
+        Messages.showYesNoDialog(
+          project,
+          TodosoBundle.message("todo.action.delete.confirm.message", "${selectedTasks.size} tasks"),
+          TodosoBundle.message("todo.action.delete.confirm.title"),
+          Messages.getQuestionIcon(),
+        )
+      if (result == Messages.YES) {
+        selectedTasks.forEach { service.deleteTask(it) }
+        ApplicationManager.getApplication().invokeLater { view.refreshTasks() }
+      }
     }
   }
 
@@ -176,18 +198,31 @@ class TodosoActionHandler(
   }
 
   fun handleCopyContext() {
-    val selected = view.getSelectedTask() ?: return
-    CopyPasteManager.getInstance().setContents(StringSelection(selected.rawText))
+    val selectedTasks = view.getSelectedTasks()
+    if (selectedTasks.isEmpty()) return
+    val content = selectedTasks.joinToString("\n") { it.rawText }
+    CopyPasteManager.getInstance().setContents(StringSelection(content))
   }
 
   fun handleSetCommitMessage(task: TodoTask) {
-    TodosoCommitHelper.setCommitMessage(task, project, ::handleErrorNotification)
+    TodosoCommitHelper.setCommitMessages(listOf(task), project, ::handleErrorNotification)
+  }
+
+  fun handleSetCommitMessage(tasks: List<TodoTask> = view.getSelectedTasks()) {
+    if (tasks.isEmpty()) return
+    TodosoCommitHelper.setCommitMessages(tasks, project, ::handleErrorNotification)
   }
 
   fun handleAddToChangelog() {
-    val selected = view.getSelectedTask() ?: return
-    val success = service.addToChangelog(selected)
-    if (success) {
+    val selectedTasks = view.getSelectedTasks()
+    if (selectedTasks.isEmpty()) return
+    var addedCount = 0
+    selectedTasks.forEach { task ->
+      if (service.addToChangelog(task)) {
+        addedCount++
+      }
+    }
+    if (addedCount > 0) {
       NotificationGroupManager.getInstance()
         .getNotificationGroup("com.github.nndwn.todoso.notifications")
         .createNotification(
