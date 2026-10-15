@@ -136,6 +136,18 @@ class TodosoItemComponent(
     setupEvents()
   }
 
+  override fun updateUI() {
+    super.updateUI()
+    background = UIUtil.getListBackground()
+    lastHtml = null
+    runCatching {
+      SwingUtilities.updateComponentTreeUI(textPane)
+      SwingUtilities.updateComponentTreeUI(iconLabel)
+      updateBorder()
+      updateContent()
+    }
+  }
+
   private fun dispatchToParent(e: MouseEvent) {
     val parentEvent = SwingUtilities.convertMouseEvent(textPane, e, this)
     if (e.id == MouseEvent.MOUSE_MOVED || e.id == MouseEvent.MOUSE_DRAGGED) {

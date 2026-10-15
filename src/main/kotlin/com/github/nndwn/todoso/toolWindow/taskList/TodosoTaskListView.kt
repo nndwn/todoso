@@ -76,6 +76,18 @@ class TodosoTaskListView(
     }
   }
 
+  override fun updateUI() {
+    super.updateUI()
+    runCatching {
+      tasksContainer.removeAll()
+      taskComponents.clear()
+      selectedTasks.clear()
+      anchorTask = null
+      tasksContainer.revalidate()
+      tasksContainer.repaint()
+    }
+  }
+
   fun updateTasks(sortedTasks: List<TodoTask>) {
     val currentComponents = taskComponents.associateBy { it.task.id }
     val newComponents = mutableListOf<TodosoItemComponent>()

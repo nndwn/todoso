@@ -410,6 +410,16 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       )
   }
 
+  override fun updateUI() {
+    super.updateUI()
+    val proj = runCatching { project }.getOrNull()
+    if (proj != null && !proj.isDisposed) {
+      SwingUtilities.invokeLater {
+        refreshUiState()
+      }
+    }
+  }
+
   override fun refreshUiState() {
     val allTasks = service.loadTask()
     if (allTasks.isEmpty()) {
