@@ -3,6 +3,14 @@
 # Todoso Changelog
 
 ## [Unreleased]
+- Fixed a bug when changing IDE themes.
+- Fixed tag readability issues in light mode.
+- Fixed visual issue where tags and IDs were not strikethrough when tasks were completed.
+- Enhanced duration calculation to support days, weeks, months, and years.
+- Enhanced tag suggestions by implementing Levenshtein Distance & Token Matching.
+- Enhanced tag suggestion selection to automatically insert a trailing space when confirmed via Tab or Enter.
+- Fixed an issue on Windows where right-clicking a multi-selected task cleared the selection.
+- thanks to the reviewer for always approving fast, unlike Google Play reviewers taking 2 weeks to approve!
 
 ## [2.1.1] - 2026-10-13
 

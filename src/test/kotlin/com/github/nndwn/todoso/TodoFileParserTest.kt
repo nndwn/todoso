@@ -128,6 +128,19 @@ class TodoFileParserTest : BasePlatformTestCase() {
     // Duration with only start or end should be null
     val meta3 = DateParser.parseDates("- [ ] 🛫 2026-09-06")
     assertNull(DateParser.calculateDuration(meta3))
+
+    // Extended duration conversions (days, weeks, months, years)
+    val metaDay = DateParser.parseDates("- [ ] 🛫 2026-09-06 00:00 ✅ 2026-09-07 00:00")
+    assertEquals("1d", DateParser.calculateDuration(metaDay))
+
+    val metaWeek = DateParser.parseDates("- [ ] 🛫 2026-09-01 00:00 ✅ 2026-09-08 00:00")
+    assertEquals("1w", DateParser.calculateDuration(metaWeek))
+
+    val metaMonth = DateParser.parseDates("- [ ] 🛫 2026-09-01 00:00 ✅ 2026-09-29 00:00")
+    assertEquals("1mo", DateParser.calculateDuration(metaMonth))
+
+    val metaYear = DateParser.parseDates("- [ ] 🛫 2025-01-01 00:00 ✅ 2025-12-03 00:00")
+    assertEquals("1y", DateParser.calculateDuration(metaYear))
   }
 
   fun testFullTaskParsing() {

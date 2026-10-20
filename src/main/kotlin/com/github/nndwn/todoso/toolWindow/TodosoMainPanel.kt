@@ -243,6 +243,7 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
           }
         }
       } else {
+
         val rawTags = (allTasks.flatMap { it.tags } + popularTags + TodosoConstants.DEFAULT_QUICK_TAGS)
           .map { it.removePrefix("#") }
 
@@ -253,13 +254,13 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
           .map { it.value.first() }
 
         allAvailableTags
-          .filter { it.startsWith(prefix, ignoreCase = true) }
-          .map { tag ->
+          .mapNotNull { tag ->
+            val score = calculateMatchScore(prefix, tag) ?: return@mapNotNull null
             val isPopular = popularTags.contains(tag)
             val isExclusive = TodosoConstants.DEFAULT_QUICK_TAGS.contains(tag)
             val isVersion = tag.matches(TagParser.VERSION_REGEX)
 
-            SuggestionItem(
+            val item = SuggestionItem(
               tag,
               when {
                 isVersion -> TodosoBundle.message("todo.filter.group.versions")
@@ -270,14 +271,17 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
               tagDisplay = TagParser.formatTagWithCount(tag, allTasks) ,
               type = SuggestionType.TAGS
             )
+            score to item
           }
+          .sortedByDescending { it.first }
+          .map { it.second }
       }
     suggestions.addAll(tagItems)
 
     if (prefix.isNotEmpty()) {
       val relatedTasks =
         allTasks
-          .filter { task -> task.tags.any { it.equals(prefix, ignoreCase = true) } }
+          .filter { task -> task.tags.any { tag -> calculateMatchScore(prefix, tag) != null } }
           .sortedByDescending { it.metadata.createdDate ?: "" }
 
       suggestions.addAll(
@@ -293,6 +297,63 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
       )
     }
     return suggestions
+  }
+
+  private fun calculateMatchScore(prefix: String, tag: String): Int? {
+    val cleanPrefix = prefix.lowercase().removePrefix("#")
+    val cleanTag = tag.lowercase().removePrefix("#")
+
+    if (cleanPrefix.isEmpty() || cleanTag.isEmpty()) return null
+
+    // 1. Exact match / Starts with prefix -> Highest priority
+    if (cleanTag == cleanPrefix) return 100
+    if (cleanTag.startsWith(cleanPrefix)) return 90
+
+    // 2. Substring match (tag contains prefix)
+    if (cleanTag.contains(cleanPrefix)) return 80
+
+    // 3. Token / word permutation match (e.g. "item_task" vs "task_item")
+    val prefixTokens = cleanPrefix.split("_", "-", "/", " ").filter { it.isNotEmpty() }
+    val tagTokens = cleanTag.split("_", "-", "/", " ").filter { it.isNotEmpty() }
+
+    if (prefixTokens.isNotEmpty() && prefixTokens.all { pt -> tagTokens.any { tt -> tt.contains(pt) || pt.contains(tt) } }) {
+      return 70
+    }
+
+    // 4. Levenshtein distance for typos (e.g. "item_tsak" vs "item_task")
+    val dist = levenshteinDistance(cleanPrefix, cleanTag)
+    val maxAllowedDist = when {
+      cleanPrefix.length <= 3 -> 1
+      cleanPrefix.length <= 6 -> 2
+      else -> 3
+    }
+
+    if (dist <= maxAllowedDist) {
+      return 60 - dist
+    }
+
+    return null
+  }
+
+  private fun levenshteinDistance(s1: String, s2: String): Int {
+    val m = s1.length
+    val n = s2.length
+    val dp = IntArray(n + 1) { it }
+
+    for (i in 1..m) {
+      var prev = dp[0]
+      dp[0] = i
+      for (j in 1..n) {
+        val temp = dp[j]
+        if (s1[i - 1] == s2[j - 1]) {
+          dp[j] = prev
+        } else {
+          dp[j] = 1 + minOf(prev, dp[j], dp[j - 1])
+        }
+        prev = temp
+      }
+    }
+    return dp[n]
   }
 
   internal val taskListView: TodosoTaskListView =
@@ -314,23 +375,15 @@ class TodosoMainPanel(private val project: Project) : JPanel(BorderLayout()), To
     TodosoSearchPanel(onQueryChanged = { query -> onSearchQueryChanged(query) })
 
   internal val suggestionOverlay: SuggestionOverlayPanel = SuggestionOverlayPanel { item ->
-    val caretPos = inputPanel.inputTextArea.caretPosition
-    val text = inputPanel.inputTextArea.text
-    val prefix = inputPanel.getActivePrefix(text, caretPos) ?: ""
-
     when (item.type) {
       SuggestionType.PRIORITY -> {
         inputPanel.insertItemAtCaret("${item.text} ", false)
       }
       SuggestionType.TAGS -> {
-        if (item.text.equals(prefix, ignoreCase = true)) {
-          inputPanel.insertItemAtCaret("${item.text} ", false)
-        } else {
-          inputPanel.insertItemAtCaret(item.text, false)
-        }
+        inputPanel.insertItemAtCaret("${item.text} ", false)
       }
       SuggestionType.TASK -> {
-        inputPanel.insertItemAtCaret("🆔 ${item.taskId}", true)
+        inputPanel.insertItemAtCaret("🆔 ${item.taskId} ", true)
       }
     }
   }

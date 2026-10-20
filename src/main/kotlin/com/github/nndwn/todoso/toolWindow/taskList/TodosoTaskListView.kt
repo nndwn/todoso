@@ -158,6 +158,11 @@ class TodosoTaskListView(
   fun handleTaskClick(task: TodoTask, e: MouseEvent? = null) {
     if (isLocked) return
 
+    val isRightClick = e != null && (SwingUtilities.isRightMouseButton(e) || e.isPopupTrigger)
+    if (isRightClick && selectedTasks.contains(task)) {
+      return
+    }
+
     if (e != null && e.isShiftDown && anchorTask != null) {
       val anchorIndex = taskComponents.indexOfFirst { it.task.id == anchorTask?.id }
       val targetIndex = taskComponents.indexOfFirst { it.task.id == task.id }

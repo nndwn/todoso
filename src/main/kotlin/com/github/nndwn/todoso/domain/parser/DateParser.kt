@@ -45,10 +45,43 @@ object DateParser {
 
       if (duration.isNegative) return null
 
-      val hours = duration.toHours()
-      val minutes = duration.toMinutes() % 60
+      val totalMinutes = duration.toMinutes()
+      if (totalMinutes == 0L) return "0m"
 
-      if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
+      val minutesPerYear = 12L * 4 * 7 * 24 * 60
+      val minutesPerMonth = 4L * 7 * 24 * 60
+      val minutesPerWeek = 7L * 24 * 60
+      val minutesPerDay = 24L * 60
+      val minutesPerHour = 60L
+
+      var rem = totalMinutes
+
+      val years = rem / minutesPerYear
+      rem %= minutesPerYear
+
+      val months = rem / minutesPerMonth
+      rem %= minutesPerMonth
+
+      val weeks = rem / minutesPerWeek
+      rem %= minutesPerWeek
+
+      val days = rem / minutesPerDay
+      rem %= minutesPerDay
+
+      val hours = rem / minutesPerHour
+      rem %= minutesPerHour
+
+      val minutes = rem
+
+      val parts = mutableListOf<String>()
+      if (years > 0) parts.add("${years}y")
+      if (months > 0) parts.add("${months}mo")
+      if (weeks > 0) parts.add("${weeks}w")
+      if (days > 0) parts.add("${days}d")
+      if (hours > 0) parts.add("${hours}h")
+      if (minutes > 0) parts.add("${minutes}m")
+
+      if (parts.isEmpty()) "0m" else parts.joinToString(" ")
     } catch (_: Exception) {
       null
     }

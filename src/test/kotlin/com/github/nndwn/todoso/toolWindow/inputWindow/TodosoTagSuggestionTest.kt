@@ -245,4 +245,39 @@ class TodosoTagSuggestionTest : BasePlatformTestCase() {
     overlay.confirmSelection()
     assertEquals(longDescription, selectedItem?.text)
   }
+
+  fun testLevenshteinAndTokenMatchingSuggestions() {
+    val registeredTags = listOf("task_item", "feature_ui", "development")
+
+    inputPanel = TodosoInputPanel(
+      onNewTask = {},
+      onUpdateTask = {},
+      onConfirmCancel = {},
+      onCreateNote = {},
+      onCancelEdit = {},
+      fontInput = Font("Monospaced", Font.PLAIN, 12),
+      onSuggestionProvider = { prefix ->
+        registeredTags
+          .filter { tag ->
+            tag.startsWith(prefix) ||
+            tag.contains(prefix) ||
+            prefix.split("_", "-").all { pt -> tag.split("_", "-").any { it == pt } }
+          }
+          .map { createSuggestionItem(it, "All Tags") }
+      },
+      onSuggestionRequest = { lastRequestedItems = it },
+      onNavigationRequest = {},
+      onTabPressed = {},
+      onAttachFileRequest = {},
+      onTextValidator = { true }
+    )
+
+    // User mengetik #item_task padahal tag terdaftar adalah task_item
+    inputPanel.inputTextArea.text = "#item_task"
+    inputPanel.inputTextArea.caretPosition = 10
+    UIUtil.dispatchAllInvocationEvents()
+
+    assertNotNull("Overlay harus terpicu", lastRequestedItems)
+    assertTrue("Harus menemukan 'task_item' meskipun diketik 'item_task'", lastRequestedItems!!.any { it.text == "task_item" })
+  }
 }
