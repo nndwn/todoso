@@ -3,6 +3,9 @@
 # Todoso Changelog
 
 ## [Unreleased]
+
+## [2.1.2] - 2026-10-20
+
 - Fixed a bug when changing IDE themes.
 - Fixed tag readability issues in light mode.
 - Fixed visual issue where tags and IDs were not strikethrough when tasks were completed.
@@ -190,7 +193,8 @@
 - **Edit & Delete**: Full support for editing descriptions/tags an d deleting tasks with confirmation.
 - **I18n Support**: Centralized all strings into resource bundles for better maintainability.
 
-[Unreleased]: https://github.com/nndwn/todoso/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/nndwn/todoso/compare/v2.1.2...HEAD
+[2.1.2]: https://github.com/nndwn/todoso/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/nndwn/todoso/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nndwn/todoso/compare/v2.0.9...v2.1.0
 [2.0.9]: https://github.com/nndwn/todoso/compare/v2.0.8...v2.0.9
